@@ -1,1 +1,27 @@
-# Placeholder
+import os 
+
+configfile: "configs/config.json"
+
+# All rule
+rule all:
+    output:
+        expand(
+            "../results/integrated_results/{data_folder}",
+            data_folder = config["datasets"]
+        )
+
+# Integrate the indicated h5ad files from config
+rule integrate:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../resources/h5ad_files/{data_folder}"
+    output:
+        "../results/integrated_results/{data_folder}.csv"
+    params:
+        script_path = os.path.join("scripts/python/integrate_data.py")
+    log:
+        "logs/integrate/integrate_{data_folder}.log"
+    shell:
+        "python {params.script_path} {input} {output} &> {log}"
+    

@@ -2,4 +2,8 @@
 *.jpeg
 *.tsv
 *.csv
+*.log
+__pycache__
+cluster.json
+submit.slrm
 resources/h5ad_files
