@@ -4,9 +4,9 @@ configfile: "configs/config.json"
 
 # All rule
 rule all:
-    output:
+    input:
         expand(
-            "../results/integrated_results/{data_folder}",
+            "../results/integrated_results/{data_folder}.csv",
             data_folder = config["datasets"]
         )
 
@@ -19,9 +19,14 @@ rule integrate:
     output:
         "../results/integrated_results/{data_folder}.csv"
     params:
-        script_path = os.path.join("scripts/python/integrate_data.py")
+        script_path = "scripts/python/integrate_data.py"
     log:
         "logs/integrate/integrate_{data_folder}.log"
     shell:
-        "python {params.script_path} {input} {output} &> {log}"
+        """
+        python {params.script_path} \
+            --filedir {input} \
+            --outfile {output} \
+            &> {log}
+        """
     
