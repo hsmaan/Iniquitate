@@ -19,21 +19,14 @@ class LigerIntegrate:
         Integration is performed using 20 latent components in the NMF factorization,
         or 20 "metagenes".
     """
-    def __init__(self, adata, conda_source_loc, conda_env_loc):
+    def __init__(self, adata):
         """
         Args:
             adata (object): An instance of an anndata class corresponding to the liger
                 subset from the Integration class.
-            conda_source_loc (string): A string indicating the path of the conda config
-                file that has to be sourced to activate the necessary environment.
-            conda_env_loc (string): A string indicating the path of conda environment 
-                that has the R and Liger dependencies needed to execute the subprocess
-                script.
         """
         self.adata = adata.copy()
         self.adata_copy = adata.copy() # Keep copy for later referencing
-        self.conda_source_loc = conda_source_loc
-        self.conda_env_loc = conda_env_loc
         
     def _format(self):
         # Extract and format integration dataframe object 
@@ -62,16 +55,12 @@ class LigerIntegrate:
         )
     
     def _liger_integrate(self):
-        # Call subprocess, activate conda env, and call R script
+        # Call subprocess and call R script
         tempfile_script = \
-            "bash -c 'source {conda_source}".format(conda_source = self.conda_source_loc) + \
-            " && conda activate {conda_env}".format(conda_env = self.conda_env_loc) + \
-            " && Rscript R/liger.R tmp/{tempfile} {tempfile_name} {env_loc} --verbose".format(
+            "Rscript R/liger.R tmp/{tempfile} {tempfile_name} --verbose".format(
                 tempfile = self.file,
-                tempfile_name = self.filename,
-                env_loc = self.conda_env_loc
-            ) + \
-            " && conda deactivate'"
+                tempfile_name = self.filename
+            )
             
         self.sp_integrate = subprocess.run(tempfile_script, shell = True, text = True, capture_output = True)
         if self.sp_integrate.returncode != 0:

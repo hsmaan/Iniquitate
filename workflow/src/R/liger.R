@@ -6,10 +6,6 @@ library(reticulate)
 args <- commandArgs(trailingOnly = TRUE)
 file <- args[1]
 filename <- args[2]
-conda_env <- args[3] # Conda env location
-
-# Set conda env 
-use_condaenv(condaenv = conda_env)
 
 # Load anndata, scanpy, and scipy sparse through reticulate
 ad <- import("anndata")

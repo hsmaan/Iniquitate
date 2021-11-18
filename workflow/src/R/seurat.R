@@ -6,11 +6,7 @@ library(reticulate)
 args <- commandArgs(trailingOnly = TRUE)
 file <- args[1]
 filename <- args[2]
-conda_env <- args[3] # Conda env location
-int_type <- args[4] # Integration type
-
-# Set conda env 
-use_condaenv(condaenv = conda_env)
+int_type <- args[3] # Integration type
 
 # Load anndata
 ad <- import("anndata")

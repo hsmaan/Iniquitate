@@ -19,16 +19,11 @@ class SeuratIntegrate:
         Uses the first 20 components of CCA/RPCA space to integrate and get correction
         vectors for correcting whole data matrix.
     """
-    def __init__(self, adata, conda_source_loc, conda_env_loc, int_type = "CCA"):
+    def __init__(self, adata, int_type = "CCA"):
         """
         Args:
             adata (object): An instance of an anndata class corresponding to the seurat
                 subset from the Integration class.
-            conda_source_loc (string): A string indicating the path of the conda config
-                file that has to be sourced to activate the necessary environment.
-            conda_env_loc (string): A string indicating the path of conda environment 
-                that has the R and Seurat dependencies needed to execute the subprocess
-                script.
             int_type (string): Either "CCA" or "RPCA", indicating which Seurat workflow to 
                 utilize for integration - canonical correlation analysis and reciprocal PCA,
                 respectively. RPCA should be used for larger datasets to avoid out-of-memory
@@ -37,8 +32,6 @@ class SeuratIntegrate:
                 https://satijalab.org/seurat/articles/integration_rpca.html
         """
         self.adata = adata.copy()
-        self.conda_source_loc = conda_source_loc
-        self.conda_env_loc = conda_env_loc
         self.int_type = int_type
         
     def _format(self):
@@ -68,17 +61,13 @@ class SeuratIntegrate:
         )
     
     def _seurat_integrate(self):
-        # Call subprocess, activate conda env, and call R script
+        # Call subprocess and call R script
         tempfile_script = \
-            "bash -c 'source {conda_source}".format(conda_source = self.conda_source_loc) + \
-            " && conda activate {conda_env}".format(conda_env = self.conda_env_loc) + \
-            " && Rscript R/seurat.R tmp/{tempfile} {tempfile_name} {env_loc} {int_type} --verbose".format(
+            "Rscript src/R/seurat.R tmp/{tempfile} {tempfile_name} {int_type} --verbose".format(
                 tempfile = self.file,
                 tempfile_name = self.filename,
-                env_loc = self.conda_env_loc,
                 int_type = self.int_type
-            ) + \
-            " && conda deactivate'"
+            )
             
         self.sp_integrate = subprocess.run(tempfile_script, shell = True, text = True, capture_output = True)
         if self.sp_integrate.returncode != 0:
