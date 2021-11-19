@@ -139,8 +139,7 @@ class Integration:
         print("Done!" + "\n")
         return ascanorama
     
-    def seurat_integrate(self, conda_source_loc, conda_env_loc, int_type = "CCA", 
-               n_neighbors = 15, n_pcs = 20):
+    def seurat_integrate(self,int_type = "CCA", n_neighbors = 15, n_pcs = 20):
         print("Performing Seurat integration.." + "\n")
         aseurat = self.adata.copy()
         sc.pp.normalize_total(
@@ -150,8 +149,6 @@ class Integration:
         sc.pp.log1p(aseurat)
         seurat_integrate = SeuratIntegrate(
             adata = aseurat,
-            conda_source_loc = conda_source_loc,
-            conda_env_loc = conda_env_loc,
             int_type = int_type
         )
         aseurat = seurat_integrate.integrate() # Substitute seurat integrated anndata object
@@ -166,8 +163,7 @@ class Integration:
         print("Done!" + "\n")
         return aseurat
         
-    def liger_integrate(self, conda_source_loc, conda_env_loc, n_neighbors = 15,
-              n_pcs = 20):
+    def liger_integrate(self, n_neighbors = 15, n_pcs = 20):
         print("Performing LIGER integration.." + "\n")
         aliger = self.adata.copy()
         sc.pp.normalize_total(
@@ -177,8 +173,6 @@ class Integration:
         sc.pp.log1p(aliger)       
         liger_integrate = LigerIntegrate(
             adata = aliger,
-            conda_source_loc = conda_source_loc,
-            conda_env_loc = conda_env_loc
         )
         aliger = liger_integrate.integrate() # Substitute liger integrated anndata object
         sc.pp.neighbors(
