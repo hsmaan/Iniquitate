@@ -6,7 +6,7 @@ configfile: "configs/config.json"
 rule all:
     input:
         expand(
-            "../results/integrated_results/{data_folder}.csv",
+            "../results/integrated_results/{data_folder}_integrated.h5ad",
             data_folder = config["datasets"]
         )
 
@@ -17,7 +17,7 @@ rule integrate:
     input:
         "../resources/h5ad_files/{data_folder}"
     output:
-        "../results/integrated_results/{data_folder}.csv"
+        "../results/integrated_results/{data_folder}_integrated.h5ad"
     params:
         script_path = "scripts/python/integrate_data.py"
     log:

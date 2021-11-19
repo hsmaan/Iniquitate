@@ -1,6 +1,5 @@
 {
     "datasets": [
-        "mouse_hindbrain_10_batch",
         "pbmc_2_batch"
     ]
 }
