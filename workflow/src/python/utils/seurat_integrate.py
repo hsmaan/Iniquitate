@@ -40,11 +40,11 @@ class SeuratIntegrate:
             self.adata.X = self.adata.X.toarray()
         integration_mat = self.adata.X
         self.integration_df = pd.DataFrame(integration_mat)
-        gene_names = self.adata.var["gene"]
+        gene_names = self.adata.var["gene"].__array__()
         self.integration_df.columns = gene_names
         self.integration_df.columns = self.integration_df.columns.astype(str) # Clip columns to str not cat
         self.integration_df.index = [str(i) + "_bc" for i in range(len(self.integration_df))]
-        self.integration_df["batch"] = self.adata.obs["batch_name"].values
+        self.integration_df["batch"] = self.adata.obs["batch"].__array__()
         
     def _output_temp_df(self):
         # Check if temp exists, if not, make dir
