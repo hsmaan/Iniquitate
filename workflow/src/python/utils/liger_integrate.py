@@ -38,7 +38,7 @@ class LigerIntegrate:
         self.integration_df.columns = gene_names
         self.integration_df.columns = self.integration_df.columns.astype(str) # Clip columns to str not cat
         self.integration_df.index = [str(i) + "_bc" for i in range(len(self.integration_df))]
-        self.integration_df["batch"] = self.adata.obs["batch"].values
+        self.integration_df["batch"] = self.adata.obs["batch"].__array__()
         
     def _output_temp_df(self):
         # Check if temp exists, if not, make dir
