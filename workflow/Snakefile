@@ -1,13 +1,36 @@
 import os 
 
-configfile: "configs/config.json"
+configfile: "configs/test_config.json"
+
+# Get all combinations through the config file
+def get_combinations(config):
+    # Iterate over keys and values of config
+    combinations = []
+    for key, value in config.items():
+        data_folder = value["data_folder"]
+        ds_celltypes = value["ds_celltypes"]
+        ds_proportions = value["ds_proportions"]
+        num_batches = value["num_batches"]
+        # Get combinations of celltypes and proportions
+        for ds_celltype in ds_celltypes:
+            for ds_proportion in ds_proportions:
+                for num_batch in num_batches:
+                    combinations.append(
+                        "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batches}_batch_ds".format(
+                            data_folder = data_folder,
+                            ds_celltype = ds_celltype, 
+                            ds_proportion = ds_proportion,
+                            num_batches = num_batch
+                        )
+                )
+    return combinations
 
 # All rule
 rule all:
     input:
         expand(
-            "../results/integrated_results/{data_folder}_integrated.h5ad",
-            data_folder = config["datasets"]
+            "../results/integrated_results/{dataset}_integrated.h5ad",
+            dataset = get_combinations(config)
         )
 
 # Integrate the indicated h5ad files from config
@@ -17,16 +40,22 @@ rule integrate:
     input:
         "../resources/h5ad_files/{data_folder}"
     output:
-        "../results/integrated_results/{data_folder}_integrated.h5ad"
+        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_integrated.h5ad"
     params:
-        script_path = "scripts/python/integrate_data.py"
+        script_path = "scripts/python/integrate_data.py",
     log:
-        "logs/integrate/integrate_{data_folder}.log"
+        "logs/integrate/integrate_{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds.log"
     shell:
         """
         python {params.script_path} \
             --filedir {input} \
+            --ds_celltypes {wildcards.ds_celltype} \
+            --ds_proportions {wildcards.ds_proportion} \
+            --num_batches {wildcards.num_batches} \
             --outfile {output} \
             &> {log}
         """
+
     

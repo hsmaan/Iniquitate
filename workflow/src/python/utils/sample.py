@@ -11,6 +11,8 @@ def downsample(adata, num_celltypes = None, celltype_names = None, proportion = 
             raise ValueError(
                 "num_celltypes and celltype_names cannot both be None"
             )
+        if num_celltypes == 0:
+            return adata
         unique_celltypes = np.unique(adata.obs["celltype"].__array__())
         celltypes_sample = np.random.choice(unique_celltypes, num_celltypes)
     

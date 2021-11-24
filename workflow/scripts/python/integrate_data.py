@@ -5,11 +5,11 @@ sys.path.append("src/python/")
 
 import scanpy as sc
 import anndata as ann
-import pandas as pd 
+import numpy as np
 
-from utils import Integration
+from utils import Integration, downsample
 
-def main(h5ad_dir, save_loc):
+def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     # Load h5ad files 
     files_list = os.listdir(h5ad_dir)
     adata_loaded = []
@@ -17,6 +17,25 @@ def main(h5ad_dir, save_loc):
         adata = sc.read_h5ad(os.path.join(h5ad_dir, f))
         adata_loaded.append(adata)
     
+    # Downsample loaded h5ad files based on params 
+    if num_batches == 0:
+        pass
+    else:
+        selected_indices = np.random.choice(
+            len(adata_loaded), num_batches, replace = False
+        )
+        adata_selected = [adata_loaded[i] for i in selected_indices]
+        adata_unselected = [adata_loaded[i] for i in range(len(adata_loaded)) if i not in selected_indices]
+        adata_downsampled = []
+        for adata in adata_selected:
+            adata_ds = downsample(
+                adata = adata, 
+                num_celltypes = ds_celltypes, 
+                proportion = ds_proportions
+            )
+            adata_downsampled.append(adata_ds)
+        adata_loaded = adata_unselected + adata_downsampled
+
     # Concatenate files (assume data is raw counts)
     adata_concat = ann.AnnData.concatenate(*adata_loaded)
     
@@ -62,6 +81,21 @@ if __name__ == "__main__":
         help = "Path of directory containing scRNA-seq h5ad files"
     )
     parser.add_argument(
+        "--ds_celltypes",
+        type = int,
+        help = "Number of celltypes to randomly downsample in given batch"
+    )
+    parser.add_argument(
+        "--ds_proportions",
+        type = float,
+        help = "Proportion of downsampling per celltype in a given batch"
+    )
+    parser.add_argument(
+        "--num_batches",
+        type = str,
+        help = "Number of batches to perform downsampling on"
+    )
+    parser.add_argument(
         "--outfile",
         type = str,
         help = "Filepath for saving output from scRNA-seq integration"
@@ -69,5 +103,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(
         h5ad_dir = args.filedir,
-        save_loc = args.outfile
+        save_loc = args.outfile,
+        ds_celltypes = args.ds_celltypes,
+        ds_proportions = args.ds_proportions,
+        num_batches = args.num_batches        
     )
