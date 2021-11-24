@@ -1,6 +1,7 @@
 from .integrate import Integration
 from .seurat_integrate import SeuratIntegrate
 from .liger_integrate import LigerIntegrate
-from .clustering import cluster_num, leiden_clip
+from .clustering import cluster_num, leiden_clip, cluster_membership   
 from .sample import downsample
 from .scoring import return_scores
+from .diffexp import diffexp, dge_top_n, set_concordance
