@@ -92,7 +92,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--num_batches",
-        type = str,
+        type = int,
         help = "Number of batches to perform downsampling on"
     )
     parser.add_argument(
