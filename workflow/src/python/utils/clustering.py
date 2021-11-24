@@ -7,6 +7,13 @@ def cluster_num(adata):
     clusters_len = len(clusters_unique)
     return clusters_len
 
+def cluster_membership(adata):
+    clusters_unique = np.unique(adata.obs.leiden.__array__())
+    clusters_membership = dict()
+    for i in clusters_unique:
+        clusters_membership[i] = len(adata.obs[adata.obs.leiden == i])
+    return clusters_membership
+
 def leiden_clip(adata, num_clusters, step_size = 0.05):
     counter = 0
     leiden_resolution = 1
@@ -23,4 +30,4 @@ def leiden_clip(adata, num_clusters, step_size = 0.05):
                 "Attempted more than 100 iterations - convergence not possible, set lower step size"
             )
     return adata
-
+    

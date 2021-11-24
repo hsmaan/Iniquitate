@@ -18,30 +18,30 @@ def diffexp(adata, groupby, **kwargs):
     sc.tl.rank_genes_groups(adata, groupby = groupby, **kwargs)
     return adata
 
-def dge_top_50(adata):
+def dge_top_n(adata, n):
     """
-    Return clusters and genes with the top 50 differential expression.
+    Return clusters and genes with the top n differential expression.
 
     Args:
         adata (AnnData): Annotated data matrix object.
-
+        n (int): The number of top differentially expressed genes to return.
     Returns:
-        data (DataFrame): A dataframe with the top 50 differentially expressed genes in each cluster.
+        data (DataFrame): A dataframe with the top n differentially expressed genes in each cluster.
     """
     unique_groups = np.sort(np.unique(adata.obs.leiden.__array__()))
-    unique_group_top_50_dges = []
+    unique_group_top_n_dges = []
     for group in unique_groups:
         score_df = sc.get.rank_genes_groups_df(adata, group = group)
         score_df_sorted = score_df.sort_values(["pvals_adj"], ascending = True)
-        top_50_dges = score_df_sorted[0:50]["names"].__array__()
-        unique_group_top_50_dges.append(top_50_dges)
-    unique_groups_long = np.repeat(unique_groups, 50)
+        top_n_dges = score_df_sorted[0:n]["names"].__array__()
+        unique_group_top_n_dges.append(top_n_dges)
+    unique_groups_long = np.repeat(unique_groups, n)
     
-    group_dges_df_50 = pd.DataFrame({
+    group_dges_df_n = pd.DataFrame({
         "Cluster": unique_groups_long,
-        "Top 50 DGEs": np.concatenate(unique_group_top_50_dges)
+        "Top {n} DGEs".format(n = n): np.concatenate(unique_group_top_n_dges)
     })
-    return group_dges_df_50
+    return group_dges_df_n
 
 def set_concordance(*args):
     """Determines number of overlapping elements between n sets.
