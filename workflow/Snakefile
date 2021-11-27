@@ -1,6 +1,6 @@
 import os 
 
-configfile: "configs/test_config.json"
+configfile: "configs/config.json"
 
 # Get all combinations through the config file
 def get_combinations(config):
@@ -12,17 +12,27 @@ def get_combinations(config):
         ds_proportions = value["ds_proportions"]
         num_batches = value["num_batches"]
         # Get combinations of celltypes and proportions
-        for ds_celltype in ds_celltypes:
-            for ds_proportion in ds_proportions:
-                for num_batch in num_batches:
-                    combinations.append(
-                        "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batches}_batch_ds".format(
-                            data_folder = data_folder,
-                            ds_celltype = ds_celltype, 
-                            ds_proportion = ds_proportion,
-                            num_batches = num_batch
-                        )
-                )
+        for num_batch in num_batches:
+            if num_batch == 0:
+                combinations.append(
+                    "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds".format(
+                        data_folder = data_folder,
+                        ds_celltype = 0, 
+                        ds_proportion = 1,
+                        num_batch = num_batch
+                    )
+                )   
+                continue
+            for ds_celltype in ds_celltypes:
+                for ds_proportion in ds_proportions:
+                        combinations.append(
+                            "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds".format(
+                                data_folder = data_folder,
+                                ds_celltype = ds_celltype, 
+                                ds_proportion = ds_proportion,
+                                num_batch = num_batch
+                            )
+                    )
     return combinations
 
 # All rule
@@ -57,5 +67,3 @@ rule integrate:
             --outfile {output} \
             &> {log}
         """
-
-    

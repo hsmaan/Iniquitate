@@ -10,3 +10,4 @@ cluster.json
 submit.slrm
 submit.sh
 resources/h5ad_files
+results
