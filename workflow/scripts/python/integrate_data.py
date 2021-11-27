@@ -68,7 +68,8 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     ])
     
     integrated_concat.write_h5ad(
-        filename = save_loc
+        filename = save_loc,
+        compression = "gzip"
     )
     
 if __name__ == "__main__":

@@ -4,5 +4,17 @@
         "ds_celltypes": [1, 2, 3, 4, 5, 6, 7, 8, 9],
         "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0.05],
         "num_batches": [0, 1]
+    },
+    "pbmc_4_batch" : {
+        "data_folder": "pbmc_4_batch",
+        "ds_celltypes": [1, 2, 3, 4, 5, 6, 7],
+        "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0.05],
+        "num_batches": [0, 1, 2, 3]
+    },
+    "mouse_hindbrain_10_batch": {
+        "data_folder": "mouse_hindbrain_10_batch",
+        "ds_celltypes": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0.05],
+        "num_batches": [0, 2, 4, 6, 8]
     }
 }
