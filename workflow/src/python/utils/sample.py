@@ -14,12 +14,15 @@ def downsample(adata, num_celltypes = None, celltype_names = None, proportion = 
         if num_celltypes == 0:
             return adata
         unique_celltypes = np.unique(adata.obs["celltype"].__array__())
-        celltypes_sample = np.random.choice(unique_celltypes, num_celltypes)
+        celltypes_sample = np.random.choice(unique_celltypes, num_celltypes, replace = False)
     
     # Downsample selected celltypes by given proportion
     for celltype in celltypes_sample:
         adata_celltype = adata[adata.obs["celltype"] == celltype]
         adata_noncelltype = adata[adata.obs["celltype"] != celltype]
+        if proportion == 0:
+            adata = adata_noncelltype
+            continue
         adata_celltype_indices_ds = np.random.choice(
             [i for i in range(len(adata_celltype))],
             int(round(len(adata_celltype)*proportion, 0))
