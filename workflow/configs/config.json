@@ -1,32 +1,37 @@
 {
     "pbmc_2_batch" : {
         "data_folder": "pbmc_2_batch",
-        "ds_celltypes": [1, 2, 3, 4, 5, 6, 7, 8],
+        "ds_celltypes": [1, 2, 3, 4, 5, 6],
         "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0.05, 0],
-        "num_batches": [0, 1]
+        "num_batches": [0, 1],
+        "repetitions": 10
     },
     "pbmc_4_batch" : {
         "data_folder": "pbmc_4_batch",
         "ds_celltypes": [1, 2, 3, 4, 5, 6],
         "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0.05, 0],
-        "num_batches": [0, 1, 2, 3]
+        "num_batches": [0, 1, 2, 3],
+        "repetitions": 10
     },
     "mouse_hindbrain_10_batch": {
         "data_folder": "mouse_hindbrain_10_batch",
-        "ds_celltypes": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+        "ds_celltypes": [1, 2, 3, 4, 5, 6],
         "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0.05, 0],
-        "num_batches": [0, 2, 4, 6, 8]
+        "num_batches": [0, 2, 4, 6, 8],
+        "repetitions": 10
     },
     "peng_pdac_23_batch": {
         "data_folder": "peng_pdac_23_batch",
-        "ds_celltypes": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        "ds_celltypes": [1, 2, 3, 4, 5, 6],
         "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0.05, 0],
-        "num_batches": [0, 3, 6, 9, 12, 15, 18, 21]
+        "num_batches": [0, 3, 6, 9, 12, 15, 18, 21],
+        "repetitions": 10
     },
     "steele_pdac_17_batch": {
         "data_folder": "steele_pdac_17_batch",
-        "ds_celltypes": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+        "ds_celltypes": [1, 2, 3, 4, 5, 6],
         "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0.05, 0],
-        "num_batches": [0, 2, 4, 6, 8, 10, 12, 14, 16]
+        "num_batches": [0, 2, 4, 6, 8, 10, 12, 14, 16],
+        "repetitions": 10
     }
 }

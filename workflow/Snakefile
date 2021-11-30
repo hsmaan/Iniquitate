@@ -1,6 +1,6 @@
 import os 
 
-configfile: "configs/test_config.json"
+configfile: "configs/config.json"
 
 # Get all combinations through the config file
 def get_combinations(config):
@@ -11,11 +11,12 @@ def get_combinations(config):
         ds_celltypes = value["ds_celltypes"]
         ds_proportions = value["ds_proportions"]
         num_batches = value["num_batches"]
+        repetitions = value["repetitions"]
         # Get combinations of celltypes and proportions
         for num_batch in num_batches:
             if num_batch == 0:
                 combinations.append(
-                    "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds".format(
+                    "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_1".format(
                         data_folder = data_folder,
                         ds_celltype = 0, 
                         ds_proportion = 1,
@@ -25,14 +26,16 @@ def get_combinations(config):
                 continue
             for ds_celltype in ds_celltypes:
                 for ds_proportion in ds_proportions:
+                    for repetition in range(repetitions):
                         combinations.append(
-                            "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds".format(
+                            "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_{rep}".format(
                                 data_folder = data_folder,
                                 ds_celltype = ds_celltype, 
                                 ds_proportion = ds_proportion,
-                                num_batch = num_batch
+                                num_batch = num_batch,
+                                rep = repetition
                             )
-                    )
+                        )
     return combinations
 
 # All rule
@@ -51,12 +54,12 @@ rule integrate:
         "../resources/h5ad_files/{data_folder}"
     output:
         "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
-        "_downsample_{num_batches}_batch_ds_integrated.h5ad"
+        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     params:
         script_path = "scripts/python/integrate_data.py",
     log:
         "logs/integrate/integrate_{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
-        "_downsample_{num_batches}_batch_ds.log"
+        "_downsample_{num_batches}_batch_ds_c_{rep}.log"
     shell:
         """
         python {params.script_path} \
