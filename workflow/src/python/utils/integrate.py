@@ -28,13 +28,8 @@ class Integration:
     def scvi_integrate(self, n_neighbors = 15, n_pcs = 20):
         print("Performing scVI integration.." + "\n")
         ascvi = self.adata.copy()
-        if torch.cuda.is_available():
-            device = torch.device("cuda")
-        else:
-            device = torch.device("cpu")
         scvi.data.setup_anndata(ascvi, batch_key = "batch")
         vae = scvi.model.SCVI(ascvi)
-        vae.to_device(device)
         vae.train()
         ascvi.obsm["X_scVI"] = vae.get_latent_representation()
         sc.pp.neighbors(

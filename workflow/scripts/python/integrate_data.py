@@ -38,6 +38,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
 
     # Concatenate files (assume data is raw counts)
     adata_concat = ann.AnnData.concatenate(*adata_loaded)
+    adata_concat.obs_names_make_unique()
     
     # Create integration class instance 
     integration = Integration(adata = adata_concat)
