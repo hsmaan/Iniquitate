@@ -50,11 +50,6 @@ rule all:
 rule integrate:
     conda:
         "envs/integrate.yaml"
-    threads:
-        16
-    resources:
-        mem_mb = "64000",
-        disk_mb = "64000"
     input:
         "../resources/h5ad_files/{data_folder}"
     output:

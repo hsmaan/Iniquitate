@@ -30,6 +30,7 @@ class Integration:
         ascvi = self.adata.copy()
         scvi.data.setup_anndata(ascvi, batch_key = "batch")
         vae = scvi.model.SCVI(ascvi)
+        vae.to_device("cuda:0")
         vae.train()
         ascvi.obsm["X_scVI"] = vae.get_latent_representation()
         sc.pp.neighbors(
