@@ -40,6 +40,7 @@ class SeuratIntegrate:
             self.adata.X = self.adata.X.toarray()
         integration_mat = self.adata.X
         self.integration_df = pd.DataFrame(integration_mat)
+        self.adata.var["gene"] = self.adata.var_names
         gene_names = self.adata.var["gene"].__array__()
         self.integration_df.columns = gene_names
         self.integration_df.columns = self.integration_df.columns.astype(str) # Clip columns to str not cat
