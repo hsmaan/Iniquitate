@@ -15,22 +15,34 @@ from utils.liger_integrate import LigerIntegrate
 class Integration:
     """Class for integrating scRNA-seq data and returning processed data."""
     
-    def __init__(self, adata):
+    def __init__(self, adata, gpu = True):
         """
         Args:
             adata (AnnData): AnnData object to be utilized in integration methods.
                 Assumes that the counts being input are unnormalized (raw counts),
                 and that raw counts are stored in "counts" layer, and batch covariate
                 is available. 
+            gpu (bool): Whether or not to use GPU for scVI.
         """
         self.adata = adata
+        # Check anndata object 
+        if not isinstance(adata, ann.AnnData):
+            raise Exception("Please input an AnnData object.")
+        # Check if gpu is available
+        if gpu is True:
+            if torch.cuda.is_available():
+                self.gpu = True
+            else:
+                raise Exception("GPU not available. Please set gpu = False.")
+        else:
+            self.gpu = False
 
     def scvi_integrate(self, n_neighbors = 15, n_pcs = 20):
         print("Performing scVI integration.." + "\n")
         ascvi = self.adata.copy()
         scvi.data.setup_anndata(ascvi, batch_key = "batch")
         vae = scvi.model.SCVI(ascvi)
-        vae.train()
+        vae.train(use_gpu = self.gpu)
         ascvi.obsm["X_scVI"] = vae.get_latent_representation()
         sc.pp.neighbors(
             ascvi,

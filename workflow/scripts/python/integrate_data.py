@@ -2,6 +2,7 @@ import argparse
 import os 
 import sys 
 sys.path.append("src/python/")
+os.environ['CUDA_VISIBLE_DEVICES'] = "0, 1"
 
 import scanpy as sc
 import anndata as ann
