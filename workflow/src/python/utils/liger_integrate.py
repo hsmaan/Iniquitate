@@ -58,7 +58,7 @@ class LigerIntegrate:
     def _liger_integrate(self):
         # Call subprocess and call R script
         tempfile_script = \
-            "Rscript R/liger.R tmp/{tempfile} {tempfile_name} --verbose".format(
+            "Rscript src/R/liger.R tmp/{tempfile} {tempfile_name} --verbose".format(
                 tempfile = self.file,
                 tempfile_name = self.filename
             )
