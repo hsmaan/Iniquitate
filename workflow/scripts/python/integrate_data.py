@@ -37,9 +37,15 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
             adata_downsampled.append(adata_ds)
         adata_loaded = adata_unselected + adata_downsampled
 
+    # Store batch name separately for each anndata object
+    for adata in adata_loaded:
+        adata.obs["batch_name"] = adata.obs["batch"]
+
     # Concatenate files (assume data is raw counts)
     adata_concat = ann.AnnData.concatenate(*adata_loaded)
     adata_concat.obs_names_make_unique()
+    adata_concat.obs["batch"] = adata_concat.obs["batch_name"]
+    adata_concat.obs.drop("batch_name", axis = 1, inplace = True)
     
     # Create integration class instance 
     integration = Integration(adata = adata_concat)
@@ -50,7 +56,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     bbknn_integrated = integration.bbknn_integrate()
     scanorama_integrated = integration.scanorama_integrate()
     seurat_integrated = integration.seurat_integrate()
-    # liger_integrated = integration.liger_integrate()
+    liger_integrated = integration.liger_integrate()
     
     # Add integration type to each subset and concatenate and save
     harmony_integrated.obs["integration_method"] = "harmony" 
@@ -58,7 +64,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     bbknn_integrated.obs["integration_method"] = "bbknn"
     scanorama_integrated.obs["integration_method"] = "scanorama"
     seurat_integrated.obs["integration_method"] = "seurat"
-    # liger_integrated.obs["integration_method"] = "liger"
+    liger_integrated.obs["integration_method"] = "liger"
     
     integrated_concat = ann.concat([
         harmony_integrated,
@@ -66,7 +72,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
         bbknn_integrated,
         scanorama_integrated,
         seurat_integrated,
-        # liger_integrated
+        liger_integrated
     ])
     
     integrated_concat.write_h5ad(
