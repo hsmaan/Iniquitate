@@ -43,6 +43,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
 
     # Concatenate files (assume data is raw counts)
     adata_concat = ann.AnnData.concatenate(*adata_loaded)
+    adata_concat.obs_names = range(len(adata_concat.obs_names))
     adata_concat.obs_names_make_unique()
     adata_concat.obs["batch"] = adata_concat.obs["batch_name"]
     adata_concat.obs.drop("batch_name", axis = 1, inplace = True)

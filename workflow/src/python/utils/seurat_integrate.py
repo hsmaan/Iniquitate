@@ -73,8 +73,9 @@ class SeuratIntegrate:
         self.sp_integrate = subprocess.run(tempfile_script, shell = True, text = True, capture_output = True)
         if self.sp_integrate.returncode != 0:
             raise Exception(
-                "Subprocess call returned nonzero exit code - call: {call}".format(
-                    call = self.sp_integrate.stderr
+                "Subprocess call returned nonzero exit code - call: {call} \n Output: {output}".format(
+                    call = self.sp_integrate.stderr,
+                    output = self.sp_integrate.stdout
                 )
             )
         

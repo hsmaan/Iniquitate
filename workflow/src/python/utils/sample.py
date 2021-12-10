@@ -15,6 +15,9 @@ def downsample(adata, num_celltypes = None, celltype_names = None, proportion = 
             return adata
         unique_celltypes = np.unique(adata.obs["celltype"].__array__())
         celltypes_sample = np.random.choice(unique_celltypes, num_celltypes, replace = False)
+        
+    # Save the original batch label for later 
+    adata.obs["batch_orig"] = adata.obs["batch"]
     
     # Downsample selected celltypes by given proportion
     for celltype in celltypes_sample:
@@ -29,6 +32,10 @@ def downsample(adata, num_celltypes = None, celltype_names = None, proportion = 
         )
         adata_celltype_ds = adata_celltype[adata_celltype_indices_ds]
         adata = ann.AnnData.concatenate(adata_noncelltype, adata_celltype_ds)
+
+    # Replace batch column with batch original and drop batch_orig
+    adata.obs["batch"] = adata.obs["batch_orig"]
+    adata.obs.drop("batch_orig", axis = 1, inplace = True)
         
     # Return downsampled data
     return adata
