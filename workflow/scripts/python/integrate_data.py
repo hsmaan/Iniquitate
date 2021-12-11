@@ -28,13 +28,15 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
         adata_selected = [adata_loaded[i] for i in selected_indices]
         adata_unselected = [adata_loaded[i] for i in range(len(adata_loaded)) if i not in selected_indices]
         adata_downsampled = []
+        selected_celltypes_downsampled = []
         for adata in adata_selected:
-            adata_ds = downsample(
+            adata_ds, selected_celltypes_ds = downsample(
                 adata = adata, 
                 num_celltypes = ds_celltypes, 
                 proportion = ds_proportions
             )
             adata_downsampled.append(adata_ds)
+            selected_celltypes_downsampled.append(selected_celltypes_ds)
         adata_loaded = adata_unselected + adata_downsampled
 
     # Store batch name separately for each anndata object
@@ -47,6 +49,24 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     adata_concat.obs_names_make_unique()
     adata_concat.obs["batch"] = adata_concat.obs["batch_name"]
     adata_concat.obs.drop("batch_name", axis = 1, inplace = True)
+    
+    # Add data about downsampling to .uns of adata_concat
+    if num_batches == 0:
+        adata_concat.uns["downsampling_stats"] = {
+            "num_batches": 0,
+            "num_celltypes_downsampled": 0,
+            "ds_batch_names": None,
+            "proportion_downsampled": 1,
+            "downsampled_celltypes": None
+        }
+    else:
+        adata_concat.uns["downsampling_stats"] = {
+            "num_batches": num_batches,
+            "num_celltypes_downsampled": ds_celltypes,
+            "ds_batch_names": np.concatenate([np.unique(adata.obs["batch"].__array__()) for adata in adata_downsampled]),
+            "proportion_downsampled": ds_proportions,
+            "downsampled_cells": selected_celltypes_downsampled
+        }
     
     # Create integration class instance 
     integration = Integration(adata = adata_concat)

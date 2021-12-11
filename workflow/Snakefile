@@ -42,7 +42,7 @@ def get_combinations(config):
 rule all:
     input:
         expand(
-            "../results/integrated_results/{dataset}_integrated.h5ad",
+            "../results/downsample_summaries/{dataset}_downsample_summary.tsv",
             dataset = get_combinations(config)
         )
 
@@ -53,8 +53,8 @@ rule integrate:
     input:
         "../resources/h5ad_files/{data_folder}"
     output:
-        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
-        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
+        temp("../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad")
     params:
         script_path = "scripts/python/integrate_data.py",
     log:
@@ -69,4 +69,27 @@ rule integrate:
             --num_batches {wildcards.num_batches} \
             --outfile {output} \
             &> {log}
+        """
+        
+# Get summary results of downsampling 
+rule downsample_summary:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
+    output:
+        protected("../results/downsample_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_downsample_summary.tsv")
+    params:
+        script_path = "scripts/python/downsample_summary.py",
+    log:
+        "logs/downsample_summary/downsample_summary_{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}.log"
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} 
         """

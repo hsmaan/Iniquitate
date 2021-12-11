@@ -37,5 +37,5 @@ def downsample(adata, num_celltypes = None, celltype_names = None, proportion = 
     adata.obs["batch"] = adata.obs["batch_orig"]
     adata.obs.drop("batch_orig", axis = 1, inplace = True)
         
-    # Return downsampled data
-    return adata
+    # Return downsampled data + sampled celltypes   
+    return adata, celltypes_sample
