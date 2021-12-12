@@ -46,7 +46,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
             "Downsampled celltypes": downsampled_cells_concat,
             "Replicate": rep
         })
-        ds_summary_df.to_csv(save_loc, index=False)
+        ds_summary_df.to_csv(save_loc, index=False, sep="\t")
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

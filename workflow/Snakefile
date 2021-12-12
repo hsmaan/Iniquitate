@@ -42,8 +42,12 @@ def get_combinations(config):
 rule all:
     input:
         expand(
-            "../results/downsample_summaries/{dataset}_downsample_summary.tsv",
-            dataset = get_combinations(config)
+            "../results/{outputs[0]}/{dataset}_{outputs[1]}.tsv",
+            dataset = get_combinations(config),
+            outputs = zip(
+                ["downsample_summaries", "clustering_summaries"], 
+                ["downsample_summary", "clustering_summary"]
+            )
         )
 
 # Integrate the indicated h5ad files from config
@@ -86,6 +90,31 @@ rule downsample_summary:
     log:
         "logs/downsample_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_downsample_summary.log"
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            &> {log}
+        """
+    
+# Get cluster summary results of downsampling
+rule clustering_summary:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
+    output:
+        protected("../results/clustering_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.tsv")
+    params:
+        script_path = "scripts/python/clustering_summary.py",
+    log:
+        "logs/clustering_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.log"
     shell:
         """
         python {params.script_path} \
