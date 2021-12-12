@@ -111,7 +111,7 @@ rule clustering_summary:
         protected("../results/clustering_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.tsv")
     params:
-        script_path = "scripts/python/clustering_summary.py",
+        script_path = "scripts/python/clustering_stats.py",
     log:
         "logs/clustering_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.log"

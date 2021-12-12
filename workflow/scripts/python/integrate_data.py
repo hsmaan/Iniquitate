@@ -77,6 +77,8 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
         seurat_integrated,
         liger_integrated
     ])
+    integrated_concat.obs_names = range(len(integrated_concat.obs_names))
+    integrated_concat.obs_names_make_unique()
     
     # Add data about downsampling to .uns of adata_concat
     if num_batches == 0:

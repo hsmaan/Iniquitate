@@ -86,6 +86,9 @@ class SeuratIntegrate:
         # Read in as AnnData object 
         integrated_adata = sc.read_h5ad(filename = os.path.join("tmp", self.seur_outfile))
         
+        # Reappend original obs columns
+        integrated_adata.obs = self.adata.obs
+        
         # Return integrated AnnData object
         return integrated_adata
     
