@@ -84,12 +84,14 @@ rule downsample_summary:
     params:
         script_path = "scripts/python/downsample_summary.py",
     log:
-        "logs/downsample_summary/downsample_summary_{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
-        "_downsample_{num_batches}_batch_ds_c_{rep}.log"
+        "logs/downsample_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_downsample_summary.log"
     shell:
         """
         python {params.script_path} \
             --infile {input} \
             --outfile {output} \
-            --dataset {wildcards.data_folder} 
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            &> {log}
         """

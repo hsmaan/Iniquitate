@@ -7,7 +7,7 @@ import pandas as pd
 import anndata as ann
 import scanpy as sc 
 
-def main(h5ad_loc, save_loc, dataset_name):
+def main(h5ad_loc, save_loc, dataset_name, rep):
     # Load h5ad file 
     adata = sc.read_h5ad(h5ad_loc)
     
@@ -23,10 +23,11 @@ def main(h5ad_loc, save_loc, dataset_name):
         ds_summary_df = pd.DataFrame({
             "Dataset": dataset_name,
             "Batches downsampled": "None",
-            "Celltypes downsampled": "None",
+            "Number of celltypes downsampled": "None",
             "Proportion downsampled": "NA",
             "Batch label": "NA",
-            "Downsampled cells": "NA"
+            "Downsampled celltypes": "NA",
+            "Replicate": rep
         })
         ds_summary_df.to_csv(save_loc, index=False)
     
@@ -39,10 +40,11 @@ def main(h5ad_loc, save_loc, dataset_name):
         ds_summary_df = pd.DataFrame({
             "Dataset": dataset_name,
             "Batches downsampled": num_batches_ds,
-            "Celltypes downsampled": num_celltypes_ds,
+            "Number of celltypes downsampled": num_celltypes_ds,
             "Proportion downsampled": prop_ds,
             "Batch label": batch_label,
-            "Downsampled cells": downsampled_cells_concat
+            "Downsampled celltypes": downsampled_cells_concat,
+            "Replicate": rep
         })
         ds_summary_df.to_csv(save_loc, index=False)
     
@@ -65,9 +67,15 @@ if __name__ == '__main__':
         type = str,
         help = "Name of dataset"
     )
+    parser.add_argument(
+        "--rep",
+        type = int,
+        help = "Repetition number"
+    )
     args = parser.parse_args()
     main(
         h5ad_loc = args.infile,
         save_loc = args.outfile,
-        dataset_name = args.dataset
+        dataset_name = args.dataset,
+        rep = args.rep
     )

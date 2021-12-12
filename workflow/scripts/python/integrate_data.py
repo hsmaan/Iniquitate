@@ -50,24 +50,6 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     adata_concat.obs["batch"] = adata_concat.obs["batch_name"]
     adata_concat.obs.drop("batch_name", axis = 1, inplace = True)
     
-    # Add data about downsampling to .uns of adata_concat
-    if num_batches == 0:
-        adata_concat.uns["downsampling_stats"] = {
-            "num_batches": 0,
-            "num_celltypes_downsampled": 0,
-            "ds_batch_names": None,
-            "proportion_downsampled": 1,
-            "downsampled_celltypes": None
-        }
-    else:
-        adata_concat.uns["downsampling_stats"] = {
-            "num_batches": num_batches,
-            "num_celltypes_downsampled": ds_celltypes,
-            "ds_batch_names": np.concatenate([np.unique(adata.obs["batch"].__array__()) for adata in adata_downsampled]),
-            "proportion_downsampled": ds_proportions,
-            "downsampled_cells": selected_celltypes_downsampled
-        }
-    
     # Create integration class instance 
     integration = Integration(adata = adata_concat)
     
@@ -79,7 +61,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     seurat_integrated = integration.seurat_integrate()
     liger_integrated = integration.liger_integrate()
     
-    # Add integration type to each subset and concatenate and save
+    # Add integration type to each subset and concatenate
     harmony_integrated.obs["integration_method"] = "harmony" 
     scvi_integrated.obs["integration_method"] = "scvi"
     bbknn_integrated.obs["integration_method"] = "bbknn"
@@ -96,6 +78,25 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
         liger_integrated
     ])
     
+    # Add data about downsampling to .uns of adata_concat
+    if num_batches == 0:
+        integrated_concat.uns["downsampling_stats"] = {
+            "num_batches": 0,
+            "num_celltypes_downsampled": 0,
+            "ds_batch_names": None,
+            "proportion_downsampled": 1,
+            "downsampled_celltypes": None
+        }
+    else:
+        integrated_concat.uns["downsampling_stats"] = {
+            "num_batches": num_batches,
+            "num_celltypes_downsampled": ds_celltypes,
+            "ds_batch_names": np.concatenate([np.unique(adata.obs["batch"].__array__()) for adata in adata_downsampled]),
+            "proportion_downsampled": ds_proportions,
+            "downsampled_cells": selected_celltypes_downsampled
+        }
+        
+    # Save integrated h5ad object
     integrated_concat.write_h5ad(
         filename = save_loc,
         compression = "gzip"
