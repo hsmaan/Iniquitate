@@ -34,8 +34,28 @@ def faiss_kmeans(adata, k, niter = 100, nredo = 10,
         )[1]
     )
     
+    # Check if any clusters have less than the min required members and redo clustering with less
+    unique_labels, counts = np.unique(kmeans_faiss_labels, return_counts = True)
+    while any(counts < min_points_per_centroid):
+        k = k - 1
+        kmeans_faiss = faiss.Kmeans(
+            d = hvg_sub.shape[1], 
+            k = k, 
+            niter = niter, 
+            nredo = nredo, 
+            min_points_per_centroid = min_points_per_centroid
+        )
+        kmeans_faiss.train(np.ascontiguousarray(hvg_sub, dtype = np.float32))
+        kmeans_faiss_labels = np.concatenate(
+            kmeans_faiss.index.search(
+                np.ascontiguousarray(hvg_sub, dtype = np.float32), 1
+            )[1]
+        )
+        unique_labels, counts = np.unique(kmeans_faiss_labels, return_counts = True)
+            
     # Append kmeans labels to AnnData object
     kmeans_faiss_labels_str = kmeans_faiss_labels.astype("str")
     adata.obs['kmeans_faiss'] = kmeans_faiss_labels_str
     
-    return adata
+    # Return AnnData object and kmeans number
+    return adata, k
