@@ -18,17 +18,18 @@ def diffexp(adata, groupby, **kwargs):
     sc.tl.rank_genes_groups(adata, groupby = groupby, **kwargs)
     return adata
 
-def dge_top_n(adata, n):
+def dge_top_n(adata, n, obs_group):
     """
     Return clusters and genes with the top n differential expression.
 
     Args:
         adata (AnnData): Annotated data matrix object.
         n (int): The number of top differentially expressed genes to return.
+        obs_group (str): The column name in obs of adata object to group by.
     Returns:
         data (DataFrame): A dataframe with the top n differentially expressed genes in each cluster.
     """
-    unique_groups = np.sort(np.unique(adata.obs.leiden.__array__()))
+    unique_groups = np.sort(np.unique(adata.obs[obs_group].__array__()))
     unique_group_top_n_dges = []
     for group in unique_groups:
         score_df = sc.get.rank_genes_groups_df(adata, group = group)
