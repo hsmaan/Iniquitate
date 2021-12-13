@@ -14,10 +14,8 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     
     # Extract summary statistics from h5ad file
     num_batches_ds = adata.uns["downsampling_stats"]["num_batches"]
-    batches_ds = adata.uns["downsampling_stats"]["ds_batch_names"]
     num_celltypes_ds = adata.uns["downsampling_stats"]["num_celltypes_downsampled"]
     prop_ds = adata.uns["downsampling_stats"]["proportion_downsampled"]
-    downsampled_cells = adata.uns["downsampling_stats"]["downsampled_cells"]
     
     # Subset h5ad based on batch-correction method used
     adata_method_sub = []
@@ -131,7 +129,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description = "Input and output files for downsampling summary"
+        description = "Input and output files for clustering results summary"
     )
     parser.add_argument(
         "--infile",
@@ -141,7 +139,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--outfile",
         type = str,
-        help = "Filepath for saving downsampling statistics of integrated h5ad file"
+        help = "Filepath for saving clustering results of integrated h5ad file"
     )
     parser.add_argument(
         "--dataset",

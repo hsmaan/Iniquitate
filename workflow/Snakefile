@@ -45,8 +45,8 @@ rule all:
             "../results/{outputs[0]}/{dataset}_{outputs[1]}.tsv",
             dataset = get_combinations(config),
             outputs = zip(
-                ["downsample_summaries", "clustering_summaries"], 
-                ["downsample_summary", "clustering_summary"]
+                ["downsample_summaries", "clustering_summaries", "clustering_concord_summaries"], 
+                ["downsample_summary", "clustering_summary", "clustering_concord_summary"],
             )
         )
 
@@ -115,6 +115,31 @@ rule clustering_summary:
     log:
         "logs/clustering_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.log"
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            &> {log}
+        """
+
+# Get clustering concordance results (from different methods) from downsampling
+rule clustering_concord_summary:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
+    output:
+        protected("../results/clustering_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_concord_summary.tsv")
+    params:
+        script_path = "scripts/python/clustering_concordance.py",
+    log:
+        "logs/clustering_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_concord_summary.log"
     shell:
         """
         python {params.script_path} \

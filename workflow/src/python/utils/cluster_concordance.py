@@ -40,7 +40,7 @@ def cluster_concordance(adata):
     # Convert concordance dataframe to long format 
     ari_val_df_long = ari_val_df.melt(ignore_index = False)
     ari_val_df_long = ari_val_df_long.reset_index()
-    ari_val_df_long.columns = ["Method 1", "Method 2", "Adjusted Rand Index"]
+    ari_val_df_long.columns = ["Method 1", "Method 2", "ARI"]
 
     # Append median ARI value to dataframe and return
     ari_val_df_long["Median ARI"] = median_ari
