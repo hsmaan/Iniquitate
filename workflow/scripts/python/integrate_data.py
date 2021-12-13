@@ -85,9 +85,9 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
         integrated_concat.uns["downsampling_stats"] = {
             "num_batches": 0,
             "num_celltypes_downsampled": 0,
-            "ds_batch_names": None,
+            "ds_batch_names": "None",
             "proportion_downsampled": 1,
-            "downsampled_celltypes": None
+            "downsampled_celltypes": "None"
         }
     else:
         integrated_concat.uns["downsampling_stats"] = {
