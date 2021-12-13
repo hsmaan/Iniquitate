@@ -1,5 +1,7 @@
 *.png
 *.jpeg
+*.pdf
+*.svg
 *.tsv
 *.csv
 *.log

@@ -16,36 +16,41 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     batches_ds = adata.uns["downsampling_stats"]["ds_batch_names"]
     num_celltypes_ds = adata.uns["downsampling_stats"]["num_celltypes_downsampled"]
     prop_ds = adata.uns["downsampling_stats"]["proportion_downsampled"]
-    downsampled_cells = adata.uns["downsampling_stats"]["downsampled_cells"]
+    downsampled_celltypes = adata.uns["downsampling_stats"]["downsampled_celltypes"]
     
     # Check if corresponding to 0 batch case 
     if num_batches_ds == 0:
-        ds_summary_df = pd.DataFrame({
-            "Dataset": dataset_name,
-            "Batches downsampled": "None",
-            "Number of celltypes downsampled": "None",
-            "Proportion downsampled": "NA",
-            "Batch label": "NA",
-            "Downsampled celltypes": "NA",
-            "Replicate": rep
-        })
-        ds_summary_df.to_csv(save_loc, index=False)
+        ds_summary_df = pd.DataFrame(
+            {
+                "Dataset": dataset_name,
+                "Batches downsampled": "None",
+                "Number of celltypes downsampled": "None",
+                "Proportion downsampled": "NA",
+                "Batch label": "NA",
+                "Downsampled celltypes": "NA",
+                "Replicate": rep
+            },
+            index = [0]
+        )
+        ds_summary_df.to_csv(save_loc, index=False, sep="\t")
     
     else:
         # Concatenate downsampled cells and format data 
-        downsampled_cells_concat = np.concatenate(downsampled_cells)
+        downsampled_celltypes_concat = np.concatenate(downsampled_celltypes)
         batch_label = np.repeat(batches_ds, num_celltypes_ds)
         
         # Create downsampling summary df 
-        ds_summary_df = pd.DataFrame({
-            "Dataset": dataset_name,
-            "Batches downsampled": num_batches_ds,
-            "Number of celltypes downsampled": num_celltypes_ds,
-            "Proportion downsampled": prop_ds,
-            "Batch label": batch_label,
-            "Downsampled celltypes": downsampled_cells_concat,
-            "Replicate": rep
-        })
+        ds_summary_df = pd.DataFrame(
+            {
+                "Dataset": dataset_name,
+                "Batches downsampled": num_batches_ds,
+                "Number of celltypes downsampled": num_celltypes_ds,
+                "Proportion downsampled": prop_ds,
+                "Batch label": batch_label,
+                "Downsampled celltypes": downsampled_celltypes_concat,
+                "Replicate": rep
+            }
+        )
         ds_summary_df.to_csv(save_loc, index=False, sep="\t")
     
 if __name__ == '__main__':

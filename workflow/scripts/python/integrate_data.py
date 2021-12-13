@@ -95,7 +95,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
             "num_celltypes_downsampled": ds_celltypes,
             "ds_batch_names": np.concatenate([np.unique(adata.obs["batch"].__array__()) for adata in adata_downsampled]),
             "proportion_downsampled": ds_proportions,
-            "downsampled_cells": selected_celltypes_downsampled
+            "downsampled_celltypes": selected_celltypes_downsampled
         }
         
     # Save integrated h5ad object
