@@ -83,8 +83,8 @@ rule downsample_summary:
         "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        protected("../results/downsample_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
-        "_downsample_{num_batches}_batch_ds_c_{rep}_downsample_summary.tsv")
+        "../results/downsample_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_downsample_summary.tsv"
     params:
         script_path = "scripts/python/downsample_summary.py",
     log:
@@ -108,8 +108,8 @@ rule clustering_summary:
         "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        protected("../results/clustering_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
-        "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.tsv")
+        "../results/clustering_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.tsv"
     params:
         script_path = "scripts/python/clustering_stats.py",
     log:
@@ -133,8 +133,8 @@ rule clustering_concord_summary:
         "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        protected("../results/clustering_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
-        "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_concord_summary.tsv")
+        "../results/clustering_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_concord_summary.tsv"
     params:
         script_path = "scripts/python/clustering_concordance.py",
     log:
