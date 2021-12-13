@@ -9,5 +9,6 @@ __pycache__
 cluster.json
 submit.slrm
 submit.sh
+workflow/tmp
 resources/h5ad_files
 results
