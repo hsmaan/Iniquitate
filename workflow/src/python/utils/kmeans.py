@@ -2,19 +2,19 @@ import numpy as np
 import faiss 
 
 # Perform k-means clustering using Faiss
-def faiss_kmeans(adata, k, niter = 100, nredo = 10, 
-                 min_points_per_centroid = 10):
+def faiss_kmeans(adata, k, niter = 300, nredo = 10, 
+                 min_points_per_centroid = 5):
     """Function to perform k-means clustering using FAISS on AnnData objects.
 
     Args:
         adata (AnnData): An object of AnnData class with highly variable gene selection
             performed.
         k (int): Number of clusters to form.
-        niter (int): Number of iterations to run k-means. Defaults to 100
+        niter (int): Number of iterations to run k-means. Defaults to 300.
         nredo (int): Number of times to run k-means - selects best result. 
             Defaults to 10.
         min_points_per_centroid (int): Minimum number of points per k-means
-            centroid. Defaults to 10.
+            centroid. Defaults to 5.
     """
     # Subset data to highly variable genes
     hvg_sub = adata.X.toarray()[:, adata.var['highly_variable']]

@@ -45,8 +45,18 @@ rule all:
             "../results/{outputs[0]}/{dataset}_{outputs[1]}.tsv",
             dataset = get_combinations(config),
             outputs = zip(
-                ["downsample_summaries", "clustering_summaries", "clustering_concord_summaries"], 
-                ["downsample_summary", "clustering_summary", "clustering_concord_summary"],
+                [
+                    "downsample_summaries", 
+                    "clustering_summaries", 
+                    "clustering_concord_summaries",
+                    "dge_concord_summaries"
+                ], 
+                [
+                    "downsample_summary", 
+                    "clustering_summary", 
+                    "clustering_concord_summary",
+                    "dge_concord_summary"
+                ],
             )
         )
 
@@ -140,6 +150,31 @@ rule clustering_concord_summary:
     log:
         "logs/clustering_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_concord_summary.log"
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            &> {log}
+        """
+
+# Get DGE concordance results (from different methods) from downsampling
+rule dge_concord_summary:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
+    output:
+        "../results/dge_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_summary.tsv"
+    params:
+        script_path = "scripts/python/dge_concordance.py",
+    log:
+        "logs/dge_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_summary.log"
     shell:
         """
         python {params.script_path} \
