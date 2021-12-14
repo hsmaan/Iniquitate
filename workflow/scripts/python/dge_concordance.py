@@ -29,6 +29,19 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         # Define method subset
         adata_subset = adata[adata.obs["integration_method"] == methods[i]]
         
+        # Perform HVG selection on raw data
+        adata_subset.X = adata_subset.layers["raw"]
+        sc.pp.normalize_total(
+            adata_subset,
+            target_sum = 1e4
+        )
+        sc.pp.log1p(adata_subset)
+        sc.pp.highly_variable_genes(
+            adata_subset,
+            n_top_genes = 2500,
+            flavor = "seurat"
+        )
+        
         # Perform faiss kmeans clustering
         adata_subset, k_method = faiss_kmeans(adata_subset, k)
         

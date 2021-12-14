@@ -16,6 +16,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     adata_loaded = []
     for f in files_list:
         adata = sc.read_h5ad(os.path.join(h5ad_dir, f), as_sparse = "raw/X")
+        adata.layers["raw"] = adata.X.toarray() # Store raw counts
         adata_loaded.append(adata)
     
     # Downsample loaded h5ad files based on params 
