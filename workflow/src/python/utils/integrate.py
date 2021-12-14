@@ -164,15 +164,21 @@ class Integration:
             adata = aseurat,
             int_type = int_type
         )
-        aseurat = seurat_integrate.integrate() # Substitute seurat integrated anndata object
-        sc.pp.pca(aseurat, svd_solver = "arpack")
+        aseurat_int = seurat_integrate.integrate() # Substitute seurat integrated anndata object
+        sc.pp.pca(aseurat_int, svd_solver = "arpack")
         sc.pp.neighbors(
-            aseurat,
+            aseurat_int,
             n_neighbors = n_neighbors,
             n_pcs = n_pcs
         )
-        sc.tl.leiden(aseurat)
-        sc.tl.umap(aseurat)
+        sc.tl.leiden(aseurat_int)
+        sc.tl.umap(aseurat_int)
+        # Append seurat integrated data to original adata object
+        aseurat.obs["leiden"] = aseurat_int.obs["leiden"]
+        aseurat.obsm["X_pca"] = aseurat_int.obsm["X_pca"]
+        aseurat.obsm["X_umap"] = aseurat_int.obsm["X_umap"]
+        aseurat.obsm["seurat_hvg"] = aseurat_int.X.toarray()
+        
         print("Done!" + "\n")
         return aseurat
         

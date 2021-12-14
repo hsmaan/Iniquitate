@@ -89,9 +89,6 @@ class SeuratIntegrate:
         # Reappend original obs columns
         integrated_adata.obs = self.adata.obs
         
-        # Reappend raw data layer 
-        integrated_adata.layers["raw"] = self.adata.layers["raw"]
-        
         # Return integrated AnnData object
         return integrated_adata
     
