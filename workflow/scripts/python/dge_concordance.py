@@ -29,7 +29,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         # Define method subset
         adata_subset = adata[adata.obs["integration_method"] == methods[i]]
         
-        # Perform HVG selection on raw data
+        # Perform HVG selection on raw (unnormalized, unlogged) data
         adata_subset.X = adata_subset.layers["raw"]
         sc.pp.normalize_total(
             adata_subset,
@@ -41,6 +41,9 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
             n_top_genes = 2500,
             flavor = "seurat"
         )
+        
+        # Store raw attribute (lognorm counts) for later differential expression analysis
+        adata_subset.raw = adata_subset
         
         # Perform faiss kmeans clustering
         adata_subset, k_method = faiss_kmeans(adata_subset, k)
@@ -61,7 +64,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         adata = diffexp(
             adata, 
             groupby = "kmeans_faiss",
-            layer = "raw",
+            use_raw = True,
             method = "wilcoxon"
         )
         dge_results = dge_top_n(
