@@ -37,7 +37,7 @@ def faiss_kmeans(adata, k, niter = 300, nredo = 10,
     # Check if any clusters have less than the min required members and redo clustering with less
     unique_labels, counts = np.unique(kmeans_faiss_labels, return_counts = True)
     while any(counts < min_points_per_centroid):
-        k = k - 1
+        k -= 1
         kmeans_faiss = faiss.Kmeans(
             d = hvg_sub.shape[1], 
             k = k, 

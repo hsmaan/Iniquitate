@@ -52,6 +52,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
             method_dge_adatas.clear()
             continue 
         else:
+            i += 1
             method_dge_adatas.append(adata_subset)
             
     # Extract top 50 DGEs for each cluster in each method 
