@@ -8,7 +8,7 @@ import pandas as pd
 import anndata as ann
 import scanpy as sc
 
-from utils import faiss_kmeans, dge_top_n
+from utils import faiss_kmeans, dge_top_n, diffexp
 
 def main(h5ad_loc, save_loc, dataset_name, rep):
     # Load h5ad file 
@@ -58,6 +58,12 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     # Extract top 50 DGEs for each cluster in each method 
     method_dge_dfs = []
     for adata in method_dge_adatas:
+        adata = diffexp(
+            adata, 
+            groupby = "kmeans_faiss",
+            layer = "raw",
+            method = "wilcoxon"
+        )
         dge_results = dge_top_n(
             adata, 
             n = 50,
