@@ -8,7 +8,7 @@ import scanpy as sc
 import anndata as ann
 import numpy as np
 
-from utils import Integration, downsample
+from utils import Integration, downsample, faiss_kmeans
 
 def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     # Load h5ad files 
@@ -81,6 +81,62 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     integrated_concat.obs_names = range(len(integrated_concat.obs_names))
     integrated_concat.obs_names_make_unique()
     
+    # Perform kmeans clustering on integrated data 
+    # Define method subsets and iterate over them until the same number of k clusters is found
+    k = 10
+    k_initial = k # Integers are immutable 
+    methods = ["harmony", "scvi", "scanorama", "seurat", "liger"]
+    method_kmeans_adatas = []
+    i = 0
+    while i < len(methods):
+        # Create a copy of adata to avoid overwriting the original
+        adata_copy = integrated_concat.copy()
+        
+        # Define method subset
+        adata_subset = adata_copy[adata_copy.obs["integration_method"] == methods[i]]
+        
+        # Perform HVG selection on raw (unnormalized, unlogged) data
+        adata_subset.X = adata_subset.layers["raw"]
+        sc.pp.normalize_total(
+            adata_subset,
+            target_sum = 1e4
+        )
+        sc.pp.log1p(adata_subset)
+        sc.pp.highly_variable_genes(
+            adata_subset,
+            n_top_genes = 2500,
+            flavor = "seurat"
+        )
+        
+        # Store raw attribute (lognorm counts) for later differential expression analysis
+        adata_subset.raw = adata_subset
+        
+        # Perform faiss kmeans clustering
+        adata_subset, k_method = faiss_kmeans(adata_subset, k)
+        
+        # Test concordance of k values and either append or reset
+        if k_method != k:
+            k = k_method
+            i = 0 
+            method_kmeans_adatas.clear()
+            continue 
+        else:
+            i += 1
+            method_kmeans_adatas.append(adata_subset)
+    
+    # Append kmeans cluster info to integrated data
+    for method, method_kmeans_adata in zip(methods, method_kmeans_adatas):
+        method_kmeans_clusters = method_kmeans_adata.obs["kmeans_faiss"].__array__()
+        integrated_concat[
+            integrated_concat.obs["integration_method"] == method
+        ].obs["kmeans_faiss"] = method_kmeans_clusters
+        
+    # Append information about kmeans faiss clusters to .uns of adata_concat
+    integrated_concat.uns["kmeans_stats"] = {
+        "kmeans_initial_k": k_initial,
+        "kmeans_final_k": k
+    }
+
     # Add data about downsampling to .uns of adata_concat
     if num_batches == 0:
         integrated_concat.uns["downsampling_stats"] = {

@@ -18,57 +18,28 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     num_batches_ds = adata.uns["downsampling_stats"]["num_batches"]
     num_celltypes_ds = adata.uns["downsampling_stats"]["num_celltypes_downsampled"]
     prop_ds = adata.uns["downsampling_stats"]["proportion_downsampled"]
+    k_initial = adata.uns["kmeans_stats"]["kmeans_initial_k"]
+    k_final = adata.uns["kmeans_stats"]["kmeans_final_k"]
     
-    # Define method subsets and iterate over them until the same number of k clusters is found
-    k = 10
-    k_initial = k
-    methods = ["harmony", "scvi", "bbknn", "scanorama", "seurat", "liger"]
-    method_dge_adatas = []
-    i = 0
-    while i < len(methods):
-        # Define method subset
-        adata_subset = adata[adata.obs["integration_method"] == methods[i]]
-        
-        # Perform HVG selection on raw (unnormalized, unlogged) data
-        adata_subset.X = adata_subset.layers["raw"]
-        sc.pp.normalize_total(
-            adata_subset,
-            target_sum = 1e4
-        )
-        sc.pp.log1p(adata_subset)
-        sc.pp.highly_variable_genes(
-            adata_subset,
-            n_top_genes = 2500,
-            flavor = "seurat"
-        )
-        
-        # Store raw attribute (lognorm counts) for later differential expression analysis
-        adata_subset.raw = adata_subset
-        
-        # Perform faiss kmeans clustering
-        adata_subset, k_method = faiss_kmeans(adata_subset, k)
-        
-        # Test concordance of k values and either append or reset
-        if k_method != k:
-            k = k_method
-            i = 0 
-            method_dge_adatas.clear()
-            continue 
-        else:
-            i += 1
-            method_dge_adatas.append(adata_subset)
+    # Subset adatas based on method for integration
+    methods = ["harmony", "scvi", "scanorama", "seurat", "liger"]
+    method_adatas = []
+    for method in methods:
+        adata_copy = adata.copy()
+        adata_subset = adata_copy[adata_copy.obs["integration_method"] == method]
+        method_adatas.append(adata_subset)
             
     # Extract top 50 DGEs for each cluster in each method 
     method_dge_dfs = []
-    for adata in method_dge_adatas:
-        adata = diffexp(
-            adata, 
+    for adata_method_subset in method_adatas:
+        adata_method_subset = diffexp(
+            adata_method_subset, 
             groupby = "kmeans_faiss",
             use_raw = True,
             method = "wilcoxon"
         )
         dge_results = dge_top_n(
-            adata, 
+            adata_method_subset, 
             n = 50,
             obs_group = "kmeans_faiss"
         )
@@ -78,7 +49,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     method_dge_dfs_concat = pd.concat(method_dge_dfs, axis = 0)
     
     # Create long form array for methods 
-    methods_long = np.repeat(np.array(methods), 50*k)
+    methods_long = np.repeat(np.array(methods), 50*k_final)
     
     # Create and save summary dataframe for DGE results
     dge_summary_df = pd.DataFrame({
@@ -88,7 +59,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         "Proportion downsampled": prop_ds,
         "Replicate": rep,
         "Cluster number before convergence": k_initial,
-        "Cluster number after convergence": k,
+        "Cluster number after convergence": k_final,
         "Method": methods_long,
         "Cluster": method_dge_dfs_concat["Cluster"].__array__(),
         "Differentially expressed genes": method_dge_dfs_concat["Top 50 DGEs"].__array__()

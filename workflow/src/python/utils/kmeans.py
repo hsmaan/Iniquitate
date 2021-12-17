@@ -16,21 +16,21 @@ def faiss_kmeans(adata, k, niter = 300, nredo = 10,
         min_points_per_centroid (int): Minimum number of points per k-means
             centroid. Defaults to 5.
     """
-    # Subset data to highly variable genes
-    hvg_sub = adata.X.toarray()[:, adata.var['highly_variable']]
+    # Subset data to kmeans reduction to utilize for clustering
+    reduction_sub = adata.obsm["X_kmeans"]
     
     # Run k-means using faiss given options 
     kmeans_faiss = faiss.Kmeans(
-        d = hvg_sub.shape[1], 
+        d = reduction_sub.shape[1], 
         k = k, 
         niter = niter, 
         nredo = nredo, 
         min_points_per_centroid = min_points_per_centroid
     )
-    kmeans_faiss.train(np.ascontiguousarray(hvg_sub, dtype = np.float32))
+    kmeans_faiss.train(np.ascontiguousarray(reduction_sub, dtype = np.float32))
     kmeans_faiss_labels = np.concatenate(
         kmeans_faiss.index.search(
-            np.ascontiguousarray(hvg_sub, dtype = np.float32), 1
+            np.ascontiguousarray(reduction_sub, dtype = np.float32), 1
         )[1]
     )
     
@@ -39,16 +39,16 @@ def faiss_kmeans(adata, k, niter = 300, nredo = 10,
     while any(counts < min_points_per_centroid):
         k -= 1
         kmeans_faiss = faiss.Kmeans(
-            d = hvg_sub.shape[1], 
+            d = reduction_sub.shape[1], 
             k = k, 
             niter = niter, 
             nredo = nredo, 
             min_points_per_centroid = min_points_per_centroid
         )
-        kmeans_faiss.train(np.ascontiguousarray(hvg_sub, dtype = np.float32))
+        kmeans_faiss.train(np.ascontiguousarray(reduction_sub, dtype = np.float32))
         kmeans_faiss_labels = np.concatenate(
             kmeans_faiss.index.search(
-                np.ascontiguousarray(hvg_sub, dtype = np.float32), 1
+                np.ascontiguousarray(reduction_sub, dtype = np.float32), 1
             )[1]
         )
         unique_labels, counts = np.unique(kmeans_faiss_labels, return_counts = True)

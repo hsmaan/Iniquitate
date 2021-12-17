@@ -44,6 +44,7 @@ class Integration:
         vae = scvi.model.SCVI(ascvi)
         vae.train(use_gpu = self.gpu)
         ascvi.obsm["X_scVI"] = vae.get_latent_representation()
+        ascvi.obsm["X_kmeans"] = ascvi.obsm["X_scVI"][0:n_pcs]
         sc.pp.neighbors(
             ascvi,
             n_neighbors = n_neighbors,
@@ -79,6 +80,7 @@ class Integration:
             n_pcs = n_pcs,
             use_rep = "X_pca_harmony"
         )
+        aharmony.obsm["X_kmeans"] = aharmony.obsm["X_pca_harmony"][0:n_pcs]
         sc.tl.leiden(aharmony)
         sc.tl.umap(aharmony)
         print("Done!" + "\n")
@@ -147,6 +149,7 @@ class Integration:
             n_pcs = n_pcs,
             use_rep = "X_scanorama"
         )
+        ascanorama.obms["X_kmeans"] = ascanorama.obsm["X_scanorama"][0:n_pcs]
         sc.tl.leiden(ascanorama)
         sc.tl.umap(ascanorama)
         print("Done!" + "\n")
@@ -176,6 +179,7 @@ class Integration:
         # Append seurat integrated data to original adata object
         aseurat.obs["leiden"] = aseurat_int.obs["leiden"]
         aseurat.obsm["X_pca"] = aseurat_int.obsm["X_pca"]
+        aseurat.obsm["X_kmeans"] = aseurat_int.obsm["X_pca"][0:n_pcs]
         aseurat.obsm["X_umap"] = aseurat_int.obsm["X_umap"]
         aseurat.obsm["seurat_hvg"] = aseurat_int.X.toarray()
         
@@ -200,6 +204,7 @@ class Integration:
             n_pcs = n_pcs,
             use_rep = "X_liger"
         )
+        aliger.obsm["X_kmeans"] = aliger.obsm["X_liger"][0:n_pcs]
         sc.tl.leiden(aliger)
         sc.tl.umap(aliger)
         print("Done!" + "\n")
