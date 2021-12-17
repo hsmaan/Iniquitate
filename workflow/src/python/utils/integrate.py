@@ -149,7 +149,7 @@ class Integration:
             n_pcs = n_pcs,
             use_rep = "X_scanorama"
         )
-        ascanorama.obms["X_kmeans"] = ascanorama.obsm["X_scanorama"][:, 0:n_pcs]
+        ascanorama.obsm["X_kmeans"] = ascanorama.obsm["X_scanorama"][:, 0:n_pcs]
         sc.tl.leiden(ascanorama)
         sc.tl.umap(ascanorama)
         print("Done!" + "\n")
