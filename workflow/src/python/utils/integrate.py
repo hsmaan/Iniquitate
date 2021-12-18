@@ -120,6 +120,11 @@ class Integration:
             raise Exception(
                 "Please enter either 'euclidean' or 'angular' for 'metric'"
             )
+        # Add placeholder for kmeans
+        abbknn.obsm["X_kmeans"] = np.ones((
+            abbknn.obsm["X_pca"].shape[0],
+            abbknn.obsm["X_pca"].shape[1]
+        ))
         sc.tl.leiden(abbknn)
         sc.tl.umap(abbknn)
         print("Done!" + "\n")

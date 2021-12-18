@@ -81,6 +81,9 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     integrated_concat.obs_names = range(len(integrated_concat.obs_names))
     integrated_concat.obs_names_make_unique()
     
+    # Add placeholder in entire obs dataframe for kmeans clustering
+    integrated_concat.obs["kmeans_faiss"] = np.zeros(len(integrated_concat.obs_names))
+    
     # Perform kmeans clustering on integrated data 
     # Define method subsets and iterate over them until the same number of k clusters is found
     k = 10
@@ -126,11 +129,18 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     
     # Append kmeans cluster info to integrated data
     for method, method_kmeans_adata in zip(methods, method_kmeans_adatas):
-        method_kmeans_clusters = method_kmeans_adata.obs["kmeans_faiss"].__array__()
-        integrated_concat[
-            integrated_concat.obs["integration_method"] == method
-        ].obs["kmeans_faiss"] = method_kmeans_clusters
+        method_kmeans_clusters = method_kmeans_adata.obs["kmeans_faiss"].__array__().astype('str')
+        integrated_concat.obs.loc[
+            integrated_concat.obs["integration_method"] == method,
+            "kmeans_faiss"
+        ] = method_kmeans_clusters
         
+    # Add placeholder for bbknn kmeans clustering
+    integrated_concat.obs.loc[
+        integrated_concat.obs["integration_method"] == "bbknn",
+        "kmeans_faiss"
+    ]= "NA"
+    
     # Append information about kmeans faiss clusters to .uns of adata_concat
     integrated_concat.uns["kmeans_stats"] = {
         "kmeans_initial_k": k_initial,
