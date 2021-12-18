@@ -186,7 +186,7 @@ class Integration:
         aseurat.obsm["X_pca"] = aseurat_int.obsm["X_pca"]
         aseurat.obsm["X_kmeans"] = aseurat_int.obsm["X_pca"][:, 0:n_pcs]
         aseurat.obsm["X_umap"] = aseurat_int.obsm["X_umap"]
-        aseurat.obsm["seurat_hvg"] = aseurat_int.X.toarray()
+        aseurat.obsm["seurat_hvg"] = aseurat_int.X
         
         print("Done!" + "\n")
         return aseurat
