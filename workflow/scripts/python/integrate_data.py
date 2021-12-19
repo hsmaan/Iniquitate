@@ -139,7 +139,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     integrated_concat.obs.loc[
         integrated_concat.obs["integration_method"] == "bbknn",
         "kmeans_faiss"
-    ]= "NA"
+    ] = "NA"
     
     # Append information about kmeans faiss clusters to .uns of adata_concat
     integrated_concat.uns["kmeans_stats"] = {
