@@ -8,27 +8,15 @@ file <- args[1]
 filename <- args[2]
 int_type <- args[3] # Integration type
 
-# Load anndata
-ad <- import("anndata")
+# Convert h5ad file to h5seurat 
+Convert(file, dest = "h5seurat", overwrite = TRUE)
 
-# Load matrix, format, and subset batch data
-full_mat <- read.csv(
-    file,
-    sep = "\t"
-)
-rownames(full_mat) <- full_mat[, 1]
-full_mat <- full_mat[, -1]
-batch_names <- full_mat[, ncol(full_mat)]
-full_mat <- full_mat[, -ncol(full_mat)]
-names(batch_names) <- rownames(full_mat)
+# Load anndata and scanpy 
+ad <- import("anndata")
+sc <- import("scanpy")
 
 # Create Seurat object and split by batch information
-seur_obj <- CreateSeuratObject(t(full_mat), assay = "RNA")
-seur_obj <- AddMetaData(
-    object = seur_obj, 
-    metadata = batch_names,
-    col.name = "batch"
-)
+seur_obj <- LoadH5Seurat(paste0("./tmp/", filename, ".h5seurat"))
 seur_obj_list <- SplitObject(
     seur_obj,
     split.by = "batch"
@@ -39,7 +27,6 @@ for (i in 1:length(seur_obj_list)) {
     seur_obj_list[[i]] <- FindVariableFeatures(
         seur_obj_list[[i]], 
         selection.method = "mean.var.plot",
-        dims = 1:20,
         nfeatures = 2500, 
         verbose = TRUE
     )

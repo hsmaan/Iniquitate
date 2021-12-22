@@ -35,17 +35,8 @@ class SeuratIntegrate:
         self.int_type = int_type
         
     def _format(self):
-        # Extract and format integration dataframe object 
-        if isinstance(self.adata.X, sp.sparse.csr.csr_matrix):
-            self.adata.X = self.adata.X.toarray()
-        integration_mat = self.adata.X
-        self.integration_df = pd.DataFrame(integration_mat)
+        # Append a column on gene names 
         self.adata.var["gene"] = self.adata.var_names
-        gene_names = self.adata.var["gene"].__array__()
-        self.integration_df.columns = gene_names
-        self.integration_df.columns = self.integration_df.columns.astype(str) # Clip columns to str not cat
-        self.integration_df.index = [str(i) + "_bc" for i in range(len(self.integration_df))]
-        self.integration_df["batch"] = self.adata.obs["batch"].__array__()
         
     def _output_temp_df(self):
         # Check if temp exists, if not, make dir
@@ -54,12 +45,8 @@ class SeuratIntegrate:
 
         # Output temporary file with data 
         self.filename = ''.join(str(uuid.uuid4()).split("-"))
-        self.file = "{filename}.tsv".format(filename = self.filename)
-        self.integration_df.to_csv(
-            os.path.join("tmp", self.file),
-            sep = "\t",
-            index = True
-        )
+        self.file = "{filename}.h5ad".format(filename = self.filename)
+        self.adata.write_h5ad(os.path.join("tmp", self.file))
     
     def _seurat_integrate(self):
         # Call subprocess and call R script
