@@ -31,6 +31,9 @@ class LigerIntegrate:
     def _format(self):
         # Append a column on gene names 
         self.adata.var["gene"] = self.adata.var_names
+        # Remove layers and raw from AnnData object (avoid conflicts with h5seurat)
+        self.adata.layers = None
+        self.adata.raw = None
         
     def _output_temp_h5ad(self):
         # Check if temp exists, if not, make dir
