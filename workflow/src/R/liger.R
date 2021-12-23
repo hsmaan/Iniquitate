@@ -53,7 +53,7 @@ rownames(liger_norm_h) <- colnames(seur_obj)
 colnames(liger_norm_h) <- paste0(
     "h_norm_comp_", seq(1:ncol(liger_norm_h))
 )
-norm_cell_loadings <- CreateSeuratObject(counts = liger_norm_h)
+norm_cell_loadings <- CreateSeuratObject(counts = t(liger_norm_h))
 SaveH5Seurat(
     object = norm_cell_loadings, 
     filename = paste0("./tmp/", filename, "_liger_out.h5seurat"),
