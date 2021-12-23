@@ -21,7 +21,7 @@ class Integration:
             adata (AnnData): AnnData object to be utilized in integration methods.
                 Assumes that the counts being input are unnormalized (raw counts),
                 and that raw counts are stored in "counts" layer, and batch covariate
-                is available. 
+                is available.
             gpu (bool): Whether or not to use GPU for scVI.
         """
         self.adata = adata

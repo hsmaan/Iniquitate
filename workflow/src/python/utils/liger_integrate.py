@@ -29,31 +29,18 @@ class LigerIntegrate:
         self.adata_copy = adata.copy() # Keep copy for later referencing
         
     def _format(self):
-        # Extract and format integration dataframe object 
-        if isinstance(self.adata.X, sp.sparse.csr.csr_matrix):
-            self.adata.X = self.adata.X.toarray()
-        integration_mat = self.adata.X
-        self.integration_df = pd.DataFrame(integration_mat)
+        # Append a column on gene names 
         self.adata.var["gene"] = self.adata.var_names
-        gene_names = self.adata.var["gene"].__array__()
-        self.integration_df.columns = gene_names
-        self.integration_df.columns = self.integration_df.columns.astype(str) # Clip columns to str not cat
-        self.integration_df.index = [str(i) + "_bc" for i in range(len(self.integration_df))]
-        self.integration_df["batch"] = self.adata.obs["batch"].__array__()
         
-    def _output_temp_df(self):
+    def _output_temp_h5ad(self):
         # Check if temp exists, if not, make dir
         if not os.path.exists("tmp"):
             os.makedirs("tmp")
 
         # Output temporary file with data 
         self.filename = ''.join(str(uuid.uuid4()).split("-"))
-        self.file = "{filename}.tsv".format(filename = self.filename)
-        self.integration_df.to_csv(
-            os.path.join("tmp", self.file),
-            sep = "\t",
-            index = True
-        )
+        self.file = "{filename}.h5ad".format(filename = self.filename)
+        self.adata.write_h5ad(os.path.join("tmp", self.file))
     
     def _liger_integrate(self):
         # Call subprocess and call R script
@@ -73,15 +60,14 @@ class LigerIntegrate:
             )
         
     def _return_integrated(self):
-        # Get liger output file
-        self.liger_outfile = "{filename}_liger_out.tsv".format(filename = self.filename)
-
-        # Read in cell-specific loadings as dataframe and convert to array
-        norm_loadings_df = pd.read_csv(
-            os.path.join("tmp", self.liger_outfile),
-            sep = "\t"
+        # Get liger output file and read it into memory as anndata object
+        self.liger_outfile = "{filename}_liger_out.h5ad".format(filename = self.filename)
+        adata_liger = sc.read_h5ad(
+            os.path.join("tmp", self.liger_outfile)
         )
-        norm_loadings_arr = norm_loadings_df.to_numpy()
+        
+        # Read in cell-specific loadings from anndata object and convert to array
+        norm_loadings_arr = adata_liger.X.toarray()
         
         # Add normalized loadings to anndata object (original copy)
         self.adata_copy.obsm["X_liger"] = norm_loadings_arr
@@ -107,7 +93,7 @@ class LigerIntegrate:
     def integrate(self):
         # Perform workflow and return integrated anndata object
         self._format()
-        self._output_temp_df()
+        self._output_temp_h5ad()
         self._liger_integrate()
         integrated_adata = self._return_integrated()
         self._clean_files()

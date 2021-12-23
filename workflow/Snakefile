@@ -42,7 +42,7 @@ def get_combinations(config):
 rule all:
     input:
         expand(
-            "../results/{outputs[0]}/{dataset}_{outputs[1]}.tsv",
+            "../results/h5ad_branch/{outputs[0]}/{dataset}_{outputs[1]}.tsv",
             dataset = get_combinations(config),
             outputs = zip(
                 [
@@ -67,7 +67,7 @@ rule integrate:
     input:
         "../resources/h5ad_files/{data_folder}"
     output:
-        temp("../h5ad_branch/results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        temp("../results/h5ad_branch/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad")
     params:
         script_path = "scripts/python/integrate_data.py",
@@ -90,10 +90,10 @@ rule downsample_summary:
     conda:
         "envs/integrate.yaml"
     input:
-        "../h5ad_branch/results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "../results/h5ad_branch/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        "../h5ad_branch/results/downsample_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "../results/h5ad_branch/downsample_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_downsample_summary.tsv"
     params:
         script_path = "scripts/python/downsample_summary.py",
@@ -115,10 +115,10 @@ rule clustering_summary:
     conda:
         "envs/integrate.yaml"
     input:
-        "../h5ad_branch/results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "../results/h5ad_branch/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        "../h5ad_branch/results/clustering_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "../results/h5ad_branch/clustering_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.tsv"
     params:
         script_path = "scripts/python/clustering_stats.py",
@@ -140,10 +140,10 @@ rule clustering_concord_summary:
     conda:
         "envs/integrate.yaml"
     input:
-        "../h5ad_branch/results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "../results/h5ad_branch/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        "../h5ad_branch/results/clustering_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "../results/h5ad_branch/clustering_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_concord_summary.tsv"
     params:
         script_path = "scripts/python/clustering_concordance.py",
@@ -165,10 +165,10 @@ rule dge_concord_summary:
     conda:
         "envs/integrate.yaml"
     input:
-        "../h5ad_branch/results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "../results/h5ad_branch/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        "../h5ad_branch/results/dge_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "../results/h5ad_branch/dge_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_summary.tsv"
     params:
         script_path = "scripts/python/dge_concordance.py",

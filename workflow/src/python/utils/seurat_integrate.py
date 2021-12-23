@@ -38,7 +38,7 @@ class SeuratIntegrate:
         # Append a column on gene names 
         self.adata.var["gene"] = self.adata.var_names
         
-    def _output_temp_df(self):
+    def _output_temp_h5ad(self):
         # Check if temp exists, if not, make dir
         if not os.path.exists("tmp"):
             os.makedirs("tmp")
@@ -97,7 +97,7 @@ class SeuratIntegrate:
     def integrate(self):
         # Perform workflow and return integrated anndata object
         self._format()
-        self._output_temp_df()
+        self._output_temp_h5ad()
         self._seurat_integrate()
         integrated_adata = self._return_integrated()
         self._clean_files()
