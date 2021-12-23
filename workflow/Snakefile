@@ -1,6 +1,6 @@
 import os 
 
-configfile: "configs/config.json"
+configfile: "configs/test_config_lite.json"
 
 # Get all combinations through the config file
 def get_combinations(config):
