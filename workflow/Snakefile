@@ -1,6 +1,7 @@
 import os 
 
 configfile: "configs/config.json"
+iniq_dir = "/cluster/projects/bwanggroup/hassaan/Iniquitate"
 
 # Get all combinations through the config file
 def get_combinations(config):
@@ -16,11 +17,14 @@ def get_combinations(config):
         for num_batch in num_batches:
             if num_batch == 0:
                 combinations.append(
-                    "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_1".format(
-                        data_folder = data_folder,
-                        ds_celltype = 0, 
-                        ds_proportion = 1,
-                        num_batch = num_batch
+                    os.path.join(
+                        iniq_dir,
+                        "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_1".format(
+                            data_folder = data_folder,
+                            ds_celltype = 0, 
+                            ds_proportion = 1,
+                            num_batch = num_batch
+                        )
                     )
                 )   
                 continue
@@ -28,12 +32,15 @@ def get_combinations(config):
                 for ds_proportion in ds_proportions:
                     for repetition in range(repetitions):
                         combinations.append(
-                            "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_{rep}".format(
-                                data_folder = data_folder,
-                                ds_celltype = ds_celltype, 
-                                ds_proportion = ds_proportion,
-                                num_batch = num_batch,
-                                rep = repetition
+                            os.path.join(
+                                iniq_dir,
+                                "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_{rep}".format(
+                                    data_folder = data_folder,
+                                    ds_celltype = ds_celltype, 
+                                    ds_proportion = ds_proportion,
+                                    num_batch = num_batch,
+                                    rep = repetition
+                                )
                             )
                         )
     return combinations
@@ -42,7 +49,8 @@ def get_combinations(config):
 rule all:
     input:
         expand(
-            "../results/{outputs[0]}/{dataset}_{outputs[1]}.tsv",
+            "{data_dir}/results/{outputs[0]}/{dataset}_{outputs[1]}.tsv",
+            data_dir = iniq_dir,
             dataset = get_combinations(config),
             outputs = zip(
                 [
@@ -65,14 +73,14 @@ rule integrate:
     conda:
         "envs/integrate.yaml"
     input:
-        "../resources/h5ad_files/{data_folder}"
+        "{iniq_dir}/resources/h5ad_files/{data_folder}"
     output:
-        temp("../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        temp("{iniq_dir}/results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad")
     params:
         script_path = "scripts/python/integrate_data.py",
     log:
-        "logs/integrate/integrate_{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "{iniq_dir}/logs/integrate/integrate_{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}.log"
     shell:
         """
@@ -90,15 +98,15 @@ rule downsample_summary:
     conda:
         "envs/integrate.yaml"
     input:
-        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "{iniq_dir}/results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        "../results/downsample_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "{iniq_dir}/results/downsample_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_downsample_summary.tsv"
     params:
         script_path = "scripts/python/downsample_summary.py",
     log:
-        "logs/downsample_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "{iniq_dir}/logs/downsample_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_downsample_summary.log"
     shell:
         """
@@ -115,15 +123,15 @@ rule clustering_summary:
     conda:
         "envs/integrate.yaml"
     input:
-        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "{iniq_dir}/results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        "../results/clustering_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "{iniq_dir}/results/clustering_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.tsv"
     params:
         script_path = "scripts/python/clustering_stats.py",
     log:
-        "logs/clustering_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "{iniq_dir}/logs/clustering_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.log"
     shell:
         """
@@ -140,15 +148,15 @@ rule clustering_concord_summary:
     conda:
         "envs/integrate.yaml"
     input:
-        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "{iniq_dir}/results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        "../results/clustering_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "{iniq_dir}/results/clustering_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_concord_summary.tsv"
     params:
         script_path = "scripts/python/clustering_concordance.py",
     log:
-        "logs/clustering_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "{iniq_dir}/logs/clustering_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_concord_summary.log"
     shell:
         """
@@ -165,10 +173,10 @@ rule dge_concord_summary:
     conda:
         "envs/integrate.yaml"
     input:
-        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "{iniq_dir}/results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        "../results/dge_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "{iniq_dir}/results/dge_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_summary.tsv"
     params:
         script_path = "scripts/python/dge_concordance.py",
