@@ -17,30 +17,24 @@ def get_combinations(config):
         for num_batch in num_batches:
             if num_batch == 0:
                 combinations.append(
-                    os.path.join(
-                        iniq_dir,
-                        "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_1".format(
-                            data_folder = data_folder,
-                            ds_celltype = 0, 
-                            ds_proportion = 1,
-                            num_batch = num_batch
-                        )
+                    "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_1".format(
+                        data_folder = data_folder,
+                        ds_celltype = 0, 
+                        ds_proportion = 1,
+                        num_batch = num_batch
                     )
-                )   
+                )  
                 continue
             for ds_celltype in ds_celltypes:
                 for ds_proportion in ds_proportions:
                     for repetition in range(repetitions):
                         combinations.append(
-                            os.path.join(
-                                iniq_dir,
-                                "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_{rep}".format(
-                                    data_folder = data_folder,
-                                    ds_celltype = ds_celltype, 
-                                    ds_proportion = ds_proportion,
-                                    num_batch = num_batch,
-                                    rep = repetition
-                                )
+                            "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_{rep}".format(
+                                data_folder = data_folder,
+                                ds_celltype = ds_celltype, 
+                                ds_proportion = ds_proportion,
+                                num_batch = num_batch,
+                                rep = repetition
                             )
                         )
     return combinations
@@ -181,7 +175,7 @@ rule dge_concord_summary:
     params:
         script_path = "scripts/python/dge_concordance.py",
     log:
-        "logs/dge_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "{iniq_dir}/logs/dge_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_summary.log"
     shell:
         """
