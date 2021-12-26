@@ -19,7 +19,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     
     # Subset h5ad based on batch-correction method used
     adata_method_sub = []
-    methods = ["harmony", "scvi", "bbknn", "scanorama", "seurat", "liger"]
+    methods = ["harmony", "bbknn", "scanorama", "seurat", "liger"]
     for method in methods:
         adata_sub = adata[adata.obs["integration_method"] == method]
         adata_method_sub.append(

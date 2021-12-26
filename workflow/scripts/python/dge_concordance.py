@@ -42,7 +42,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         dge_summary_df.to_csv(save_loc, sep = "\t", index = False)
     else:
         # Subset adatas based on method for integration
-        methods = ["harmony", "scvi", "scanorama", "seurat", "liger"]
+        methods = ["harmony", "scanorama", "seurat", "liger"]
         method_adatas = []
         for method in methods:
             adata_copy = adata.copy()

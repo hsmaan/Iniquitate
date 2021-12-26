@@ -56,7 +56,6 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     
     # Integrate across subsets
     harmony_integrated = integration.harmony_integrate()
-    scvi_integrated = integration.scvi_integrate()
     bbknn_integrated = integration.bbknn_integrate()
     scanorama_integrated = integration.scanorama_integrate()
     seurat_integrated = integration.seurat_integrate()
@@ -64,7 +63,6 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     
     # Add integration type to each subset and concatenate
     harmony_integrated.obs["integration_method"] = "harmony" 
-    scvi_integrated.obs["integration_method"] = "scvi"
     bbknn_integrated.obs["integration_method"] = "bbknn"
     scanorama_integrated.obs["integration_method"] = "scanorama"
     seurat_integrated.obs["integration_method"] = "seurat"
@@ -72,7 +70,6 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     
     integrated_concat = ann.concat([
         harmony_integrated,
-        scvi_integrated,
         bbknn_integrated,
         scanorama_integrated,
         seurat_integrated,
@@ -88,7 +85,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     # Define method subsets and iterate over them until the same number of k clusters is found
     k = 10
     k_initial = k # Integers are immutable 
-    methods = ["harmony", "scvi", "scanorama", "seurat", "liger"]
+    methods = ["harmony", "scanorama", "seurat", "liger"]
     method_kmeans_adatas = []
     i = 0
     while i < len(methods):
