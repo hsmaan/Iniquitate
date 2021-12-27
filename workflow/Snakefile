@@ -2,6 +2,7 @@ import os
 
 configfile: "configs/config.json"
 iniq_dir = "/cluster/projects/bwanggroup/hassaan/Iniquitate"
+script_dir = "/cluster/home/hmaan/Iniquitate/workflow/scripts"
 
 # Get all combinations through the config file
 def get_combinations(config):
@@ -72,12 +73,15 @@ rule integrate:
         temp("{iniq_dir}/results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad")
     params:
-        script_path = "scripts/python/integrate_data.py",
+        script_path = "{script_dir}/python/integrate_data.py".format(
+            script_dir = script_dir
+        )
     log:
         "{iniq_dir}/logs/integrate/integrate_{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}.log"
     shell:
         """
+        setwd {wildcards.iniq_dir}
         python {params.script_path} \
             --filedir {input} \
             --ds_celltypes {wildcards.ds_celltype} \
@@ -98,12 +102,15 @@ rule downsample_summary:
         "{iniq_dir}/results/downsample_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_downsample_summary.tsv"
     params:
-        script_path = "scripts/python/downsample_summary.py",
+        script_path = "{script_dir}/python/downsample_summary.py".format(
+            script_dir = script_dir
+        )
     log:
         "{iniq_dir}/logs/downsample_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_downsample_summary.log"
     shell:
         """
+        setwd {wildcards.iniq_dir}
         python {params.script_path} \
             --infile {input} \
             --outfile {output} \
@@ -123,12 +130,15 @@ rule clustering_summary:
         "{iniq_dir}/results/clustering_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.tsv"
     params:
-        script_path = "scripts/python/clustering_stats.py",
+        script_path = "{script_dir}/python/clustering_stats.py".format(
+            script_dir = script_dir
+        )
     log:
         "{iniq_dir}/logs/clustering_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.log"
     shell:
         """
+        setwd {wildcards.iniq_dir}
         python {params.script_path} \
             --infile {input} \
             --outfile {output} \
@@ -148,12 +158,15 @@ rule clustering_concord_summary:
         "{iniq_dir}/results/clustering_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_concord_summary.tsv"
     params:
-        script_path = "scripts/python/clustering_concordance.py",
+        script_path = "{script_dir}/python/clustering_concordance.py".format(
+            script_dir = script_dir
+        )
     log:
         "{iniq_dir}/logs/clustering_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_concord_summary.log"
     shell:
         """
+        setwd {wildcards.iniq_dir}
         python {params.script_path} \
             --infile {input} \
             --outfile {output} \
@@ -173,12 +186,15 @@ rule dge_concord_summary:
         "{iniq_dir}/results/dge_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_summary.tsv"
     params:
-        script_path = "scripts/python/dge_concordance.py",
+        script_path = "{script_dir}/python/dge_concordance.py".format(
+            script_dir = script_dir
+        )
     log:
         "{iniq_dir}/logs/dge_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_summary.log"
     shell:
         """
+        setwd {wildcards.iniq_dir}
         python {params.script_path} \
             --infile {input} \
             --outfile {output} \
