@@ -52,7 +52,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     adata_concat.obs.drop("batch_name", axis = 1, inplace = True)
     
     # Create integration class instance 
-    integration = Integration(adata = adata_concat)
+    integration = Integration(adata = adata_concat, gpu = False)
     
     # Integrate across subsets
     harmony_integrated = integration.harmony_integrate()
