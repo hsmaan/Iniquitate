@@ -7,6 +7,8 @@
 *.log
 *.out
 *.snakemake
+*.slurm*
+*.slrm*
 __pycache__
 cluster.json
 submit.slrm
