@@ -19,11 +19,12 @@ class SeuratIntegrate:
         Uses the first 20 components of CCA/RPCA space to integrate and get correction
         vectors for correcting whole data matrix.
     """
-    def __init__(self, adata, int_type = "CCA"):
+    def __init__(self, adata, src_dir, int_type = "CCA"):
         """
         Args:
             adata (object): An instance of an anndata class corresponding to the seurat
                 subset from the Integration class.
+            src_dir (str): Path to the source directory of the R scripts.
             int_type (string): Either "CCA" or "RPCA", indicating which Seurat workflow to 
                 utilize for integration - canonical correlation analysis and reciprocal PCA,
                 respectively. RPCA should be used for larger datasets to avoid out-of-memory
@@ -33,6 +34,7 @@ class SeuratIntegrate:
         """
         self.adata = adata.copy()
         self.int_type = int_type
+        self.src_dir = src_dir
         
     def _format(self):
         # Append a column on gene names 
@@ -54,7 +56,8 @@ class SeuratIntegrate:
     def _seurat_integrate(self):
         # Call subprocess and call R script
         tempfile_script = \
-            "Rscript src/R/seurat.R tmp/{tempfile} {tempfile_name} {int_type} --verbose".format(
+            "Rscript {src_dir}/R/seurat.R tmp/{tempfile} {tempfile_name} {int_type} --verbose".format(
+                src_dir = self.src_dir,
                 tempfile = self.file,
                 tempfile_name = self.filename,
                 int_type = self.int_type

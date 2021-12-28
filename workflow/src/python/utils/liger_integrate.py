@@ -19,14 +19,16 @@ class LigerIntegrate:
         Integration is performed using 20 latent components in the NMF factorization,
         or 20 "metagenes".
     """
-    def __init__(self, adata):
+    def __init__(self, adata, src_dir):
         """
         Args:
             adata (object): An instance of an anndata class corresponding to the liger
                 subset from the Integration class.
+            src_dir (str): Path to the directory containing the R scripts.
         """
         self.adata = adata.copy()
         self.adata_copy = adata.copy() # Keep copy for later referencing
+        self.src_dir = src_dir
         
     def _format(self):
         # Append a column on gene names 
@@ -48,7 +50,8 @@ class LigerIntegrate:
     def _liger_integrate(self):
         # Call subprocess and call R script
         tempfile_script = \
-            "Rscript src/R/liger.R tmp/{tempfile} {tempfile_name} --verbose".format(
+            "Rscript {src_dir}/R/liger.R tmp/{tempfile} {tempfile_name} --verbose".format(
+                src_dir = self.src_dir,
                 tempfile = self.file,
                 tempfile_name = self.filename
             )

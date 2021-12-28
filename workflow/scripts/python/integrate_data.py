@@ -1,7 +1,7 @@
 import argparse 
 import os 
 import sys 
-sys.path.append("src/python/")
+sys.path.append("/cluster/home/hmaan/Iniquitate/workflow/src/python")
 os.environ['CUDA_VISIBLE_DEVICES'] = "0, 1"
 
 import scanpy as sc
@@ -10,7 +10,7 @@ import numpy as np
 
 from utils import Integration, downsample, faiss_kmeans
 
-def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
+def main(src_dir, h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     # Load h5ad files 
     files_list = os.listdir(h5ad_dir)
     adata_loaded = []
@@ -52,7 +52,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     adata_concat.obs.drop("batch_name", axis = 1, inplace = True)
     
     # Create integration class instance 
-    integration = Integration(adata = adata_concat, gpu = False)
+    integration = Integration(adata = adata_concat, src_dir = src_dir, gpu = False)
     
     # Integrate across subsets
     harmony_integrated = integration.harmony_integrate()
@@ -173,6 +173,11 @@ if __name__ == "__main__":
         description = "Input and output files for scRNA-seq integration"
     )
     parser.add_argument(
+        "--srcdir",
+        type = str,
+        help = "Path to directory containing source code"
+    )
+    parser.add_argument(
         "--filedir",
         type = str,
         help = "Path of directory containing scRNA-seq h5ad files"
@@ -199,6 +204,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     main(
+        src_dir = args.srcdir,
         h5ad_dir = args.filedir,
         save_loc = args.outfile,
         ds_celltypes = args.ds_celltypes,

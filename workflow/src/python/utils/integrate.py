@@ -15,16 +15,19 @@ from utils.liger_integrate import LigerIntegrate
 class Integration:
     """Class for integrating scRNA-seq data and returning processed data."""
     
-    def __init__(self, adata, gpu = True):
+    def __init__(self, adata, src_dir, gpu = True):
         """
         Args:
             adata (AnnData): AnnData object to be utilized in integration methods.
                 Assumes that the counts being input are unnormalized (raw counts),
                 and that raw counts are stored in "counts" layer, and batch covariate
                 is available.
+            src_dir (str): Path to directory containing the source code for integrating
+                using Seurat and Liger.
             gpu (bool): Whether or not to use GPU for scVI.
         """
         self.adata = adata
+        self.src_dir = src_dir
         # Check anndata object 
         if not isinstance(adata, ann.AnnData):
             raise Exception("Please input an AnnData object.")
@@ -170,7 +173,8 @@ class Integration:
         sc.pp.log1p(aseurat)
         seurat_integrate = SeuratIntegrate(
             adata = aseurat,
-            int_type = int_type
+            int_type = int_type,
+            src_dir = self.src_dir
         )
         aseurat_int = seurat_integrate.integrate() # Substitute seurat integrated anndata object
         sc.pp.pca(aseurat_int, svd_solver = "arpack")
@@ -200,6 +204,7 @@ class Integration:
         sc.pp.log1p(aliger)       
         liger_integrate = LigerIntegrate(
             adata = aliger,
+            src_dir = self.src_dir
         )
         aliger = liger_integrate.integrate() # Substitute liger integrated anndata object
         sc.pp.neighbors(

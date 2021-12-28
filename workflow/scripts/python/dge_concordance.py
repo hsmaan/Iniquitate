@@ -1,7 +1,7 @@
 import argparse 
 import os 
 import sys 
-sys.path.append("src/python/")
+sys.path.append("/cluster/home/hmaan/Iniquitate/workflow/src/python")
 
 import numpy as np
 import pandas as pd

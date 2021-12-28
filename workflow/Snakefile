@@ -1,8 +1,10 @@
 import os 
 
 configfile: "configs/config.json"
+workdir: "/cluster/projects/bwanggroup/hassaan/Iniquitate"
 iniq_dir = "/cluster/projects/bwanggroup/hassaan/Iniquitate"
 script_dir = "/cluster/home/hmaan/Iniquitate/workflow/scripts"
+
 
 # Get all combinations through the config file
 def get_combinations(config):
@@ -75,14 +77,15 @@ rule integrate:
     params:
         script_path = "{script_dir}/python/integrate_data.py".format(
             script_dir = script_dir
-        )
+        ),
+        src_dir = "/cluster/home/hmaan/Iniquitate/workflow/src"
     log:
         "{iniq_dir}/logs/integrate/integrate_{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}.log"
     shell:
         """
-        setwd {wildcards.iniq_dir}
         python {params.script_path} \
+            --srcdir {params.src_dir} \
             --filedir {input} \
             --ds_celltypes {wildcards.ds_celltype} \
             --ds_proportions {wildcards.ds_proportion} \
@@ -110,7 +113,6 @@ rule downsample_summary:
         "_downsample_{num_batches}_batch_ds_c_{rep}_downsample_summary.log"
     shell:
         """
-        setwd {wildcards.iniq_dir}
         python {params.script_path} \
             --infile {input} \
             --outfile {output} \
@@ -138,7 +140,6 @@ rule clustering_summary:
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.log"
     shell:
         """
-        setwd {wildcards.iniq_dir}
         python {params.script_path} \
             --infile {input} \
             --outfile {output} \
@@ -166,7 +167,6 @@ rule clustering_concord_summary:
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_concord_summary.log"
     shell:
         """
-        setwd {wildcards.iniq_dir}
         python {params.script_path} \
             --infile {input} \
             --outfile {output} \
@@ -194,7 +194,6 @@ rule dge_concord_summary:
         "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_summary.log"
     shell:
         """
-        setwd {wildcards.iniq_dir}
         python {params.script_path} \
             --infile {input} \
             --outfile {output} \
