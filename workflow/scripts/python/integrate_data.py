@@ -108,9 +108,6 @@ def main(src_dir, h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches)
             flavor = "seurat"
         )
         
-        # Store raw attribute (lognorm counts) for later differential expression analysis
-        adata_subset.raw = adata_subset
-        
         # Perform faiss kmeans clustering
         adata_subset, k_method = faiss_kmeans(adata_subset, k)
         
