@@ -4,7 +4,7 @@ from sklearn import metrics
 
 def cluster_concordance(adata):
     # Pull out clustering values per subset
-    methods = ["harmony", "scvi", "bbknn", "scanorama", "seurat", "liger"]
+    methods = ["harmony", "bbknn", "scanorama", "seurat", "liger"]
     adata_subsets = []
     for method in methods:
         adata_subsets.append(adata[adata.obs["integration_method"] == method])
