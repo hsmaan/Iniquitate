@@ -1,6 +1,6 @@
 import os 
 
-configfile: "configs/config.json"
+configfile: "configs/config_lowcap.json"
 workdir: "/cluster/projects/bwanggroup/hassaan/Iniquitate"
 iniq_dir = "/cluster/projects/bwanggroup/hassaan/Iniquitate"
 script_dir = "/cluster/home/hmaan/Iniquitate/workflow/scripts"
