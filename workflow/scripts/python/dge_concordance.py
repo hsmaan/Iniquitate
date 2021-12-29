@@ -41,12 +41,20 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         )
         dge_summary_df.to_csv(save_loc, sep = "\t", index = False)
     else:
-        # Subset adatas based on method for integration
+        # Subset adatas based on method for integration and store lognorm counts in raw
+        # attribute for diffexp testing
         methods = ["harmony", "scvi", "scanorama", "seurat", "liger"]
         method_adatas = []
         for method in methods:
             adata_copy = adata.copy()
             adata_subset = adata_copy[adata_copy.obs["integration_method"] == method]
+            adata_subset.X = adata_subset.layers["raw"] # Unlogged, unnorm counts
+            sc.pp.normalize_total(
+                adata_subset,
+                target_sum = 1e4
+            )
+            sc.pp.log1p(adata_subset)
+            adata_subset.raw = adata_subset # Freeze for DGE test 
             method_adatas.append(adata_subset)
                 
         # Extract top 50 DGEs for each cluster in each method 
