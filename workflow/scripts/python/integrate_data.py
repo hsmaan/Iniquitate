@@ -18,6 +18,9 @@ def main(src_dir, h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches)
         adata = sc.read_h5ad(os.path.join(h5ad_dir, f), as_sparse = "raw/X")
         adata.layers["raw"] = adata.X # Store raw counts
         adata.obs = adata.obs[["batch", "celltype"]] # Only store relevant columns
+        if "gene" not in adata.var.columns:
+            adata.var["gene"] = adata.var_names # Add gene names if not present
+        adata.var = adata.var[["gene"]] # Only store relevant columns
         adata_loaded.append(adata)
     
     # Downsample loaded h5ad files based on params 
