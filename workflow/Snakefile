@@ -1,6 +1,6 @@
 import os 
 
-configfile: "configs/config.json"
+configfile: "configs/config_lowcap.json"
 
 # Get all combinations through the config file
 def get_combinations(config):
