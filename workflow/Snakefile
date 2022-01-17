@@ -1,6 +1,6 @@
 import os 
 
-configfile: "configs/config.json"
+configfile: "configs/config_lowcap.json"
 workdir: "/cluster/projects/bwanggroup/hassaan/Iniquitate"
 iniq_dir = "/cluster/projects/bwanggroup/hassaan/Iniquitate"
 script_dir = "/cluster/home/hmaan/Iniquitate/workflow/scripts"
@@ -46,22 +46,31 @@ def get_combinations(config):
 rule all:
     input:
         expand(
-            "{data_dir}/results/{outputs[0]}/{dataset}_{outputs[1]}.tsv",
+            "{data_dir}/results/{outputs[0]}/{dataset}_{outputs[1]}.{outputs[2]}",
             data_dir = iniq_dir,
             dataset = get_combinations(config),
             outputs = zip(
                 [
+                    "integrated_results",
                     "downsample_summaries", 
                     "clustering_summaries", 
                     "clustering_concord_summaries",
                     "dge_concord_summaries"
                 ], 
                 [
+                    "integrated",
                     "downsample_summary", 
                     "clustering_summary", 
                     "clustering_concord_summary",
                     "dge_concord_summary"
                 ],
+                [
+                    "h5ad",
+                    "tsv", 
+                    "tsv", 
+                    "tsv",
+                    "tsv"
+                ]
             )
         )
 
