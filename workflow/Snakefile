@@ -42,21 +42,30 @@ def get_combinations(config):
 rule all:
     input:
         expand(
-            "../results/{outputs[0]}/{dataset}_{outputs[1]}.tsv",
+            "../results/{outputs[0]}/{dataset}_{outputs[1]}.{outputs[2]}",
             dataset = get_combinations(config),
             outputs = zip(
                 [
+                    "integrated_results",
                     "downsample_summaries", 
                     "clustering_summaries", 
                     "clustering_concord_summaries",
                     "dge_concord_summaries"
                 ], 
                 [
+                    "integrated",
                     "downsample_summary", 
                     "clustering_summary", 
                     "clustering_concord_summary",
                     "dge_concord_summary"
                 ],
+                [
+                    "h5ad", 
+                    "tsv", 
+                    "tsv", 
+                    "tsv", 
+                    "tsv"
+                ]
             )
         )
 
@@ -67,8 +76,8 @@ rule integrate:
     input:
         "../resources/h5ad_files/{data_folder}"
     output:
-        temp("../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
-        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad")
+        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     params:
         script_path = "scripts/python/integrate_data.py",
     log:
