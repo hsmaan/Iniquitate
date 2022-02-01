@@ -3,10 +3,10 @@ import os
 configfile: "configs/config_lowcap.json"
 
 # Get all combinations through the config file
-def get_combinations(config):
+def get_combinations(config, config_key):
     # Iterate over keys and values of config
     combinations = []
-    for key, value in config.items():
+    for key, value in config[config_key].items():
         data_folder = value["data_folder"]
         ds_celltypes = value["ds_celltypes"]
         ds_proportions = value["ds_proportions"]
@@ -43,7 +43,7 @@ rule all:
     input:
         expand(
             "../results/{outputs[0]}/{dataset}_{outputs[1]}.{outputs[2]}",
-            dataset = get_combinations(config),
+            dataset = get_combinations(config, "int_datasets"),
             outputs = zip(
                 [
                     "integrated_results",
