@@ -12,7 +12,7 @@ import torch
 from utils.seurat_integrate import SeuratIntegrate
 from utils.liger_integrate import LigerIntegrate
 
-class IntegrationPaga:
+class IntegrationPAGA:
     """Class for integrating scRNA-seq data and subsequently performing PAGA trajectory inference."""
     
     def __init__(self, adata, root_celltype, gpu = True):
@@ -59,7 +59,6 @@ class IntegrationPaga:
             n_neighbors = n_neighbors,
             n_pcs = n_pcs,
         )
-        aunint.obsm["X_kmeans"] = aunint.obsm["X_pca"][:, 0:n_pcs]
         sc.tl.leiden(aunint)
         sc.tl.umap(aunint)
         sc.tl.paga(
@@ -80,7 +79,6 @@ class IntegrationPaga:
         vae = scvi.model.SCVI(ascvi)
         vae.train(use_gpu = self.gpu)
         ascvi.obsm["X_scVI"] = vae.get_latent_representation()
-        ascvi.obsm["X_kmeans"] = ascvi.obsm["X_scVI"][:, 0:n_pcs]
         sc.pp.neighbors(
             ascvi,
             n_neighbors = n_neighbors,
@@ -124,7 +122,6 @@ class IntegrationPaga:
             n_pcs = n_pcs,
             use_rep = "X_pca_harmony"
         )
-        aharmony.obsm["X_kmeans"] = aharmony.obsm["X_pca_harmony"][:, 0:n_pcs]
         sc.tl.leiden(aharmony)
         sc.tl.umap(aharmony)
         sc.tl.paga(
@@ -172,11 +169,6 @@ class IntegrationPaga:
             raise Exception(
                 "Please enter either 'euclidean' or 'angular' for 'metric'"
             )
-        # Add placeholder for kmeans
-        abbknn.obsm["X_kmeans"] = np.ones((
-            abbknn.obsm["X_pca"].shape[0],
-            abbknn.obsm["X_pca"].shape[1]
-        ))
         sc.tl.leiden(abbknn)
         sc.tl.umap(abbknn)
         sc.tl.paga(
@@ -214,7 +206,6 @@ class IntegrationPaga:
             n_pcs = n_pcs,
             use_rep = "X_scanorama"
         )
-        ascanorama.obsm["X_kmeans"] = ascanorama.obsm["X_scanorama"][:, 0:n_pcs]
         sc.tl.leiden(ascanorama)
         sc.tl.umap(ascanorama)
         sc.tl.paga(
@@ -260,7 +251,6 @@ class IntegrationPaga:
         # Append seurat integrated data to original adata object
         aseurat.obs["leiden"] = aseurat_int.obs["leiden"]
         aseurat.obsm["X_pca"] = aseurat_int.obsm["X_pca"]
-        aseurat.obsm["X_kmeans"] = aseurat_int.obsm["X_pca"][:, 0:n_pcs]
         aseurat.obsm["X_umap"] = aseurat_int.obsm["X_umap"]
         aseurat.obsm["seurat_hvg"] = aseurat_int.X
         aseurat.obs["dpt_pseudotime"] = aseurat_int.obs["dpt_pseudotime"]
@@ -289,7 +279,6 @@ class IntegrationPaga:
             n_pcs = n_pcs,
             use_rep = "X_liger"
         )
-        aliger.obsm["X_kmeans"] = aliger.obsm["X_liger"][:, 0:n_pcs]
         sc.tl.leiden(aliger)
         sc.tl.umap(aliger)
         sc.tl.paga(
