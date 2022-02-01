@@ -22,6 +22,8 @@ class IntegrationPaga:
                 Assumes that the counts being input are unnormalized (raw counts),
                 and that raw counts are stored in "counts" layer, and batch covariate
                 is available.
+            root_celltype (str): Celltype to be used as the root celltype for trajectory
+                inference via diffusion pseudotime.
             gpu (bool): Whether or not to use GPU for scVI.
         """
         self.adata = adata
