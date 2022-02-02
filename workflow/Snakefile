@@ -71,13 +71,16 @@ rule all:
             dataset = get_combinations(config, "int_ti_datasets"),
             outputs = zip(
                 [
-                    "paga_integrated_results"
+                    "paga_integrated_results",
+                    "paga_imbalance_summaries"
                 ], 
                 [
-                    "paga_integrated"
+                    "paga_integrated",
+                    "paga_imbalance_summary"
                 ],
                 [
-                    "h5ad"
+                    "h5ad",
+                    "tsv"
                 ]
             )
         ),
@@ -90,20 +93,23 @@ rule all:
                     "downsample_summaries", 
                     "clustering_summaries", 
                     "clustering_concord_summaries",
-                    "dge_concord_summaries"
+                    "dge_concord_summaries",
+                    "imbalance_summaries",
                 ], 
                 [
                     "integrated",
                     "downsample_summary", 
                     "clustering_summary", 
                     "clustering_concord_summary",
-                    "dge_concord_summary"
+                    "dge_concord_summary",
+                    "imbalance_summary",
                 ],
                 [
                     "h5ad",
                     "tsv", 
                     "tsv", 
                     "tsv", 
+                    "tsv",
                     "tsv"
                 ]
             )
@@ -250,6 +256,55 @@ rule dge_concord_summary:
     log:
         "logs/dge_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_summary.log"
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            &> {log}
+        """
+
+# Get imbalance summary results for all datasets - vanilla integration and PAGA-based 
+rule imbalance_summary:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
+    output:
+        "../results/imbalance_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_imbalance_summary.tsv"
+    params:
+        script_path = "scripts/python/imbalance_summary.py",
+    log:
+        "logs/imbalance_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_imbalance_summary.log"
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            &> {log}
+        """
+
+rule imbalance_summary_paga:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/paga_integrated_results/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
+        "_{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}_paga_integrated.h5ad"
+    output:
+        "../results/paga_imbalance_summaries/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
+        "_{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}_paga_imbalance_summary.tsv"
+    params:
+        script_path = "scripts/python/imbalance_summary.py",
+    log:
+        "logs/paga_imbalance_summary/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
+        "_{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}_paga_imbalance_summary.log"
     shell:
         """
         python {params.script_path} \
