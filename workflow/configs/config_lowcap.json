@@ -28,5 +28,15 @@
             "num_batches": [0, 2, 4, 6],
             "repetitions": 5
         }
+    },
+    "int_ti_datasets": {
+        "cao_organ_dev_2_batch": {
+            "data_folder": "cao_organ_dev_2_batch",
+            "root_celltype": "test",
+            "ds_celltypes": [1, 2, 3, 4, 5, 6],
+            "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0.05, 0],
+            "num_batches": [0, 1],
+            "repetitions": 10
+        }
     }
 }

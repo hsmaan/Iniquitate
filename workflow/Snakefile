@@ -12,35 +12,75 @@ def get_combinations(config, config_key):
         ds_proportions = value["ds_proportions"]
         num_batches = value["num_batches"]
         repetitions = value["repetitions"]
-        # Get combinations of celltypes and proportions
+        if config_key == "int_ti_datasets":
+            root_celltype = value["root_celltype"]
+        # Get combinations of celltypes and proportions - sort by config_key (root celltype or not for TI)
         for num_batch in num_batches:
             if num_batch == 0:
-                combinations.append(
-                    "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_1".format(
-                        data_folder = data_folder,
-                        ds_celltype = 0, 
-                        ds_proportion = 1,
-                        num_batch = num_batch
-                    )
-                )   
+                if config_key == "int_ti_datasets":
+                    combinations.append(
+                        "{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_1".format(
+                            data_folder = data_folder,
+                            root_celltype = root_celltype,
+                            ds_celltype = 0, 
+                            ds_proportion = 1,
+                            num_batch = num_batch
+                        )
+                    )   
+                else:
+                    combinations.append(
+                        "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_1".format(
+                            data_folder = data_folder,
+                            ds_celltype = 0, 
+                            ds_proportion = 1,
+                            num_batch = num_batch
+                        )
+                    )   
                 continue
             for ds_celltype in ds_celltypes:
                 for ds_proportion in ds_proportions:
                     for repetition in range(repetitions):
-                        combinations.append(
-                            "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_{rep}".format(
-                                data_folder = data_folder,
-                                ds_celltype = ds_celltype, 
-                                ds_proportion = ds_proportion,
-                                num_batch = num_batch,
-                                rep = repetition
+                        if config_key == "int_ti_datasets":
+                            combinations.append(
+                                "{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_{rep}".format(
+                                    data_folder = data_folder,
+                                    root_celltype = root_celltype,
+                                    ds_celltype = ds_celltype, 
+                                    ds_proportion = ds_proportion,
+                                    num_batch = num_batch,
+                                    rep = repetition
+                                )
                             )
-                        )
+                        else:
+                            combinations.append(
+                                "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_{rep}".format(
+                                    data_folder = data_folder,
+                                    ds_celltype = ds_celltype, 
+                                    ds_proportion = ds_proportion,
+                                    num_batch = num_batch,
+                                    rep = repetition
+                                )
+                            )
     return combinations
 
 # All rule
 rule all:
     input:
+        expand(
+            "../results/{outputs[0]}/{dataset}_{outputs[1]}.{outputs[2]}",
+            dataset = get_combinations(config, "int_ti_datasets"),
+            outputs = zip(
+                [
+                    "paga_integrated_results"
+                ], 
+                [
+                    "paga_integrated"
+                ],
+                [
+                    "h5ad"
+                ]
+            )
+        ),
         expand(
             "../results/{outputs[0]}/{dataset}_{outputs[1]}.{outputs[2]}",
             dataset = get_combinations(config, "int_datasets"),
@@ -60,7 +100,7 @@ rule all:
                     "dge_concord_summary"
                 ],
                 [
-                    "h5ad", 
+                    "h5ad",
                     "tsv", 
                     "tsv", 
                     "tsv", 
@@ -74,7 +114,7 @@ rule integrate:
     conda:
         "envs/integrate.yaml"
     input:
-        "../resources/h5ad_files/{data_folder}"
+        "../resources/h5ad_files/int_datasets/{data_folder}"
     output:
         "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
@@ -83,6 +123,31 @@ rule integrate:
     log:
         "logs/integrate/integrate_{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}.log"
+    shell:
+        """
+        python {params.script_path} \
+            --filedir {input} \
+            --ds_celltypes {wildcards.ds_celltype} \
+            --ds_proportions {wildcards.ds_proportion} \
+            --num_batches {wildcards.num_batches} \
+            --outfile {output} \
+            &> {log}
+        """
+
+# Perform PAGA integration of the indicated h5ad files from config 
+rule integrate_paga:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../resources/h5ad_files/int_paga_datasets/{data_folder}"
+    output:
+        "../results/paga_integrated_results/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
+        "_{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}_paga_integrated.h5ad"
+    params:
+        script_path = "scripts/python/integrate_data_paga.py",
+    log:
+        "logs/paga_integrate/integrate_paga_{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes_" + 
+        "{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}.log"
     shell:
         """
         python {params.script_path} \
