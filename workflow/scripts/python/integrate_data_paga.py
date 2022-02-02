@@ -21,6 +21,9 @@ def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_proportions, num_ba
         if "gene" not in adata.var.columns:
             adata.var["gene"] = adata.var_names # Add gene names if not present
         adata.var = adata.var[["gene"]] # Only store relevant columns
+        adata.obs.celltype = [
+            c.replace(" ", "_") for c in adata.obs.celltype
+        ] # Remove spaces from celltype names - for Snakemake wildcard matching
         adata_loaded.append(adata)
     
     # Downsample loaded h5ad files based on params 
