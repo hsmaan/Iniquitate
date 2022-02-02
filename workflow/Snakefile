@@ -152,6 +152,7 @@ rule integrate_paga:
         """
         python {params.script_path} \
             --filedir {input} \
+            --root_celltype {wildcards.root_celltype} \
             --ds_celltypes {wildcards.ds_celltype} \
             --ds_proportions {wildcards.ds_proportion} \
             --num_batches {wildcards.num_batches} \
