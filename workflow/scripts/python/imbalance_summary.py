@@ -17,13 +17,17 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     downsampled_celltypes = adata_full.uns["downsampling_stats"]["downsampled_celltypes"]
     
     # Concatenate downsampled celltypes and batches
-    if len(downsampled_celltypes.shape) == 1:
+    if downsampled_celltypes == "None":
+        downsampled_celltypes_concat = "None"
+    elif len(downsampled_celltypes.shape) == 1:
         downsampled_celltypes_concat = downsampled_celltypes[0]
     else:
         downsampled_celltypes_concat = ", ".join(
             [str(celltype) for celltype in downsampled_celltypes[0]]
         )
-    if len(batches_ds.shape) == 1:
+    if batches_ds == "None":
+        downsampled_batches_concat = "None"
+    elif len(batches_ds.shape) == 1:
         downsampled_batches_concat = batches_ds[0]
     else:
         downsampled_batches_concat = ", ".join(
