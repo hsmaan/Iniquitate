@@ -16,24 +16,51 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     prop_ds = adata_full.uns["downsampling_stats"]["proportion_downsampled"]
     downsampled_celltypes = adata_full.uns["downsampling_stats"]["downsampled_celltypes"]
     
-    # Concatenate downsampled celltypes and batches
-    if downsampled_celltypes == "None":
-        downsampled_celltypes_concat = "None"
-    elif len(downsampled_celltypes.shape) == 1:
-        downsampled_celltypes_concat = downsampled_celltypes[0]
+    # Concatenate downsampled celltypes and batches - conditioned on return type
+    if isinstance(downsampled_celltypes, str):
+        if downsampled_celltypes == "None":  
+            downsampled_celltypes_concat = "None"
+        else:
+            raise ValueError("Downsampled celltypes is a str and not 'None'")
+    elif isinstance(downsampled_celltypes, list): 
+        if len(downsampled_celltypes) == 1:
+            downsampled_celltypes_concat = downsampled_celltypes[0]
+        else:
+            downsampled_celltypes_concat = ", ".join(
+                [str(celltype) for celltype in downsampled_celltypes]
+            )
+    elif isinstance(downsampled_celltypes, np.ndarray):
+        if downsampled_celltypes.size == 1:
+            downsampled_celltypes_concat = downsampled_celltypes.item()
+        else:
+            downsampled_celltypes_concat = ", ".join(
+                [str(celltype) for celltype in downsampled_celltypes]
+            )
     else:
-        downsampled_celltypes_concat = ", ".join(
-            [str(celltype) for celltype in downsampled_celltypes[0]]
-        )
-    if batches_ds == "None":
-        downsampled_batches_concat = "None"
-    elif len(batches_ds.shape) == 1:
-        downsampled_batches_concat = batches_ds[0]
-    else:
-        downsampled_batches_concat = ", ".join(
-            [str(batch) for batch in batches_ds[0]]
-        )
+        raise TypeError("Downsampled celltypes is not a str, list, or ndarray")
     
+    if isinstance(batches_ds, str):
+        if batches_ds == "None":
+            downsampled_batches_concat = "None"
+        else:
+            raise ValueError("Downsampled batches is a str and not 'None'")
+    elif isinstance(batches_ds, list):
+        if len(batches_ds) == 1:
+            downsampled_batches_concat = batches_ds[0]
+        else:
+            downsampled_batches_concat = ", ".join(
+                [str(celltype) for celltype in batches_ds]
+            )
+    elif isinstance(batches_ds, np.ndarray):
+        if batches_ds.size == 1:
+            downsampled_batches_concat = batches_ds.item()
+        else:
+            downsampled_batches_concat = ", ".join(
+                [str(celltype) for celltype in batches_ds]
+            )
+    else:
+        raise TypeError("Downsampled batches is not a str, list, or ndarray")
+
     # Extract data from just one integration method subset 
     int_method_select = np.random.choice(
         np.unique(adata_full.obs.integration_method.__array__())
