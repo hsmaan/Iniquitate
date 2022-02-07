@@ -74,7 +74,7 @@ def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_proportions, num_ba
     liger_integrated = integration_paga.liger_integrate()
     
     # Add integration type to each subset and concatenate
-    unintegrated.obs["integration_type"] = "unintegrated"
+    unintegrated.obs["integration_method"] = "unintegrated"
     harmony_integrated.obs["integration_method"] = "harmony" 
     scvi_integrated.obs["integration_method"] = "scvi"
     bbknn_integrated.obs["integration_method"] = "bbknn"
