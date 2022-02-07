@@ -30,13 +30,13 @@
         }
     },
     "int_ti_datasets": {
-        "cao_organ_dev_sublin_5_batch": {
-            "data_folder": "cao_organ_dev_sublin_5_batch",
+        "cao_organ_dev_sublin_2_batch": {
+            "data_folder": "cao_organ_dev_sublin_2_batch",
             "root_celltype": "Early_mesenchyme",
-            "ds_celltypes": [1, 2, 3],
+            "ds_celltypes": [1, 2, 3, 4, 5],
             "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0.05, 0],
-            "num_batches": [0, 1, 2, 3, 4],
-            "repetitions": 5
+            "num_batches": [0, 1],
+            "repetitions": 10
         }
     }
 }
