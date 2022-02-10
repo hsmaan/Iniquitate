@@ -23,7 +23,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         ds_summary_df = pd.DataFrame(
             {
                 "Dataset": dataset_name,
-                "Batches downsampled": "None",
+                "Number of batches downsampled": "None",
                 "Number of celltypes downsampled": "None",
                 "Proportion downsampled": "NA",
                 "Batch label": "NA",
@@ -43,7 +43,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         ds_summary_df = pd.DataFrame(
             {
                 "Dataset": dataset_name,
-                "Batches downsampled": num_batches_ds,
+                "Number of batches downsampled": num_batches_ds,
                 "Number of celltypes downsampled": num_celltypes_ds,
                 "Proportion downsampled": prop_ds,
                 "Batch label": batch_label,
