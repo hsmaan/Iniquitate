@@ -229,7 +229,7 @@ lapply(dataset_list, function(x) {
     groups = factor(round(`Celltype intersection ratio`, 3))
   )) + 
     facet_wrap(.~Metric, scales = "free_y") +
-    geom_boxplot(fill = "dodgerblue2", alpha = 0.8, notch = TRUE) +
+    geom_boxplot(fill = "firebrick1", alpha = 0.8, notch = TRUE) +
     theme_few() +
     labs(
       title = x,
@@ -261,7 +261,7 @@ lapply(dataset_list, function(x) {
     groups = factor(round(`Mean proportion cosine distance`, 3))
   )) + 
     facet_wrap(.~Metric, scales = "free_y") +
-    geom_boxplot(fill = "dodgerblue2", alpha = 0.8, notch = TRUE) +
+    geom_boxplot(fill = "firebrick1", alpha = 0.8, notch = TRUE) +
     theme_few() +
     labs(
       title = x,
@@ -280,5 +280,138 @@ lapply(dataset_list, function(x) {
   )
 })
 
-### Figure 2 - broad patterns of effects of imbalance on integration
+### Figure 2 - Imbalanced data leads to worsening performance of all 
+### single-cell integration techniques
+
+method_list <- list("harmony", "scvi", "bbknn", "scanorama", "seurat", "liger")
+
+# Plot Celltype ARI results based on the indicated method
+# for celltype intersection ratios 
+lapply(method_list, function(x) {
+  # Subset based on dataset 
+  clus_imba_celltype_subset <- clus_imba_merged[
+    clus_imba_merged$Method %in% x,
+  ]
+  ggplot(data = clus_imba_celltype_subset, aes(
+    x = factor(round(`Celltype intersection ratio`, 3)), 
+    y = `Celltype ARI`,
+    groups = factor(round(`Celltype intersection ratio`, 3))
+  )) + 
+    facet_wrap(.~Dataset, scales = "free") +
+    geom_boxplot(fill = "dodgerblue2", alpha = 0.8, notch = TRUE) +
+    theme_few() +
+    labs(
+      title = x,
+      x = "Celltype intersection ratio (Jaccard distance)",
+      y = "Celltype ARI"
+    )
+  ggsave(
+    paste0(
+      "../outs/figures/", 
+      "01_fig_2_celltype_int_ratio_celltype_ari_", 
+      x, 
+      ".pdf"
+    ),
+    height = 8, 
+    width = 14
+  )
+})
+
+# Plot Celltype ARI results based on the indicated method
+# for mean prop cosine distance
+lapply(method_list, function(x) {
+  # Subset based on dataset 
+  clus_imba_celltype_subset <- clus_imba_merged[
+    clus_imba_merged$Method %in% x,
+  ]
+  ggplot(data = clus_imba_celltype_subset, aes(
+    x = factor(round(`Mean proportion cosine distance`, 3)), 
+    y = `Celltype ARI`,
+    groups = factor(round(`Mean proportion cosine distance`, 3))
+  )) + 
+    facet_wrap(.~Dataset, scales = "free") +
+    geom_boxplot(fill = "dodgerblue2", alpha = 0.8, notch = TRUE) +
+    theme_few() +
+    labs(
+      title = x,
+      x = "Mean proportion cosine distance",
+      y = "Celltype ARI"
+    )
+  ggsave(
+    paste0(
+      "../outs/figures/", 
+      "01_fig_2_mean_prop_cosine_dist_celltype_ari_", 
+      x, 
+      ".pdf"
+    ),
+    height = 8, 
+    width = 16
+  )
+})
+
+# Plot Batch ARI results based on the indicated method
+# for celltype intersection ratios 
+lapply(method_list, function(x) {
+  # Subset based on dataset 
+  clus_imba_batch_subset <- clus_imba_merged[
+    clus_imba_merged$Method %in% x,
+  ]
+  ggplot(data = clus_imba_batch_subset, aes(
+    x = factor(round(`Celltype intersection ratio`, 3)), 
+    y = `Batch ARI`,
+    groups = factor(round(`Celltype intersection ratio`, 3))
+  )) + 
+    facet_wrap(.~Dataset, scales = "free") +
+    geom_boxplot(fill = "firebrick1", alpha = 0.8, notch = TRUE) +
+    theme_few() +
+    labs(
+      title = x,
+      x = "Mean proportion cosine distance",
+      y = "Batch ARI"
+    )
+  ggsave(
+    paste0(
+      "../outs/figures/", 
+      "01_fig_2_celltype_int_ratio_batch_ari_", 
+      x, 
+      ".pdf"
+    ),
+    height = 8, 
+    width = 14
+  )
+})
+
+# Plot Batch ARI results based on the indicated method
+# for mean cosine distances  
+lapply(method_list, function(x) {
+  # Subset based on dataset 
+  clus_imba_batch_subset <- clus_imba_merged[
+    clus_imba_merged$Method %in% x,
+  ]
+  ggplot(data = clus_imba_batch_subset, aes(
+    x = factor(round(`Mean proportion cosine distance`, 3)), 
+    y = `Batch ARI`,
+    groups = factor(round(`Mean proportion cosine distance`, 3))
+  )) + 
+    facet_wrap(.~Dataset, scales = "free") +
+    geom_boxplot(fill = "firebrick1", alpha = 0.8, notch = TRUE) +
+    theme_few() +
+    labs(
+      title = x,
+      x = "Mean proportion cosine distance",
+      y = "Batch ARI"
+    )
+  ggsave(
+    paste0(
+      "../outs/figures/", 
+      "01_fig_2_cosine_prop_distance_batch_ari_", 
+      x, 
+      ".pdf"
+    ),
+    height = 8, 
+    width = 16
+  )
+})
+
+
 
