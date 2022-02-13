@@ -5,7 +5,7 @@ library(ggplot2)
 library(ggthemes)
 library(dotwhisker)
 
-# Change to top level dir
+# Change to results dir
 setwd("../../../results/")
 
 # Helper functions
@@ -23,7 +23,7 @@ clus_files <- list.files()
 clus_loaded <- lapply(clus_files, fread)
 clus_concat <- Reduce(rbind, clus_loaded)
 
-# Change back to top level dir 
+# Change to top level dir 
 setwd("..")
 
 # Create output directory for figures if not present
