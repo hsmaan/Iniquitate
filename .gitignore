@@ -9,6 +9,7 @@
 *.snakemake
 *.slurm*
 *.slrm*
+*.ipynb_checkpoints
 __pycache__
 cluster.json
 submit.slrm
