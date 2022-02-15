@@ -3,6 +3,7 @@ library(tidyverse)
 library(reshape2)
 library(ggplot2)
 library(ggthemes)
+library(ggExtra)
 library(dotwhisker)
 
 # Change to results dir
@@ -133,7 +134,7 @@ lapply(dataset_list, function(x) {
     groups = factor(round(`Celltype intersection ratio`, 3))
   )) + 
     facet_wrap(.~Metric, scales = "free_y") +
-    geom_boxplot(fill = "dodgerblue2", alpha = 0.8, notch = TRUE) +
+    geom_violin(fill = "dodgerblue2", alpha = 0.8) +
     theme_few() +
     labs(
       title = x,
@@ -165,7 +166,7 @@ lapply(dataset_list, function(x) {
     groups = factor(round(`Mean proportion cosine distance`, 3))
   )) + 
     facet_wrap(.~Metric, scales = "free_y") +
-    geom_boxplot(fill = "dodgerblue2", alpha = 0.8, notch = TRUE) +
+    geom_violin(fill = "dodgerblue2", alpha = 0.8) +
     theme_few() +
     labs(
       title = x,
@@ -197,7 +198,7 @@ lapply(dataset_list, function(x) {
     groups = factor(round(`Length coeff var`, 3))
   )) + 
     facet_wrap(.~Metric, scales = "free_y") +
-    geom_boxplot(fill = "dodgerblue2", alpha = 0.8, notch = TRUE) +
+    geom_violin(fill = "dodgerblue2", alpha = 0.8) +
     theme_few() +
     labs(
       title = x,
@@ -208,6 +209,38 @@ lapply(dataset_list, function(x) {
     paste0(
       "../outs/figures/", 
       "01_fig_1_cell_num_coeff_var_celltype_stats_", 
+      x, 
+      ".pdf"
+    ),
+    height = 8, 
+    width = 16
+  )
+})
+
+# Plot celltype ARI based on dataset using 
+# number of celltypes downsampled and downsample proportion
+lapply(dataset_list, function(x) {
+  # Subset based on dataset 
+  clus_imba_subset <- clus_imba_merged[
+    clus_imba_merged$Dataset %in% x,
+  ]
+  ggplot(data = clus_imba_subset, aes(
+    x = factor(`Proportion downsampled.x`), 
+    y = `Celltype ARI`,
+    fill = Method
+  )) +
+    geom_violin(alpha = 0.8) +
+    facet_wrap(.~`Number of celltypes downsampled`, scales = "free_x") +
+    theme_few() +
+    labs(
+      title = x,
+      x = "Proportion of celltypes downsampled",
+      y = "Celltype ARI"
+    )
+  ggsave(
+    paste0(
+      "../outs/figures/", 
+      "01_fig_1_prop_ds_num_celltypes_ds_celltype_ari_", 
       x, 
       ".pdf"
     ),
@@ -229,7 +262,7 @@ lapply(dataset_list, function(x) {
     groups = factor(round(`Celltype intersection ratio`, 3))
   )) + 
     facet_wrap(.~Metric, scales = "free_y") +
-    geom_boxplot(fill = "firebrick1", alpha = 0.8, notch = TRUE) +
+    geom_violin(fill = "firebrick1", alpha = 0.8) +
     theme_few() +
     labs(
       title = x,
@@ -261,7 +294,7 @@ lapply(dataset_list, function(x) {
     groups = factor(round(`Mean proportion cosine distance`, 3))
   )) + 
     facet_wrap(.~Metric, scales = "free_y") +
-    geom_boxplot(fill = "firebrick1", alpha = 0.8, notch = TRUE) +
+    geom_violin(fill = "firebrick1", alpha = 0.8) +
     theme_few() +
     labs(
       title = x,
@@ -298,7 +331,7 @@ lapply(method_list, function(x) {
     groups = factor(round(`Celltype intersection ratio`, 3))
   )) + 
     facet_wrap(.~Dataset, scales = "free") +
-    geom_boxplot(fill = "dodgerblue2", alpha = 0.8, notch = TRUE) +
+    geom_violin(fill = "dodgerblue2", alpha = 0.8) +
     theme_few() +
     labs(
       title = x,
@@ -330,7 +363,7 @@ lapply(method_list, function(x) {
     groups = factor(round(`Mean proportion cosine distance`, 3))
   )) + 
     facet_wrap(.~Dataset, scales = "free") +
-    geom_boxplot(fill = "dodgerblue2", alpha = 0.8, notch = TRUE) +
+    geom_violin(fill = "dodgerblue2", alpha = 0.8) +
     theme_few() +
     labs(
       title = x,
@@ -362,7 +395,7 @@ lapply(method_list, function(x) {
     groups = factor(round(`Celltype intersection ratio`, 3))
   )) + 
     facet_wrap(.~Dataset, scales = "free") +
-    geom_boxplot(fill = "firebrick1", alpha = 0.8, notch = TRUE) +
+    geom_violin(fill = "firebrick1", alpha = 0.8) +
     theme_few() +
     labs(
       title = x,
@@ -394,7 +427,7 @@ lapply(method_list, function(x) {
     groups = factor(round(`Mean proportion cosine distance`, 3))
   )) + 
     facet_wrap(.~Dataset, scales = "free") +
-    geom_boxplot(fill = "firebrick1", alpha = 0.8, notch = TRUE) +
+    geom_violin(fill = "firebrick1", alpha = 0.8) +
     theme_few() +
     labs(
       title = x,
@@ -413,5 +446,127 @@ lapply(method_list, function(x) {
   )
 })
 
+### Figure 3 - Imbalanced integration can affect downstream analysis results 
+### (DGE, clustering number and trajectory inference)
 
+# Plot cluster number results based on dataset using 
+# celltype intersection ratio, facetted by method
+lapply(dataset_list, function(x) {
+  # Subset based on dataset 
+  clus_imba_merged_subset <- clus_imba_merged[
+    clus_imba_merged$Dataset %in% x,
+  ]
+  ggplot(data = clus_imba_merged_subset, aes(
+    x = factor(round(`Celltype intersection ratio`, 2)), 
+    y = `Cluster number`,
+    groups = factor(round(`Celltype intersection ratio`, 2))
+  )) + 
+    facet_wrap(.~Method, scales = "free_y") +
+    geom_violin(fill = "dodgerblue2", alpha = 0.8) +
+    theme_few() +
+    labs(
+      title = x,
+      x = "Celltype intersection ratio (Jaccard distance)",
+      y = "Number of Leiden clusters post-integration"
+    ) +
+    theme(axis.title.x = element_text(size = 16)) +
+    theme(axis.title.y = element_text(size = 16)) +
+    theme(strip.text.x = element_text(size = 16)) +
+    theme(plot.title = element_text(size = 18)) +
+    theme()
+  ggsave(
+    paste0(
+      "../outs/figures/", 
+      "01_fig_3_celltype_int_ratio_cluster_num_", 
+      x, 
+      ".pdf"
+    ),
+    height = 10, 
+    width = 22
+  )
+})
 
+# Plot celltype results based on dataset using 
+# cosine proportion distance 
+lapply(dataset_list, function(x) {
+  # Subset based on dataset 
+  clus_imba_merged_subset <- clus_imba_merged[
+    clus_imba_merged$Dataset %in% x,
+  ]
+  ggplot(data = clus_imba_merged_subset, aes(
+    x = factor(round(`Mean proportion cosine distance`, 2)), 
+    y = `Cluster number`,
+    groups = factor(round(`Mean proportion cosine distance`, 2))
+  )) + 
+    facet_wrap(.~Method, scales = "free_y") +
+    geom_violin(fill = "dodgerblue2", alpha = 0.8, notch = TRUE) +
+    theme_few() +
+    labs(
+      title = x,
+      x = "Mean cosine proportion distance",
+      y = "Number of Leiden clusters post-integration"
+    ) +
+    theme(axis.title.x = element_text(size = 16)) +
+    theme(axis.title.y = element_text(size = 16)) +
+    theme(strip.text.x = element_text(size = 16)) +
+    theme(plot.title = element_text(size = 18)) +
+    theme(axis.text.x = element_text(angle = 90)) 
+  ggsave(
+    paste0(
+      "../outs/figures/", 
+      "01_fig_3_mean_prop_cosine_dist_cluster_num_", 
+      x, 
+      ".pdf"
+    ),
+    height = 8, 
+    width = 16
+  )
+})
+
+# Plot celltype results based on dataset using 
+# cell number coefficient of var 
+lapply(dataset_list, function(x) {
+  # Subset based on dataset 
+  clus_imba_merged_subset <- clus_imba_merged[
+    clus_imba_merged$Dataset %in% x,
+  ]
+  ggplot(data = clus_imba_merged_subset, aes(
+    x = factor(round(`Length coeff var`, 3)), 
+    y = `Cluster number`
+  )) + 
+    facet_wrap(.~Method, scales = "free_y") +
+    geom_point(fill = "dodgerblue2", alpha = 0.8, notch = TRUE) +
+    ggMarginalGadget() + 
+    theme_few() +
+    labs(
+      title = x,
+      x = "Cell number coefficient of variation",
+      y = "Number of Leiden clusters post-integration"
+    ) +
+    theme(axis.title.x = element_text(size = 16)) +
+    theme(axis.title.y = element_text(size = 16)) +
+    theme(strip.text.x = element_text(size = 16)) +
+    theme(plot.title = element_text(size = 18)) +
+    theme(axis.text.x = element_text(angle = 90)) +
+    theme()
+  ggsave(
+    paste0(
+      "../outs/figures/", 
+      "01_fig_3_cell_num_coeff_var_cluster_num_", 
+      x, 
+      ".pdf"
+    ),
+    height = 8, 
+    width = 16
+  )
+})
+
+# Load differential gene expression analysis results 
+# Load in and concatenate the clustering summary results 
+setwd("dge_concord_summaries/")
+dge_files <- list.files()
+dge_loaded <- lapply(dge_files, fread)
+dge_concat <- Reduce(rbind, dge_loaded)
+
+# These are a lot of hits - have to figure out how to reliably compare these
+# between the techniques/downsampling setup/etc
