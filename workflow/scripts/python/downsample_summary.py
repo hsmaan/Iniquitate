@@ -18,40 +18,29 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     prop_ds = adata.uns["downsampling_stats"]["proportion_downsampled"]
     downsampled_celltypes = adata.uns["downsampling_stats"]["downsampled_celltypes"]
     
-    # Check if corresponding to 0 batch case 
-    if num_batches_ds == 0:
-        ds_summary_df = pd.DataFrame(
-            {
-                "Dataset": dataset_name,
-                "Number of batches downsampled": "None",
-                "Number of celltypes downsampled": "None",
-                "Proportion downsampled": "NA",
-                "Batch label": "NA",
-                "Downsampled celltypes": "NA",
-                "Replicate": rep
-            },
-            index = [0]
-        )
-        ds_summary_df.to_csv(save_loc, index=False, sep="\t")
+    # Repeat batches downsampled for each celltype downsampled
+    batch_label = np.repeat(batches_ds, num_celltypes_ds)
     
-    else:
-        # Concatenate downsampled cells and format data 
-        downsampled_celltypes_concat = np.concatenate(downsampled_celltypes)
-        batch_label = np.repeat(batches_ds, num_celltypes_ds)
-        
-        # Create downsampling summary df 
-        ds_summary_df = pd.DataFrame(
-            {
-                "Dataset": dataset_name,
-                "Number of batches downsampled": num_batches_ds,
-                "Number of celltypes downsampled": num_celltypes_ds,
-                "Proportion downsampled": prop_ds,
-                "Batch label": batch_label,
-                "Downsampled celltypes": downsampled_celltypes_concat,
-                "Replicate": rep
-            }
-        )
-        ds_summary_df.to_csv(save_loc, index=False, sep="\t")
+    # Extract data from just one integration method subset - for getting unique batches
+    int_method_select = np.random.choice(
+        np.unique(adata.obs.integration_method.__array__())
+    )
+    adata_select = adata[adata.obs.integration_method == int_method_select]
+    
+    # Create downsampling summary df 
+    ds_summary_df = pd.DataFrame(
+        {
+            "Dataset": dataset_name,
+            "Number of batches downsampled": num_batches_ds,
+            "Batches downsampled": batch_label,
+            "Number of celltypes downsampled": num_celltypes_ds,
+            "Proportion downsampled": prop_ds,
+            "Downsampled celltypes": downsampled_celltypes,
+            "Replicate": rep,
+            "Total batches": len(np.unique(adata_select.obs["batch"]))
+        }
+    )
+    ds_summary_df.to_csv(save_loc, index=False, sep="\t")
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
