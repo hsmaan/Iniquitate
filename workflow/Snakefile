@@ -1,6 +1,7 @@
 import os 
 
 configfile: "configs/config_lowcap.json"
+configname = config["config_name"]
 
 # Get all combinations through the config file
 def get_combinations(config, config_key):
@@ -67,7 +68,8 @@ def get_combinations(config, config_key):
 rule all:
     input:
         expand(
-            "../results/{outputs[0]}/{dataset}_{outputs[1]}.{outputs[2]}",
+            "../results/{configname}/{outputs[0]}/{dataset}_{outputs[1]}.{outputs[2]}",
+            configname = configname,
             dataset = get_combinations(config, "int_ti_datasets"),
             outputs = zip(
                 [
@@ -85,7 +87,8 @@ rule all:
             )
         ),
         expand(
-            "../results/{outputs[0]}/{dataset}_{outputs[1]}.{outputs[2]}",
+            "../results/{configname}/{outputs[0]}/{dataset}_{outputs[1]}.{outputs[2]}",
+            configname = configname,
             dataset = get_combinations(config, "int_datasets"),
             outputs = zip(
                 [
@@ -122,12 +125,12 @@ rule integrate:
     input:
         "../resources/h5ad_files/int_datasets/{data_folder}"
     output:
-        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "../results/{configname}/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     params:
         script_path = "scripts/python/integrate_data.py",
     log:
-        "logs/integrate/integrate_{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "logs/{configname}/integrate/integrate_{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}.log"
     shell:
         """
@@ -147,12 +150,12 @@ rule integrate_paga:
     input:
         "../resources/h5ad_files/int_paga_datasets/{data_folder}"
     output:
-        "../results/paga_integrated_results/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
+        "../results/{configname}/paga_integrated_results/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
         "_{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}_paga_integrated.h5ad"
     params:
         script_path = "scripts/python/integrate_data_paga.py",
     log:
-        "logs/paga_integrate/integrate_paga_{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes_" + 
+        "logs/{configname}/paga_integrate/integrate_paga_{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes_" + 
         "{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}.log"
     shell:
         """
@@ -171,15 +174,15 @@ rule downsample_summary:
     conda:
         "envs/integrate.yaml"
     input:
-        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "../results/{configname}/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        "../results/downsample_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "../results/{configname}/downsample_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_downsample_summary.tsv"
     params:
         script_path = "scripts/python/downsample_summary.py",
     log:
-        "logs/downsample_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "logs/{configname}/downsample_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_downsample_summary.log"
     shell:
         """
@@ -196,15 +199,15 @@ rule clustering_summary:
     conda:
         "envs/integrate.yaml"
     input:
-        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "../results/{configname}/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        "../results/clustering_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "../results/{configname}/clustering_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.tsv"
     params:
         script_path = "scripts/python/clustering_stats.py",
     log:
-        "logs/clustering_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "logs/{configname}/clustering_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.log"
     shell:
         """
@@ -221,15 +224,15 @@ rule clustering_concord_summary:
     conda:
         "envs/integrate.yaml"
     input:
-        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "../results/{configname}/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        "../results/clustering_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "../results/{configname}/clustering_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_concord_summary.tsv"
     params:
         script_path = "scripts/python/clustering_concordance.py",
     log:
-        "logs/clustering_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "logs/{configname}/clustering_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_concord_summary.log"
     shell:
         """
@@ -246,15 +249,15 @@ rule dge_concord_summary:
     conda:
         "envs/integrate.yaml"
     input:
-        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "../results/{configname}/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        "../results/dge_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "../results/{configname}/dge_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_summary.tsv"
     params:
         script_path = "scripts/python/dge_concordance.py",
     log:
-        "logs/dge_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "logs/{configname}/dge_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_summary.log"
     shell:
         """
@@ -271,15 +274,15 @@ rule imbalance_summary:
     conda:
         "envs/integrate.yaml"
     input:
-        "../results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "../results/{configname}/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        "../results/imbalance_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "../results/{configname}/imbalance_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_imbalance_summary.tsv"
     params:
         script_path = "scripts/python/imbalance_summary.py",
     log:
-        "logs/imbalance_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "logs/{configname}/imbalance_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_imbalance_summary.log"
     shell:
         """
@@ -295,15 +298,15 @@ rule imbalance_summary_paga:
     conda:
         "envs/integrate.yaml"
     input:
-        "../results/paga_integrated_results/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
+        "../results/{configname}/paga_integrated_results/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
         "_{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}_paga_integrated.h5ad"
     output:
-        "../results/paga_imbalance_summaries/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
+        "../results/{configname}/paga_imbalance_summaries/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
         "_{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}_paga_imbalance_summary.tsv"
     params:
         script_path = "scripts/python/imbalance_summary.py",
     log:
-        "logs/paga_imbalance_summary/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
+        "logs/{configname}/paga_imbalance_summary/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
         "_{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}_paga_imbalance_summary.log"
     shell:
         """

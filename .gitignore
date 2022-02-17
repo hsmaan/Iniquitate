@@ -20,3 +20,4 @@ workflow/tmp
 resources/h5ad_files
 resources/test_h5ad_objs
 results
+logs
