@@ -1,0 +1,13 @@
+{
+    "config_name": "control",
+    "int_datasets": {
+        "pbmc_2_batch_balanced" : {
+            "data_folder": "pbmc_2_batch_balanced",
+            "ds_celltypes": [1, 2],
+            "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0],
+            "num_batches": [0, 1],
+            "repetitions": 10
+        }
+    },
+    "int_ti_datasets": {}
+}
