@@ -9,7 +9,10 @@
 *.snakemake
 *.slurm*
 *.slrm*
+*.ipynb_checkpoints
 __pycache__
+*.Rhistory
+*.RData
 cluster.json
 submit.slrm
 submit.sh
