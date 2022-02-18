@@ -17,27 +17,6 @@ def get_combinations(config, config_key):
             root_celltype = value["root_celltype"]
         # Get combinations of celltypes and proportions - sort by config_key (root celltype or not for TI)
         for num_batch in num_batches:
-            if num_batch == 0:
-                if config_key == "int_ti_datasets":
-                    combinations.append(
-                        "{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_1".format(
-                            data_folder = data_folder,
-                            root_celltype = root_celltype,
-                            ds_celltype = 0, 
-                            ds_proportion = 1,
-                            num_batch = num_batch
-                        )
-                    )   
-                else:
-                    combinations.append(
-                        "{data_folder}_{ds_celltype}_celltypes_{ds_proportion}_downsample_{num_batch}_batch_ds_c_1".format(
-                            data_folder = data_folder,
-                            ds_celltype = 0, 
-                            ds_proportion = 1,
-                            num_batch = num_batch
-                        )
-                    )   
-                continue
             for ds_celltype in ds_celltypes:
                 for ds_proportion in ds_proportions:
                     for repetition in range(repetitions):

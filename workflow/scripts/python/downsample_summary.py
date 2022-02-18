@@ -18,6 +18,10 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     prop_ds = adata.uns["downsampling_stats"]["proportion_downsampled"]
     downsampled_celltypes = adata.uns["downsampling_stats"]["downsampled_celltypes"]
     
+    # Concatenate celltypes if necessary
+    if len(downsampled_celltypes.shape) > 1:
+        downsampled_celltypes = np.concatenate(downsampled_celltypes)
+    
     # Repeat batches downsampled for each celltype downsampled
     batch_label = np.repeat(batches_ds, num_celltypes_ds)
     
@@ -35,7 +39,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
             "Batches downsampled": batch_label,
             "Number of celltypes downsampled": num_celltypes_ds,
             "Proportion downsampled": prop_ds,
-            "Downsampled celltypes": np.concatenate(downsampled_celltypes),
+            "Downsampled celltypes": downsampled_celltypes,
             "Replicate": rep,
             "Total batches": len(np.unique(adata_select.obs["batch"]))
         }
