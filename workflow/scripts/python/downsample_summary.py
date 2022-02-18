@@ -35,7 +35,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
             "Batches downsampled": batch_label,
             "Number of celltypes downsampled": num_celltypes_ds,
             "Proportion downsampled": prop_ds,
-            "Downsampled celltypes": downsampled_celltypes,
+            "Downsampled celltypes": np.concatenate(downsampled_celltypes),
             "Replicate": rep,
             "Total batches": len(np.unique(adata_select.obs["batch"]))
         }
