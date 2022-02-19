@@ -8,6 +8,9 @@ import anndata as ann
 import scanpy as sc
 from sklearn import metrics
 
+from utils import balanced_adjusted_rand_index, balanced_adjusted_mutual_info, \
+    balanced_completeness, balanced_homogeneity
+
 def main(h5ad_loc, save_loc, dataset_name, rep):
     # Load h5ad file 
     adata = sc.read_h5ad(h5ad_loc)
@@ -27,38 +30,71 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         )
         
     # Get ARI, NMI, Homogeneity, Completeness values for each batch-correction method
-    # and batch and celltype subsets
-    celltype_aris = []
-    celltype_amis = []
-    celltype_homs = []
-    celltype_comps = []
+    # and batch and celltype subsets. Both balanced and imbalanced subsets are considered
+    # for the celltype data
+    celltype_aris_imbalanced = []
+    celltype_amis_imbalanced = []
+    celltype_homs_imbalanced = []
+    celltype_comps_imbalanced = []
+    celltype_aris_balanced = []
+    celltype_amis_balanced = []
+    celltype_homs_balanced = []
+    celltype_comps_balanced = []
     batch_aris = []
     batch_amis = []
     batch_homs = []
     batch_comps = []
     for adata_sub in adata_method_sub:
-        celltype_aris.append(
+        celltype_aris_imbalanced.append(
             metrics.adjusted_rand_score(
                 adata_sub.obs["celltype"].__array__(),
                 adata_sub.obs["leiden"].__array__()
             )
         )
-        celltype_amis.append(
+        celltype_amis_imbalanced.append(
             metrics.adjusted_mutual_info_score(
                 adata_sub.obs["celltype"].__array__(),
                 adata_sub.obs["leiden"].__array__()
             )
         )
-        celltype_homs.append(
+        celltype_homs_imbalanced.append(
             metrics.homogeneity_score(
                 adata_sub.obs["celltype"].__array__(),
                 adata_sub.obs["leiden"].__array__()
             )
         )
-        celltype_comps.append(
+        celltype_comps_imbalanced.append(
             metrics.completeness_score(
                 adata_sub.obs["celltype"].__array__(),
                 adata_sub.obs["leiden"].__array__()                
+            )
+        )
+        celltype_aris_balanced.append(
+            balanced_adjusted_rand_index(
+                adata_sub.obs["celltype"].__array__(),
+                adata_sub.obs["leiden"].__array__(),
+                reweigh=True
+            )
+        )
+        celltype_amis_balanced.append(
+            balanced_adjusted_mutual_info(
+                adata_sub.obs["celltype"].__array__(),
+                adata_sub.obs["leiden"].__array__(),
+                reweigh=True
+            )
+        )
+        celltype_homs_balanced.append(
+            balanced_homogeneity(
+                adata_sub.obs["celltype"].__array__(),
+                adata_sub.obs["leiden"].__array__(),
+                reweigh=True
+            )
+        )
+        celltype_comps_balanced.append(
+            balanced_completeness(
+                adata_sub.obs["celltype"].__array__(),
+                adata_sub.obs["leiden"].__array__(),
+                reweigh=True                
             )
         )
         batch_aris.append(
@@ -110,10 +146,14 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         "Method": methods,
         "Cluster number": cluster_nums,
         "Cell number": cell_nums,
-        "Celltype ARI": celltype_aris,
-        "Celltype AMI": celltype_amis,
-        "Celltype Homogeneity": celltype_homs,
-        "Celltype Completeness": celltype_comps,
+        "Celltype ARI Imbalanced": celltype_aris_imbalanced,
+        "Celltype AMI Imbalanced": celltype_amis_imbalanced,
+        "Celltype Homogeneity Imbalanced": celltype_homs_imbalanced,
+        "Celltype Completeness Imbalanced": celltype_comps_imbalanced,
+        "Celltype ARI Balanced": celltype_aris_balanced,
+        "Celltype AMI Balanced": celltype_amis_balanced,
+        "Celltype Homogeneity Balanced": celltype_homs_balanced,
+        "Celltype Completeness Balanced": celltype_comps_balanced,
         "Batch ARI": batch_aris,
         "Batch AMI": batch_amis,
         "Batch Homogeneity": batch_homs,
