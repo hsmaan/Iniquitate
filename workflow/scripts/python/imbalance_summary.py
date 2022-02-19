@@ -31,24 +31,6 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
             downsampled_celltypes = np.concatenate(downsampled_celltypes)
     else:
         raise TypeError("Downsampled celltypes is not a str, list, or ndarray")
-    
-    if isinstance(batches_ds, str):
-        if batches_ds == "None":
-            batches_ds = "None"
-        else:
-            raise ValueError("Downsampled batches is a str and not 'None'")
-    elif isinstance(batches_ds, list):
-        batches_ds = np.array(batches_ds)
-    elif isinstance(batches_ds, np.ndarray):
-        if len(batches_ds.shape) == 1:
-            batches_ds = batches_ds
-        else:
-            batches_ds = np.concatenate(batches_ds)
-    else:
-        raise TypeError("Downsampled batches is not a str, list, or ndarray")
-    
-    # Repeat batches downsampled for each celltype downsampled
-    batch_label = np.repeat(batches_ds, num_celltypes_ds)
 
     # Extract data from just one integration method subset 
     int_method_select = np.random.choice(
@@ -100,7 +82,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         {
             "Dataset": dataset_name,
             "Number of batches downsampled": num_batches_ds,
-            "Batches downsampled": batch_label,
+            "Batches downsampled": batches_ds,
             "Number of celltypes downsampled": num_celltypes_ds,
             "Proportion downsampled": prop_ds,
             "Downsampled celltypes": downsampled_celltypes,
