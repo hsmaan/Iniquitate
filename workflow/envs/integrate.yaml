@@ -28,5 +28,6 @@ dependencies:
   - r-seuratdisk>=0.0.9
   - r-data.table>=1.14.0
   - r-reticulate>=1.22.0
+  - cython>=0.29.25
 variables:
   TMPDIR: "TMPDIR=/scratch/gobi2/hmaan/Documents/Iniquitate/workflow/tmp"
