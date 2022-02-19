@@ -51,7 +51,7 @@ clus_imba_merged <- merge(
 ## Determine ANOVA p-values for batch and celltype ARI based on other 
 # characteristics 
 lm_celltype_ari <- lm(
-  `Celltype ARI` ~ `Total batches` + `Cell number` + `Method` + 
+  `Celltype ARI` ~ `Dataset` + `Method` + 
   `Number of batches downsampled` + `Number of celltypes downsampled` + 
   `Proportion downsampled.x`, 
   data = clus_imba_merged
@@ -60,9 +60,11 @@ lm_celltype_ari <- lm(
 dwplot(lm_celltype_ari) +
   theme_bw() +
   labs(
+    color = "",
     x = "Coefficient estimate for Celltype ARI",
     y = "Covariate"
-  )
+  ) +
+  theme(legend.position = "None")
 ggsave("../outs/figures/01_fig_1_anova_celltype_ari.pdf", height = 8, width = 6)
 
 ### Caveats here are that there are not enough (n = 0) points, and because these 
