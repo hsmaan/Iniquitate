@@ -18,9 +18,36 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     prop_ds = adata.uns["downsampling_stats"]["proportion_downsampled"]
     downsampled_celltypes = adata.uns["downsampling_stats"]["downsampled_celltypes"]
     
-    # Concatenate celltypes if necessary
-    if len(downsampled_celltypes.shape) > 1:
-        downsampled_celltypes = np.concatenate(downsampled_celltypes)
+    # Concatenate downsampled celltypes and batches - conditioned on return type
+    if isinstance(downsampled_celltypes, str):
+        if downsampled_celltypes == "None":  
+            downsampled_celltypes = "None"
+        else:
+            raise ValueError("Downsampled celltypes is a str and not 'None'")
+    elif isinstance(downsampled_celltypes, list):
+        downsampled_celltypes = np.array(downsampled_celltypes)
+    elif isinstance(downsampled_celltypes, np.ndarray):
+        if len(downsampled_celltypes.shape) == 1:
+            downsampled_celltypes = downsampled_celltypes
+        else:
+            downsampled_celltypes = np.concatenate(downsampled_celltypes)
+    else:
+        raise TypeError("Downsampled celltypes is not a str, list, or ndarray")
+    
+    if isinstance(batches_ds, str):
+        if batches_ds == "None":
+            batches_ds = "None"
+        else:
+            raise ValueError("Downsampled batches is a str and not 'None'")
+    elif isinstance(batches_ds, list):
+        batches_ds = np.array(batches_ds)
+    elif isinstance(batches_ds, np.ndarray):
+        if len(batches_ds.shape) == 1:
+            batches_ds = batches_ds
+        else:
+            batches_ds = np.concatenate(batches_ds)
+    else:
+        raise TypeError("Downsampled batches is not a str, list, or ndarray")
     
     # Repeat batches downsampled for each celltype downsampled
     batch_label = np.repeat(batches_ds, num_celltypes_ds)
