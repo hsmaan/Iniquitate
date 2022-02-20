@@ -1,6 +1,7 @@
 import argparse 
 import os 
 import sys 
+sys.path.append("src/python/")
 
 import numpy as np
 import pandas as pd
@@ -8,8 +9,9 @@ import anndata as ann
 import scanpy as sc
 from sklearn import metrics
 
-from utils import balanced_adjusted_rand_index, balanced_adjusted_mutual_info, \
-    balanced_completeness, balanced_homogeneity
+from imbalanced_clustering import balanced_adjusted_rand_index, \
+    balanced_adjusted_mutual_info, balanced_completeness, \
+    balanced_homogeneity
 
 def main(h5ad_loc, save_loc, dataset_name, rep):
     # Load h5ad file 
