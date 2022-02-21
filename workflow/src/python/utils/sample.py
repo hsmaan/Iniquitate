@@ -3,6 +3,9 @@ import scanpy as sc
 import anndata as ann
 
 def downsample(adata, num_celltypes = None, celltype_names = None, proportion = 0.5):
+    # Initialize random number generator
+    rng = np.random.default_rng()
+    
     # For the given number of celltypes, select num_celltypes
     # randomly, unless non random indicated by celltype_names
     if celltype_names is not None:
@@ -15,7 +18,8 @@ def downsample(adata, num_celltypes = None, celltype_names = None, proportion = 
         if num_celltypes == 0:
             return adata
         unique_celltypes = np.unique(adata.obs["celltype"].__array__())
-        celltypes_sample = np.random.choice(unique_celltypes, num_celltypes, replace = False)
+        rng.shuffle(unique_celltypes)
+        celltypes_sample = rng.choice(unique_celltypes, num_celltypes, replace = False)
         
     # Save the original batch label for later 
     adata.obs["batch_orig"] = adata.obs["batch"]
