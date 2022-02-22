@@ -14,7 +14,7 @@ dependencies:
   - scikit-learn>=1.0.1
   - scanpy>=1.7.2
   - anndata>=0.7.5
-  - r-base<=4.0.0
+  - r-base>=4.0.5
   - r-seurat>=4.0.5
   - r-data.table>=1.14.0
   - r-ggplot2>=3.3.0
@@ -24,3 +24,5 @@ dependencies:
   - r-ggthemes>=4.2.0
   - r-ggextra>=0.8.0
   - r-dotwhisker>=0.7.4
+  - r-seuratdisk>=0.0.9019
+  - r-deldir>=1.0.2
