@@ -1,4 +1,4 @@
-name: integrate
+name: iniq_integrate
 channels:
   - pytorch
   - conda-forge
