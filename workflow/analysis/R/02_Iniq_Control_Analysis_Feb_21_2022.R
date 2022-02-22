@@ -120,6 +120,35 @@ ggsave(
   height = 8
 )
 
+# Plot the results for the number of clusters based on method for ablation vs
+# non-ablation cases 
+ggplot(data = clus_concat_sub_ablation, aes(
+  x = factor(`Ablation`),
+  y = `Cluster number`,
+  color = `Method`
+)) +
+  facet_wrap(.~Method) +
+  geom_jitter() +
+  theme_few() +
+  labs(
+    title = "PBMC 2 Batch Balanced FCGR3A+ Monocyte Ablation (One Batch)",
+    x = "Ablation of FCGR3A+ Monocytes",
+    y = "Number of clusters post-integration"
+  ) +
+  theme(axis.title.x = element_text(size = 14)) +
+  theme(axis.title.y = element_text(size = 14)) +
+  theme(strip.text.x = element_text(size = 14)) +
+  theme(plot.title = element_text(size = 16)) +
+  theme(axis.text.x = element_text(size = 12)) +
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.title = element_text(size = 14)) +
+  theme(legend.text = element_text(size = 12))
+
+ggsave(
+  "outs/control/figures/02_monocyte_ablation_results_clus_number.pdf",
+  width = 12, 
+  height = 8
+)
 
 # Subset data for comparison of 1 celltype downsampled to none, 0.1 proportion
 clus_concat_sub_ds <- clus_concat[
@@ -194,4 +223,37 @@ ggsave(
   width = 12, 
   height = 8
 )
+
+
+# Plot the results for the number of clusters based on method for downsampling 
+# vs non-downsampling cases 
+ggplot(data = clus_concat_sub_ds, aes(
+  x = factor(`Downsample`),
+  y = `Cluster number`,
+  color = `Method`
+)) +
+  facet_wrap(.~Method) +
+  geom_jitter() +
+  theme_few() +
+  labs(
+    title = "PBMC 2 Batch Balanced FCGR3A+ Monocyte Downsampling (One Batch)",
+    x = "Downsampling (to 10% of cells) of FCGR3A+ Monocytes",
+    y = "Number of clusters post-integration"
+  ) +
+  theme(axis.title.x = element_text(size = 14)) +
+  theme(axis.title.y = element_text(size = 14)) +
+  theme(strip.text.x = element_text(size = 14)) +
+  theme(plot.title = element_text(size = 16)) +
+  theme(axis.text.x = element_text(size = 12)) +
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.title = element_text(size = 14)) +
+  theme(legend.text = element_text(size = 12))
+
+ggsave(
+  "outs/control/figures/02_monocyte_downsample_results_clus_number.pdf",
+  width = 12, 
+  height = 8
+)
+
+
 
