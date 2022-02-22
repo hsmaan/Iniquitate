@@ -93,6 +93,51 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
             "Differentially expressed genes": method_dge_dfs_concat["Top 50 DGEs"].__array__()
         })
         dge_summary_df.to_csv(save_loc, sep = "\t", index = False)
+        
+        # Determine DGE concordance through set intersection in a pairwise manner 
+        method_concordance_mat = np.zeros((len(methods), len(methods)))
+        for i, method_i in enumerate(methods):
+            for j, method_j in enumerate(methods):
+                dge_sub_1 = dge_summary_df[dge_summary_df["Method"] == method_i]
+                dge_sub_2 = dge_summary_df[dge_summary_df["Method"] == method_j]
+                dge_sub_1_genes = dge_sub_1["Differentially expressed genes"].values
+                dge_sub_2_genes = dge_sub_2["Differentially expressed genes"].values
+                set_int = np.intersect1d(dge_sub_1_genes, dge_sub_2_genes)
+                int_ratio = len(set_int)/len(dge_sub_1_genes)
+                method_concordance_mat[i, j] = int_ratio
+        
+                
+        # Create dataframe of values
+        method_int_df = pd.DataFrame(method_concordance_mat)
+        method_int_df.index = methods
+        method_int_df.columns = methods
+        
+        # Convert to long format 
+        method_int_df_long = method_int_df.melt(ignore_index = False)
+        method_int_df_long = method_int_df_long.reset_index()
+        method_int_df_long.columns = ["Method 1", "Method 2", "DGE Set Intersection Ratio"] 
+
+        # Get median of DGE concordance
+        method_int_df_no_self = method_int_df_long[method_int_df_long["Method 1"] != method_int_df_long["Method 2"]]
+        median_set_int_ratio = np.median(method_int_df_no_self["DGE Set Intersection Ratio"])
+        method_int_df_long["Median DGE Set Intersection Ratio"] = median_set_int_ratio
+        
+        # Create and save summary dataframe for DGE intersection results
+        dge_int_summary_df = pd.DataFrame({
+            "Dataset": dataset_name,
+            "Batches downsampled": num_batches_ds,
+            "Number of celltypes downsampled": num_celltypes_ds,
+            "Proportion downsampled": prop_ds,
+            "Replicate": rep,
+            "Cluster number before convergence": k_initial,
+            "Cluster number after convergence": k_final,
+            "Method 1": method_int_df_long["Method 1"].__array__(),
+            "Method 2": method_int_df_long["Method 2"].__array__(),
+            "DGE Set Intersection Ratio": method_int_df_long["DGE Set Intersection Ratio"].__array__(),
+            "Median DGE Set Intersection Ratio": method_int_df_long["Median DGE Set Intersection Ratio"].__array__()
+        })
+        # dge_int_summary_df.to_csv(save_loc, sep = "\t", index = False) @TODO - add another param to save_loc to save to different file
+        
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
