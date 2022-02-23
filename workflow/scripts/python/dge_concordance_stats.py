@@ -102,7 +102,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
                 dge_sub_1_genes = dge_sub_1["Differentially expressed genes"].values
                 dge_sub_2_genes = dge_sub_2["Differentially expressed genes"].values
                 set_int = np.intersect1d(dge_sub_1_genes, dge_sub_2_genes)
-                int_ratio = len(set_int)/len(dge_sub_1_genes)
+                int_ratio = len(set_int)/len(np.unique(dge_sub_1_genes))
                 method_concordance_mat[i, j] = int_ratio
         
                 
