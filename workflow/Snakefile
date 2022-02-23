@@ -1,6 +1,6 @@
 import os 
 
-configfile: "configs/config_control.json"
+configfile: "configs/test_config_lite.json"
 configname = config["config_name"]
 
 # Get all combinations through the config file
@@ -10,6 +10,7 @@ def get_combinations(config, config_key):
     for key, value in config[config_key].items():
         data_folder = value["data_folder"]
         ds_celltypes = value["ds_celltypes"]
+        ds_celltype_names = value["ds_celltype_names"]
         ds_proportions = value["ds_proportions"]
         num_batches = value["num_batches"]
         repetitions = value["repetitions"]

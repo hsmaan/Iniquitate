@@ -1,9 +1,14 @@
 {
-    "pbmc_2_batch" : {
-        "data_folder": "pbmc_2_batch",
-        "ds_celltypes": [5],
-        "ds_proportions": [0.1, 0.25, 0.5],
-        "num_batches": [0, 1],
-        "repetitions": 10
-    }
+    "config_name": "test_config_lite",
+    "int_datasets": {
+        "pbmc_2_batch" : {
+            "data_folder": "pbmc_2_batch",
+            "ds_celltypes": ["Custom"],
+            "ds_celltype_names": ["B cell", "CD4+ T cell"],
+            "ds_proportions": [0.1, 0.25],
+            "num_batches": [0, 1],
+            "repetitions": 2
+        }
+    },
+    "int_ti_datasets": {}
 }
