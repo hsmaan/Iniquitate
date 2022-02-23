@@ -43,7 +43,7 @@ def get_combinations(config, config_key):
                             )
     return combinations
 
-# All rule
+# All rule - return summary results and intermediate integration h5ad files
 rule all:
     input:
         expand(
@@ -100,7 +100,7 @@ rule all:
             )
         )
 
-# Integrate the indicated h5ad files from config
+# Integrate the indicated h5ad files from config, based on dataset 
 rule integrate:
     conda:
         "envs/integrate.yaml"
@@ -151,7 +151,7 @@ rule integrate_paga:
             &> {log}
         """
         
-# Get summary results of downsampling 
+# Get summary results of downsampling - dataset based
 rule downsample_summary:
     conda:
         "envs/integrate.yaml"
@@ -176,7 +176,7 @@ rule downsample_summary:
             &> {log}
         """
     
-# Get cluster summary results of downsampling
+# Get cluster summary results of downsampling, pertaining to integration stats 
 rule clustering_summary:
     conda:
         "envs/integrate.yaml"
@@ -201,7 +201,7 @@ rule clustering_summary:
             &> {log}
         """
 
-# Get clustering concordance results (from different methods) from downsampling
+# Get clustering concordance results from different methods after intergration 
 rule clustering_concord_summary:
     conda:
         "envs/integrate.yaml"
@@ -276,7 +276,7 @@ rule dge_concord_stats:
             &> {log}
         """
 
-# Get imbalance summary results for all datasets - vanilla integration and PAGA-based 
+# Get imbalance summary results for integration datasets - vanilla integration 
 rule imbalance_summary:
     conda:
         "envs/integrate.yaml"
@@ -301,6 +301,7 @@ rule imbalance_summary:
             &> {log}
         """
 
+# Get imbalance summary results for trajectory-specific datasets - integration followed by PAGA trajectory inference
 rule imbalance_summary_paga:
     conda:
         "envs/integrate.yaml"
