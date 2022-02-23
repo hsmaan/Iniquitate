@@ -8,7 +8,7 @@ import pandas as pd
 import anndata as ann
 import scanpy as sc
 
-from utils import faiss_kmeans, dge_top_n, diffexp
+from utils import dge_top_n, diffexp
 
 def main(h5ad_loc, save_loc, dataset_name, rep):
     # Load h5ad file 
@@ -24,22 +24,22 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     # Check if k_final is 1 and if so, skip DGE
     if k_final == 1:
         # Create and save summary dataframe for DGE results
-        dge_summary_df = pd.DataFrame(
-            {
+        dge_int_summary_df = pd.DataFrame({
                 "Dataset": dataset_name,
-                "Number of batches downsampled": num_batches_ds,
+                "Batches downsampled": num_batches_ds,
                 "Number of celltypes downsampled": num_celltypes_ds,
                 "Proportion downsampled": prop_ds,
                 "Replicate": rep,
                 "Cluster number before convergence": k_initial,
                 "Cluster number after convergence": k_final,
-                "Method": "NA",
-                "Cluster": "NA",
-                "Differentially expressed genes": "NA - k_final = 1"
+                "Method 1": "NA",
+                "Method 2": "NA",
+                "DGE Set Intersection Ratio": "NA",
+                "Median DGE Set Intersection Ratio": "NA"
             },
             index = [0]
         )
-        dge_summary_df.to_csv(save_loc, sep = "\t", index = False)
+        dge_int_summary_df.to_csv(save_loc, sep = "\t", index = False)
     else:
         # Subset adatas based on method for integration and store lognorm counts in raw
         # attribute for diffexp testing
@@ -79,7 +79,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         # Create long form array for methods 
         methods_long = np.repeat(np.array(methods), 50*k_final)
         
-        # Create and save summary dataframe for DGE results
+        # Create summary dataframe for DGE results
         dge_summary_df = pd.DataFrame({
             "Dataset": dataset_name,
             "Batches downsampled": num_batches_ds,
@@ -92,7 +92,6 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
             "Cluster": method_dge_dfs_concat["Cluster"].__array__(),
             "Differentially expressed genes": method_dge_dfs_concat["Top 50 DGEs"].__array__()
         })
-        dge_summary_df.to_csv(save_loc, sep = "\t", index = False)
         
         # Determine DGE concordance through set intersection in a pairwise manner 
         method_concordance_mat = np.zeros((len(methods), len(methods)))
@@ -136,7 +135,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
             "DGE Set Intersection Ratio": method_int_df_long["DGE Set Intersection Ratio"].__array__(),
             "Median DGE Set Intersection Ratio": method_int_df_long["Median DGE Set Intersection Ratio"].__array__()
         })
-        # dge_int_summary_df.to_csv(save_loc, sep = "\t", index = False) @TODO - add another param to save_loc to save to different file
+        dge_int_summary_df.to_csv(save_loc, sep = "\t", index = False)
         
     
 if __name__ == '__main__':

@@ -75,7 +75,8 @@ rule all:
                     "downsample_summaries", 
                     "clustering_summaries", 
                     "clustering_concord_summaries",
-                    "dge_concord_summaries",
+                    "dge_concord_full",
+                    "dge_concord_stats",
                     "imbalance_summaries",
                 ], 
                 [
@@ -83,7 +84,8 @@ rule all:
                     "downsample_summary", 
                     "clustering_summary", 
                     "clustering_concord_summary",
-                    "dge_concord_summary",
+                    "dge_concord_full",
+                    "dge_concord_stats",
                     "imbalance_summary",
                 ],
                 [
@@ -91,6 +93,7 @@ rule all:
                     "tsv", 
                     "tsv", 
                     "tsv", 
+                    "tsv",
                     "tsv",
                     "tsv"
                 ]
@@ -223,21 +226,46 @@ rule clustering_concord_summary:
             &> {log}
         """
 
-# Get DGE concordance results (from different methods) from downsampling
-rule dge_concord_summary:
+# Get DGE concordance results (full dge) (from different methods) from downsampling
+rule dge_concord_full:
     conda:
         "envs/integrate.yaml"
     input:
         "../results/{configname}/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     output:
-        "../results/{configname}/dge_concord_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
-        "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_summary.tsv"
+        "../results/{configname}/dge_concord_full/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_full.tsv"
     params:
-        script_path = "scripts/python/dge_concordance.py",
+        script_path = "scripts/python/dge_concordance_full.py",
     log:
-        "logs/{configname}/dge_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
-        "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_summary.log"
+        "logs/{configname}/dge_concord_full/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_full.log"
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            &> {log}
+        """
+
+# Get DGE concordance results (summary stats) (from different methods) from downsampling
+rule dge_concord_stats:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/{configname}/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
+    output:
+        "../results/{configname}/dge_concord_stats/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_stats.tsv"
+    params:
+        script_path = "scripts/python/dge_concordance_stats.py",
+    log:
+        "logs/{configname}/dge_concord_stats/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_stats.log"
     shell:
         """
         python {params.script_path} \
