@@ -38,7 +38,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     for adata_sub in adata_method_sub:
         # Split testing and training data in stratified manner (70/30)
         X = adata_sub.obsm["X_kmeans"]
-        y = adata.obs["celltype"].__array__()
+        y = adata_sub.obs["celltype"].__array__()
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, stratify=y, test_size=0.7, random_state=42
         )
@@ -64,8 +64,8 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         supports.append(class_report_df.loc["support"].values)
         celltypes.append(class_report_df.columns.values)
         
-    # Tile method values to have same length as scores (one for each celltype)
-    methods_tiled = np.tile(methods, len(precision_scores[0]))
+    # Repeat method values to have same length as scores (one for each celltype)
+    methods_repeat = np.repeat(methods, len(precision_scores[0]))
     
     # Concatenate scores and celltypes 
     precision_scores_concat = np.concatenate(precision_scores)
@@ -81,7 +81,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         "Number of celltypes downsampled": num_celltypes_ds,
         "Proportion downsampled": prop_ds,
         "Replicate": rep,
-        "Method": methods_tiled,
+        "Method": methods_repeat,
         "Celltype": celltypes_concat,
         "Precision": precision_scores_concat,
         "Recall": recall_scores_concat,
