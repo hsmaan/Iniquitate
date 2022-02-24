@@ -78,6 +78,7 @@ rule all:
                     "dge_concord_full",
                     "dge_concord_stats",
                     "imbalance_summaries",
+                    "knn_classification_reports"
                 ], 
                 [
                     "integrated",
@@ -87,12 +88,14 @@ rule all:
                     "dge_concord_full",
                     "dge_concord_stats",
                     "imbalance_summary",
+                    "knn_classification"
                 ],
                 [
                     "h5ad",
                     "tsv", 
                     "tsv", 
                     "tsv", 
+                    "tsv",
                     "tsv",
                     "tsv",
                     "tsv"
@@ -316,6 +319,31 @@ rule imbalance_summary_paga:
     log:
         "logs/{configname}/paga_imbalance_summary/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
         "_{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}_paga_imbalance_summary.log"
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            &> {log}
+        """
+
+# Get KNN classification statistics for each celltype post integration for each method
+rule knn_classification:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/{configname}/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
+    output:
+        "../results/{configname}/knn_classification_reports/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_knn_classification.tsv"
+    params:
+        script_path = "scripts/python/knn_classification.py",
+    log:
+        "logs/{configname}/knn_classification_report/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_knn_classification.log"
     shell:
         """
         python {params.script_path} \
