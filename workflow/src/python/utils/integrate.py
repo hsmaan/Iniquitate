@@ -112,7 +112,8 @@ class Integration:
                 approx = False,
                 metric = "euclidean",
                 batch_key = "batch",
-                n_pcs = n_pcs
+                n_pcs = n_pcs,
+                pynndescent_random_state = None
             )
         elif metric == "angular":
             bbknn.bbknn(
@@ -120,7 +121,8 @@ class Integration:
                 approx = True,
                 metric = "angular",
                 batch_key = "batch",
-                n_pcs = n_pcs
+                n_pcs = n_pcs,
+                pynndescent_random_state = None
             )
         else:
             raise Exception(
