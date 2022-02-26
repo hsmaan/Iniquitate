@@ -1,5 +1,6 @@
 from functools import reduce
 import gc
+import random 
 
 import numpy as np
 import pandas as pd
@@ -8,6 +9,11 @@ import anndata as ann
 import scvi 
 import bbknn 
 import torch
+
+# Undoing scvi's random seed setting
+random.seed(None)
+np.random.seed(None)
+torch.manual_seed(random.randint(1, 10000000000000000000))
 
 from utils.seurat_integrate import SeuratIntegrate
 from utils.liger_integrate import LigerIntegrate

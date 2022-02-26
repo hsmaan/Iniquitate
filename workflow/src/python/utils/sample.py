@@ -32,7 +32,12 @@ def downsample(adata, num_celltypes = None, celltype_names = None, proportion = 
         if proportion == 0:
             adata = adata_noncelltype
             continue
-        adata_celltype_ds = sc.pp.subsample(adata_celltype, fraction = proportion, copy = True)
+        adata_celltype_ds = sc.pp.subsample(
+            adata_celltype, 
+            fraction = proportion,
+            random_state = None,
+            copy = True
+        )
         adata = ann.AnnData.concatenate(adata_noncelltype, adata_celltype_ds)
 
     # Replace batch column with batch original and drop batch_orig
