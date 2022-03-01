@@ -325,3 +325,75 @@ ggsave(
     width = 12,
     height = 7
 )
+
+### Celltype-specific DGE concordance results for different methods 
+### integration pre and post downsampling
+
+# Combine imbalance and dge information 
+colnames(dge_concat)[2] <- "Number of batches downsampled" #@TODO - fix this 
+imba_dge_merged <- merge(
+  imba_concat,
+  dge_concat,
+  by = c(
+    "Number of batches downsampled",
+    "Number of celltypes downsampled",
+    "Proportion downsampled",
+    "Replicate"
+  )
+)
+imba_dge_merged <- distinct(imba_dge_merged)
+
+# Remove method specific results 
+imba_dge_merged_nomethod <- imba_dge_merged[
+  , 
+  which(colnames(imba_dge_merged) %ni% c(
+    "Method 1", "Method 2", "DGE Set Intersection Ratio"
+  )),
+  with = FALSE
+]
+imba_dge_merged_nomethod <- distinct(imba_dge_merged_nomethod)
+
+# Label the type of downsampling/ablation/control
+imba_dge_merged_nomethod$type <- ifelse(
+  imba_dge_merged_nomethod$`Number of batches downsampled` == 0,
+  "Control",
+  ifelse(
+    imba_dge_merged_nomethod$`Proportion downsampled` == 0,
+    "Ablated",
+    "Downsampled"
+  )
+)
+
+# Plot the DGE intersection ratio results before and after celltype 
+# downsampling 
+
+### Different number of clusters each time ..
+
+ggplot(data = imba_dge_merged_nomethod, aes(
+  x = factor(`Downsampled celltypes`),
+  y = `Median DGE Set Intersection Ratio`,
+  color = `type`
+)) +
+  geom_jitter() +
+  theme_few() +
+  labs(
+    color = "Datapoint type",
+    title = paste0(
+      "PBMC 2 Batch Balanced Downsampling/Ablation (One Batch Randomized)"
+    ),
+    x = "Celltype downsampled",
+    y = "Median DGE intersection ratio post-integration"
+  ) +
+  theme(axis.title.x = element_text(size = 14)) +
+  theme(axis.title.y = element_text(size = 14)) +
+  theme(strip.text.x = element_text(size = 14)) +
+  theme(plot.title = element_text(size = 16)) +
+  theme(axis.text.x = element_text(size = 12)) +
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.title = element_text(size = 14)) +
+  theme(legend.text = element_text(size = 12))
+ggsave(
+  "outs/control/figures/04_pbmc_ds_ablate_dge_intersect_ratio.pdf",
+  width = 14,
+  height = 7
+)
