@@ -31,7 +31,7 @@ clus_concord_loaded <- lapply(clus_concord_files, fread)
 clus_concord_concat <- Reduce(rbind, clus_concord_loaded)
 
 # Load in and concatenate dge concordance summaries
-setwd("../dge_concord_summaries/")
+setwd("../dge_concord_stats//")
 dge_files <- list.files()
 dge_loaded <- lapply(dge_files, fread)
 dge_concat <- Reduce(rbind, dge_loaded)
