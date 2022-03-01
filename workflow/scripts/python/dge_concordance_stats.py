@@ -82,7 +82,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         # Create summary dataframe for DGE results
         dge_summary_df = pd.DataFrame({
             "Dataset": dataset_name,
-            "Batches downsampled": num_batches_ds,
+            "Number of batches downsampled": num_batches_ds,
             "Number of celltypes downsampled": num_celltypes_ds,
             "Proportion downsampled": prop_ds,
             "Replicate": rep,
