@@ -3,41 +3,41 @@
     "int_datasets": {
         "pbmc_2_batch" : {
             "data_folder": "pbmc_2_batch",
-            "ds_celltypes": [1, 2, 3],
-            "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0.05, 0],
+            "ds_celltypes": [1],
+            "ds_proportions": [0.25, 0.1, 0.05, 0],
             "num_batches": [0, 1],
-            "repetitions": 5
+            "repetitions": 50
         },
         "pbmc_4_batch" : {
             "data_folder": "pbmc_4_batch",
-            "ds_celltypes": [1, 2, 3],
-            "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0.05, 0],
-            "num_batches": [0, 1, 2, 3],
-            "repetitions": 5
+            "ds_celltypes": [1],
+            "ds_proportions": [0.25, 0.1, 0.05, 0],
+            "num_batches": [0, 1],
+            "repetitions": 50
         },
         "mouse_hindbrain_6_batch": {
             "data_folder": "mouse_hindbrain_6_batch",
-            "ds_celltypes": [1, 2, 3],
-            "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0.05, 0],
-            "num_batches": [0, 1, 2, 3, 4, 5],
-            "repetitions": 5
+            "ds_celltypes": [1],
+            "ds_proportions": [0.25, 0.1, 0.05, 0],
+            "num_batches": [0, 1],
+            "repetitions": 50
         },
         "peng_pdac_8_batch": {
             "data_folder": "peng_pdac_8_batch",
-            "ds_celltypes": [1, 2, 3],
-            "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0.05, 0],
-            "num_batches": [0, 2, 4, 6],
-            "repetitions": 5
+            "ds_celltypes": [1],
+            "ds_proportions": [0.25, 0.1, 0.05, 0],
+            "num_batches": [0, 1],
+            "repetitions": 50
         }
     },
     "int_ti_datasets": {
         "cao_organ_dev_sublin_2_batch": {
             "data_folder": "cao_organ_dev_sublin_2_batch",
             "root_celltype": "Early_mesenchyme",
-            "ds_celltypes": [1, 2, 3, 4, 5],
-            "ds_proportions": [0.75, 0.5, 0.25, 0.1, 0.05, 0],
+            "ds_celltypes": [1],
+            "ds_proportions": [0.25, 0.1, 0.05, 0],
             "num_batches": [0, 1],
-            "repetitions": 10
+            "repetitions": 50
         }
     }
 }
