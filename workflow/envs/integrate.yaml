@@ -23,7 +23,7 @@ dependencies:
   - harmonypy=0.0.5
   - scanorama=1.7.1
   - r-base>=4.0.0
-  - r-liger>=0.5.0
+  - r-liger>=1.0.0
   - r-seurat>=4.0.5
   - r-seuratdisk>=0.0.9
   - r-data.table>=1.14.0
