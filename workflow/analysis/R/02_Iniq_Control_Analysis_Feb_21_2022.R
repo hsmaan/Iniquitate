@@ -31,7 +31,7 @@ clus_concord_loaded <- lapply(clus_concord_files, fread)
 clus_concord_concat <- Reduce(rbind, clus_concord_loaded)
 
 # Load in and concatenate dge concordance summaries
-setwd("../dge_concord_summaries/")
+setwd("../dge_concord_stats//")
 dge_files <- list.files()
 dge_loaded <- lapply(dge_files, fread)
 dge_concat <- Reduce(rbind, dge_loaded)
@@ -46,21 +46,41 @@ if (!dir.exists("outs/control/figures")) {
 
 ### Analysis of clustering results based on method 
 
+# Merge clustering data with imbalance data 
+clus_concat_imba <- merge(
+  clus_concat, 
+  imba_concat,
+  by = c(
+    "Number of batches downsampled",
+    "Number of celltypes downsampled",
+    "Proportion downsampled",
+    "Replicate"
+  )
+)
+
 # Subset data for comparison of 1 celltype downsampled to none, full ablation
-clus_concat_sub_ablation <- clus_concat[
-  clus_concat$`Proportion downsampled` %in% c(0, 1)
+clus_concat_imba_sub_ablation <- clus_concat_imba[
+  clus_concat_imba$`Proportion downsampled` %in% c(0, 1)
 ]
-clus_concat_sub_ablation$`Ablation` <- ifelse(
-  clus_concat_sub_ablation$`Number of batches downsampled` %in% 1 &
-    clus_concat_sub_ablation$`Number of celltypes downsampled` %in% 1 &
-    clus_concat_sub_ablation$`Proportion downsampled` %in% 0,
+clus_concat_imba_sub_ablation$`Ablation` <- ifelse(
+  clus_concat_imba_sub_ablation$`Number of batches downsampled` %in% 1 &
+    clus_concat_imba_sub_ablation$`Number of celltypes downsampled` %in% 1 &
+    clus_concat_imba_sub_ablation$`Proportion downsampled` %in% 0,
   "Yes",
   "No"
 )
 
+# Subset data for only those that had FCGR3A monocytes downsampled 
+clus_concat_sub_ablation_mfcg <- clus_concat_imba_sub_ablation[
+  clus_concat_imba_sub_ablation$`Downsampled celltypes` %in% c(
+    "Monocyte_FCGR3A",
+    "None"
+  )
+]
+
 # Plot Celltype ARI values based on method (balanced) for ablation vs non
 # ablation cases 
-ggplot(data = clus_concat_sub_ablation, aes(
+ggplot(data = clus_concat_sub_ablation_mfcg, aes(
   x = factor(`Ablation`),
   y = `Celltype ARI Imbalanced`,
   color = `Method`
@@ -70,7 +90,10 @@ ggplot(data = clus_concat_sub_ablation, aes(
   geom_jitter() +
   theme_few() +
   labs(
-    title = "PBMC 2 Batch Balanced FCGR3A+ Monocyte Ablation (One Batch)",
+    title = paste0(
+      "PBMC 2 Batch Balanced FCGR3A+ Monocyte Ablation ",
+      "(One Batch Randomized)"
+    ),
     x = "Ablation of FCGR3A+ Monocytes",
     y = "Celltype Adjusted Rand Index Post-integration"
   ) +
@@ -82,7 +105,6 @@ ggplot(data = clus_concat_sub_ablation, aes(
   theme(axis.text.y = element_text(size = 12)) +
   theme(legend.title = element_text(size = 14)) +
   theme(legend.text = element_text(size = 12))
-
 ggsave(
   "outs/control/figures/02_monocyte_ablation_results_celltype_ari.pdf",
   width = 12, 
@@ -91,7 +113,7 @@ ggsave(
 
 # Plot Batch ARI values based on method (balanced) for ablation vs non
 # ablation cases 
-ggplot(data = clus_concat_sub_ablation, aes(
+ggplot(data = clus_concat_sub_ablation_mfcg, aes(
   x = factor(`Ablation`),
   y = `Batch ARI`,
   color = `Method`
@@ -101,7 +123,10 @@ ggplot(data = clus_concat_sub_ablation, aes(
   geom_jitter() +
   theme_few() +
   labs(
-    title = "PBMC 2 Batch Balanced FCGR3A+ Monocyte Ablation (One Batch)",
+    title = paste0(
+      "PBMC 2 Batch Balanced FCGR3A+ Monocyte Ablation ",
+      "(One Batch Randomized)"
+    ),
     x = "Ablation of FCGR3A+ Monocytes",
     y = "Batch Adjusted Rand Index Post-integration"
   ) +
@@ -113,7 +138,6 @@ ggplot(data = clus_concat_sub_ablation, aes(
   theme(axis.text.y = element_text(size = 12)) +
   theme(legend.title = element_text(size = 14)) +
   theme(legend.text = element_text(size = 12))
-
 ggsave(
   "outs/control/figures/02_monocyte_ablation_results_batch_ari.pdf",
   width = 12, 
@@ -122,7 +146,7 @@ ggsave(
 
 # Plot the results for the number of clusters based on method for ablation vs
 # non-ablation cases 
-ggplot(data = clus_concat_sub_ablation, aes(
+ggplot(data = clus_concat_sub_ablation_mfcg, aes(
   x = factor(`Ablation`),
   y = `Cluster number`,
   color = `Method`
@@ -131,7 +155,10 @@ ggplot(data = clus_concat_sub_ablation, aes(
   geom_jitter() +
   theme_few() +
   labs(
-    title = "PBMC 2 Batch Balanced FCGR3A+ Monocyte Ablation (One Batch)",
+    title = paste0(
+      "PBMC 2 Batch Balanced FCGR3A+ Monocyte Ablation ",
+      "(One Batch Randomized)"
+    ),
     x = "Ablation of FCGR3A+ Monocytes",
     y = "Number of clusters post-integration"
   ) +
@@ -151,20 +178,28 @@ ggsave(
 )
 
 # Subset data for comparison of 1 celltype downsampled to none, 0.1 proportion
-clus_concat_sub_ds <- clus_concat[
-  clus_concat$`Proportion downsampled` %in% c(1, 0.1)
+clus_concat_imba_sub_ds <- clus_concat_imba[
+  clus_concat_imba$`Proportion downsampled` %in% c(1, 0.1)
 ]
-clus_concat_sub_ds$`Downsample` <- ifelse(
-  clus_concat_sub_ds$`Number of batches downsampled` %in% 1 &
-    clus_concat_sub_ds$`Number of celltypes downsampled` %in% 1 &
-    clus_concat_sub_ds$`Proportion downsampled` %in% 0.1,
+clus_concat_imba_sub_ds$`Downsample` <- ifelse(
+  clus_concat_imba_sub_ds$`Number of batches downsampled` %in% 1 &
+    clus_concat_imba_sub_ds$`Number of celltypes downsampled` %in% 1 &
+    clus_concat_imba_sub_ds$`Proportion downsampled` %in% 0.1,
   "Yes",
   "No"
 )
 
+# Subset data for only those that had FCGR3A monocytes downsampled 
+clus_concat_imba_sub_ds_mfcg <- clus_concat_imba_sub_ds[
+  clus_concat_imba_sub_ds$`Downsampled celltypes` %in% c(
+    "Monocyte_FCGR3A",
+    "None"
+  )
+]
+
 # Plot Celltype ARI values based on method (balanced) for downsample vs non
 # downsample cases 
-ggplot(data = clus_concat_sub_ds, aes(
+ggplot(data = clus_concat_imba_sub_ds_mfcg, aes(
   x = factor(`Downsample`),
   y = `Celltype ARI Imbalanced`,
   color = `Method`
@@ -174,7 +209,10 @@ ggplot(data = clus_concat_sub_ds, aes(
   geom_jitter() +
   theme_few() +
   labs(
-    title = "PBMC 2 Batch Balanced FCGR3A+ Monocyte Downsampling (One Batch)",
+    title = paste0(
+      "PBMC 2 Batch Balanced FCGR3A+ Monocyte Downsampling ",
+      "(One Batch Randomized)"
+    ),
     x = "Downsampling (to 10% of cells) of FCGR3A+ Monocytes",
     y = "Celltype Adjusted Rand Index Post-integration"
   ) +
@@ -195,7 +233,7 @@ ggsave(
 
 # Plot Batch ARI values based on method (balanced) for downsample vs non
 # downsample cases 
-ggplot(data = clus_concat_sub_ds, aes(
+ggplot(data = clus_concat_imba_sub_ds_mfcg, aes(
   x = factor(`Downsample`),
   y = `Batch ARI`,
   color = `Method`
@@ -205,7 +243,10 @@ ggplot(data = clus_concat_sub_ds, aes(
   geom_jitter() +
   theme_few() +
   labs(
-    title = "PBMC 2 Batch Balanced FCGR3A+ Monocyte Downsampling (One Batch)",
+    title = paste0(
+      "PBMC 2 Batch Balanced FCGR3A+ Monocyte Downsampling ",
+      "(One Batch Randomized)"
+    ),
     x = "Downsampling (to 10% of cells) of FCGR3A+ Monocytes",
     y = "Batch Adjusted Rand Index Post-integration"
   ) +
@@ -224,10 +265,9 @@ ggsave(
   height = 8
 )
 
-
 # Plot the results for the number of clusters based on method for downsampling 
 # vs non-downsampling cases 
-ggplot(data = clus_concat_sub_ds, aes(
+ggplot(data = clus_concat_imba_sub_ds_mfcg, aes(
   x = factor(`Downsample`),
   y = `Cluster number`,
   color = `Method`
@@ -236,7 +276,10 @@ ggplot(data = clus_concat_sub_ds, aes(
   geom_jitter() +
   theme_few() +
   labs(
-    title = "PBMC 2 Batch Balanced FCGR3A+ Monocyte Downsampling (One Batch)",
+    title = paste0(
+      "PBMC 2 Batch Balanced FCGR3A+ Monocyte Downsampling ",
+      "(One Batch Randomized)"
+    ),
     x = "Downsampling (to 10% of cells) of FCGR3A+ Monocytes",
     y = "Number of clusters post-integration"
   ) +
