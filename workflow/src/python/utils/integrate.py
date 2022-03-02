@@ -78,7 +78,8 @@ class Integration:
         sc.pp.pca(aharmony, svd_solver="arpack")
         sc.external.pp.harmony_integrate(
             aharmony,
-            key = "batch"
+            key = "batch",
+            random_state = None
         )
         sc.pp.neighbors(
             aharmony,
