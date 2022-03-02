@@ -43,8 +43,8 @@ liger_obj@var.genes <- rownames(liger_obj@raw.data[[1]])
 
 # Scale data, perform iNFM and quantile normalization
 liger_obj <- scaleNotCenter(liger_obj)
-liger_obj <- optimizeALS(liger_obj, k = 20)
-liger_obj <- quantile_norm(liger_obj)
+liger_obj <- optimizeALS(liger_obj, k = 20, rand.seed = NULL)
+liger_obj <- quantile_norm(liger_obj, rand.seed = NULL)
 
 # Extract normalized cell loadings, save as h5seurat object,
 # and convert to h5ad
