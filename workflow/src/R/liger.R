@@ -4,6 +4,9 @@ library(Seurat)
 library(SeuratDisk)
 library(reticulate)
 
+# Get a random seed 
+rand_seed <- sample(1:100000000, 1)
+
 # Read in matrix for full data, including last batch column 
 args <- commandArgs(trailingOnly = TRUE)
 file <- args[1]
@@ -43,8 +46,8 @@ liger_obj@var.genes <- rownames(liger_obj@raw.data[[1]])
 
 # Scale data, perform iNFM and quantile normalization
 liger_obj <- scaleNotCenter(liger_obj)
-liger_obj <- optimizeALS(liger_obj, k = 20, rand.seed = NULL)
-liger_obj <- quantile_norm(liger_obj, rand.seed = NULL)
+liger_obj <- optimizeALS(liger_obj, k = 20, rand.seed = rand_seed)
+liger_obj <- quantile_norm(liger_obj, rand.seed = rand_seed)
 
 # Extract normalized cell loadings, save as h5seurat object,
 # and convert to h5ad
