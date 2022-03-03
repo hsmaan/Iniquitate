@@ -1,11 +1,10 @@
 name: iniq_integrate
 channels:
-  - pytorch
   - conda-forge
   - bioconda
+  - r
   - defaults
 dependencies:
-  - mamba>=0.4.3 
   - python>=3.7,<=3.10
   - numpy>=1.19.0
   - pandas>=1.2.0
@@ -17,16 +16,14 @@ dependencies:
   - scanpy>=1.7.2
   - anndata>=0.7.5
   - faiss-cpu>=1.7.0
-  - pytorch=1.10.1
-  - cudatoolkit=10.2
-  - scvi-tools=0.14.4
-  - bbknn=1.5.1
-  - harmonypy=0.0.5
-  - scanorama=1.7.1
-  - r-base>=4.1.0
-  - r-liger>=1.0.0
-  - r-seurat>=4.0.5
-  - r-seuratdisk>=0.0.9
+  - scvi-tools==0.14.4
+  - bbknn==1.5.1
+  - harmonypy==0.0.5
+  - scanorama==1.7.1
+  - r-base>=4.0.0
+  - r-liger==0.5.0.9000
+  - r-seurat==4.0.5
+  - r-seuratdisk==0.0.9019
   - r-data.table>=1.14.0
   - r-reticulate>=1.22.0
   - cython>=0.29.25
