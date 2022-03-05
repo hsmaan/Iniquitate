@@ -77,6 +77,7 @@ ggsave(
   height = 6
 )
 
+# Create plots of celltype embeddings for the two datasets combined
 DimPlot(pbmc_combined, reduction = "umap", group.by = "celltype") +
   theme(plot.title = element_blank())
 ggsave(
