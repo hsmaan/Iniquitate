@@ -4,6 +4,7 @@ library(reshape2)
 library(ggplot2)
 library(ggthemes)
 library(ggExtra)
+library(ggpubr)
 library(dotwhisker)
 library(Seurat)
 library(SeuratDisk)
@@ -73,7 +74,7 @@ pbmc_2 <- SeuratDisk::LoadH5Seurat("tran_exp5_pbmc_batch2_balanced.h5seurat")
 # Change to top level dir 
 setwd("../../../../")
 
-### Fig 1A) - plotting of pbmc balanced dataset and examples of downsampling
+### Fig 2A) - plotting of pbmc balanced dataset and examples of downsampling
 ### and ablation on CD14 Monocyte cells 
 
 # Process both datasets independantly and together
@@ -242,7 +243,7 @@ ggsave(
   height = 6
 )
 
-### Fig 2A) - summary of ablation and downsampling effects on batch and 
+### Fig 2B) - summary of ablation and downsampling effects on batch and 
 ### celltype ARI values (base metrics), dependant on method/technique 
 
 # Merge imbalance and clustering summary results
@@ -499,3 +500,118 @@ draw(
 )
 dev.off()
 
+### Fig 2C) - results of celltype downsampling and ablation on  
+### KNN classification scores 
+
+# Merge imbalance and knn classification results together
+imba_knn_merged <- merge(
+  imba_concat,
+  knn_concat,
+  by = c(
+    "Number of batches downsampled",
+    "Number of celltypes downsampled",
+    "Proportion downsampled",
+    "Replicate"
+  )
+)
+imba_knn_merged <- distinct(imba_knn_merged)
+
+# Subset for only cases where the celltype downsampled is equal to the 
+# celltype being classified
+imba_knn_merged_celltype <- imba_knn_merged[
+  imba_knn_merged$Celltype == imba_knn_merged$`Downsampled celltypes` |
+    imba_knn_merged$`Downsampled celltypes` %in% c("None")
+]
+
+# Indicate which panels are control and which ones are ablations or downsampling
+imba_knn_merged_celltype$type <- ifelse(
+  imba_knn_merged_celltype$`Number of batches downsampled` == 0,
+  "Control",
+  ifelse(
+    imba_knn_merged_celltype$`Proportion downsampled` == 0,
+    "Ablated",
+    "Downsampled"
+  )
+)
+
+# Format celltype names
+imba_knn_merged_celltype$Celltype <- plyr::mapvalues(
+  imba_knn_merged_celltype$Celltype,
+  from = c(
+    "Monocyte_CD14",
+    "Monocyte_FCGR3A",
+    "CD4 T cell",
+    "CD8 T cell"
+  ),
+  to = c(
+    "CD14+ Monocyte",
+    "FCGR3A+ Monocyte",
+    "CD4+ T cell",
+    "CD8+ T cell"
+  )
+)
+
+ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
+  geom_boxplot(
+    aes(
+      fill = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+    ),
+    notch = FALSE,
+    alpha = 0.8 
+  ) +
+  facet_wrap(.~Celltype, scales = "free_x") +
+  labs(
+    fill = "Type",
+    x = "Method",
+    y = "F1-classification score post-integration"
+  ) +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 14)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14))
+ggsave(
+  "outs/control/figures/04_pbmc_ds_ablate_allmethod_knn_f1_score.pdf",
+  width = 14,
+  height = 8,
+  device = cairo_pdf
+)
+
+### Fig 2D) - correlation of batch and celltype ARI values with KNN 
+### classification scores to show discordance of these results 
+
+# Merge imbalance, clustering, and knn classification results together
+imba_knn_cluster_merged <- merge(
+  imba_knn_merged,
+  clus_concat,
+  by = c(
+    "Number of batches downsampled",
+    "Number of celltypes downsampled",
+    "Proportion downsampled",
+    "Replicate"
+  ),
+  allow.cartesian = TRUE
+)
+imba_knn_cluster_merged <- distinct(imba_knn_cluster_merged)
+
+# Subset for only cases where the celltype downsampled is equal to the 
+# celltype being classified
+imba_knn_cluster_merged_celltype <- imba_knn_cluster_merged[
+  imba_knn_cluster_merged$Celltype == imba_knn_cluster_merged$`Downsampled celltypes` |
+    imba_knn_cluster_merged$`Downsampled celltypes` %in% c("None")
+]
+
+# ggscatter(imba_knn_cluster_merged_celltype, x = "GATA3", y = c("ESR1", "MUC1"), 
+#           size = 0.3,
+#           combine = TRUE, ylab = "Expression",
+#           color = "dataset", palette = "jco",
+#           add = "reg.line", conf.int = TRUE) +
+#   stat_cor(aes(color = dataset), method = "spearman")
