@@ -572,14 +572,14 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   theme_few() +
   theme(axis.title.x = element_text(size = 16)) +
   theme(axis.title.y = element_text(size = 16)) +
-  theme(strip.text.x = element_text(size = 14)) +
+  theme(strip.text.x = element_text(size = 16)) +
   theme(plot.title = element_text(size = 14)) +
   theme(axis.text.x = element_text(size = 14)) +
   theme(axis.text.y = element_text(size = 14)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14))
 ggsave(
-  "outs/control/figures/04_pbmc_ds_ablate_allmethod_knn_f1_score.pdf",
+  "outs/control/figures/05_pbmc_ds_ablate_allmethod_knn_f1_score.pdf",
   width = 14,
   height = 8,
   device = cairo_pdf
@@ -602,6 +602,35 @@ imba_knn_cluster_merged <- merge(
 )
 imba_knn_cluster_merged <- distinct(imba_knn_cluster_merged)
 
+# Format celltype names
+imba_knn_cluster_merged$Celltype <- plyr::mapvalues(
+  imba_knn_cluster_merged$Celltype,
+  from = c(
+    "Monocyte_CD14",
+    "Monocyte_FCGR3A",
+    "CD4 T cell",
+    "CD8 T cell"
+  ),
+  to = c(
+    "CD14+ Monocyte",
+    "FCGR3A+ Monocyte",
+    "CD4+ T cell",
+    "CD8+ T cell"
+  )
+)
+
+# Indicate which panels are control and which ones are ablations or downsampling
+imba_knn_cluster_merged$type <- ifelse(
+  imba_knn_cluster_merged$`Number of batches downsampled` == 0,
+  "Control",
+  ifelse(
+    imba_knn_cluster_merged$`Proportion downsampled` == 0,
+    "Ablated",
+    "Downsampled"
+  )
+)
+
+
 # Subset for only cases where the celltype downsampled is equal to the 
 # celltype being classified
 imba_knn_cluster_merged_celltype <- imba_knn_cluster_merged[
@@ -609,9 +638,77 @@ imba_knn_cluster_merged_celltype <- imba_knn_cluster_merged[
     imba_knn_cluster_merged$`Downsampled celltypes` %in% c("None")
 ]
 
-# ggscatter(imba_knn_cluster_merged_celltype, x = "GATA3", y = c("ESR1", "MUC1"), 
-#           size = 0.3,
-#           combine = TRUE, ylab = "Expression",
-#           color = "dataset", palette = "jco",
-#           add = "reg.line", conf.int = TRUE) +
-#   stat_cor(aes(color = dataset), method = "spearman")
+# Plot the result for correlation with the Celltype ARI values 
+ggscatter(imba_knn_cluster_merged_celltype, 
+          x = "Celltype ARI Imbalanced", 
+          y = "F1-score", 
+          size = 0.4,
+          combine = TRUE,
+          xlab = "Celltype ARI post-integration",
+          ylab = "F1-classification score post-integration",
+          palette = "jco",
+          add = "reg.line", 
+          add.params = list(color = "blue", fill = "lightgray"),
+          conf.int = TRUE) +
+  facet_wrap(.~`Method.x`, scales = "free") +
+  stat_cor(
+    method = "spearman", 
+    label.x = 0.4, 
+    label.y = 0.1, 
+    p.digits = 2,
+    size = 5
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14))
+ggsave(
+  "outs/control/figures/05_pbmc_ds_ablate_f1_score_celltype_ari_corr.pdf",
+  width = 14,
+  height = 8,
+  device = cairo_pdf
+)
+
+# Plot the result for correlation with the Batch ARI values 
+ggscatter(imba_knn_cluster_merged_celltype, 
+          x = "Batch ARI", 
+          y = "F1-score", 
+          size = 0.4,
+          combine = TRUE,
+          xlab = "Batch ARI post-integration",
+          ylab = "F1-classification score post-integration",
+          palette = "jco",
+          add = "reg.line", 
+          add.params = list(color = "blue", fill = "lightgray"),
+          conf.int = TRUE) +
+  facet_wrap(.~`Method.x`, scales = "free") +
+  stat_cor(
+    method = "spearman", 
+    label.x = 0.9, 
+    label.y = 0.1, 
+    p.digits = 2,
+    size = 5
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) 
+ggsave(
+  "outs/control/figures/05_pbmc_ds_ablate_f1_score_batch_ari_corr.pdf",
+  width = 14,
+  height = 8,
+  device = cairo_pdf
+)
+
+
+
