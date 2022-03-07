@@ -1,15 +1,15 @@
 {
     "config_name": "control",
     "int_datasets": {
-        "pbmc_2_batch_balanced" : {
-            "data_folder": "pbmc_2_batch_balanced",
+        "pbmc_2_batch_base_balanced" : {
+            "data_folder": "pbmc_2_batch_base_balanced",
             "ds_celltypes": [1],
             "ds_proportions": [0.1, 0],
             "num_batches": [0, 1],
             "repetitions": 200
         },
-        "pbmc_2_batch_balanced_hierarchical": {
-            "data_folder": "pbmc_2_batch_balanced_hierarchical",
+        "pbmc_2_batch_hierarchical_balanced": {
+            "data_folder": "pbmc_2_batch_hierarchical_balanced",
             "ds_celltypes": [1],
             "ds_proportions": [0.1, 0],
             "num_batches": [0, 1],
