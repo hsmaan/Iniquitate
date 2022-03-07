@@ -4,7 +4,7 @@ library(Seurat)
 library(SeuratDisk)
 
 # Change to PBMC data dir  
-setwd("../../../resources/h5ad_files/int_datasets/pbmc_2_batch_balanced/")
+setwd("../../../resources/h5ad_files/int_datasets/pbmc_2_batch_base_balanced")
 
 # Convert balanced pbmc data files to h5seurat format
 Convert(
