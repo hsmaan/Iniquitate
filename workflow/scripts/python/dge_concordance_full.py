@@ -96,7 +96,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description = "Input and output files for downsampling summary"
+        description = "Input and output files for dge concordance summary"
     )
     parser.add_argument(
         "--infile",
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--outfile",
         type = str,
-        help = "Filepath for saving downsampling statistics of integrated h5ad file"
+        help = "Filepath for saving dge concordance statistics of integrated h5ad file"
     )
     parser.add_argument(
         "--dataset",
