@@ -7,7 +7,7 @@ library(ggExtra)
 library(dotwhisker)
 
 # Change to results dir for control data 
-setwd("../../../results/control/")
+setwd("../../../results/control/") 
 
 # Helper functions
 `%ni%` <- Negate(`%in%`)
@@ -15,24 +15,40 @@ setwd("../../../results/control/")
 # Load in and concatenate imbalance summary files 
 setwd("imbalance_summaries/")
 imba_files <- list.files()
+imba_files <- grep(
+  "pbmc_2_batch_base_balanced",
+  imba_files
+)
 imba_loaded <- lapply(imba_files, fread)
 imba_concat <- Reduce(rbind, imba_loaded)
 
 # Load in and concatenate the clustering summary results 
 setwd("../clustering_summaries/")
 clus_files <- list.files()
+clus_files <- grep(
+  "pbmc_2_batch_base_balanced",
+  clus_files
+)
 clus_loaded <- lapply(clus_files, fread)
 clus_concat <- Reduce(rbind, clus_loaded)
 
 # Load in and concatenate clustering concordance summaries 
 setwd("../clustering_concord_summaries/")
 clus_concord_files <- list.files()
+clus_concord_files <- grep(
+  "pbmc_2_batch_base_balanced",
+  clus_concord_files
+)
 clus_concord_loaded <- lapply(clus_concord_files, fread)
 clus_concord_concat <- Reduce(rbind, clus_concord_loaded)
 
 # Load in and concatenate dge concordance summaries
 setwd("../dge_concord_stats//")
 dge_files <- list.files()
+dge_files <- grep(
+  "pbmc_2_batch_base_balanced",
+  dge_files
+)
 dge_loaded <- lapply(dge_files, fread)
 dge_concat <- Reduce(rbind, dge_loaded)
 
