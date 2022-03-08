@@ -77,6 +77,7 @@ rule all:
                     "clustering_concord_summaries",
                     "dge_concord_full",
                     "dge_concord_stats",
+                    "dge_ranking_stats",
                     "imbalance_summaries",
                     "knn_classification_reports"
                 ], 
@@ -87,6 +88,7 @@ rule all:
                     "clustering_concord_summary",
                     "dge_concord_full",
                     "dge_concord_stats",
+                    "dge_ranking_stats",
                     "imbalance_summary",
                     "knn_classification"
                 ],
@@ -95,6 +97,7 @@ rule all:
                     "tsv", 
                     "tsv", 
                     "tsv", 
+                    "tsv",
                     "tsv",
                     "tsv",
                     "tsv",
@@ -269,6 +272,31 @@ rule dge_concord_stats:
     log:
         "logs/{configname}/dge_concord_stats/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_stats.log"
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            &> {log}
+        """
+
+# Get DGE ranking concordance results (from different methods) from downsampling using Leiden clustering
+rule dge_ranking_stats:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/{configname}/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
+    output:
+        "../results/{configname}/dge_ranking_stats/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_dge_ranking_stats.tsv"
+    params:
+        script_path = "scripts/python/dge_ranking_concordance.py",
+    log:
+        "logs/{configname}/dge_ranking_stats/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_dge_ranking_stats.log"
     shell:
         """
         python {params.script_path} \
