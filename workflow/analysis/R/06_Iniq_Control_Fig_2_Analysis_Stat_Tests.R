@@ -243,113 +243,92 @@ fwrite(
   col.names = TRUE
 )
 
-# # Create function to perform ANOVA test, given either type or type pooled,
-# # a metric, and taking into account method and specific downsampled 
-# # celltype 
-# anova_metric_test <- function(
-#   dataset, 
-#   dataset_name,
-#   metric,
-#   total_samples,
-# )
-#   
-# # Rename columns for use in formulas 
-# colnames(imba_clus_merged) <- plyr::mapvalues(
-#   colnames(imba_clus_merged),
-#   from = c(
-#     "Celltype ARI",
-#     "Celltype AMI",
-#     "Celltype Homogeneity",
-#     "Celltype Completeness",
-#     "Batch ARI",
-#     "Batch AMI",
-#     "Batch Homoge"
-#   )
-# )
-# 
-# # Subset for and rename relevant columns in imba_clus_merged
-# imba_clus_merged_sub_cari <- imba_clus_merged[
-#   ,c(
-#     "Celltype ARI Imbalanced",
-#     "Method",
-#     "Downsampled celltypes",
-#     "type"
-#   )
-# ]
-# colnames(imba_clus_merged_sub_cari) <- c(
-#   "celltype_ari_imbalanced",
-#   "method",
-#   "downsampled_celltypes",
-#   "type"
-# )
-# 
-# # Perform ANOVA test for celltype ari and type, taking into account the 
-# # celltype that was downsampled and the method used - save result
-# celltype_ari_model <- lm(
-#   as.formula(
-#     paste0(
-#       "celltype_ari_imbalanced", 
-#       "~",
-#       "method+",
-#       "downsampled_celltypes+",
-#       "type"
-#     )
-#   ),
-#   data = imba_clus_merged_sub_cari
-# )
-# cari_anova_result <- anova(celltype_ari_model, test = "F")
-# fwrite(
-#   cari_anova_result,
-#   "outs/control/results/06_celltype_ari_global_anova.tsv",
-#   sep = "\t",
-#   quote = FALSE,
-#   row.names = FALSE,
-#   col.names = TRUE
-# )
-# 
-# # Perform the same as above for batch ARI through an ANOVA test, after taking 
-# # into account the method and celltype that was downsampled 
-# 
-# # Subset for and rename relevant columns in imba_clus_merged
-# imba_clus_merged_sub_bari <- imba_clus_merged[
-#   ,c(
-#     "Batch ARI",
-#     "Method",
-#     "Downsampled celltypes",
-#     "type"
-#   )
-# ]
-# colnames(imba_clus_merged_sub_bari) <- c(
-#   "batch_ari_imbalanced",
-#   "method",
-#   "downsampled_celltypes",
-#   "type"
-# )
-# 
-# # Perform ANOVA test for batch ari and type, taking into account the 
-# # celltype that was downsampled and the method used - save result
-# batch_ari_model <- lm(
-#   as.formula(
-#     paste0(
-#       "batch_ari_imbalanced", 
-#       "~",
-#       "method+",
-#       "downsampled_celltypes+",
-#       "type"
-#     )
-#   ),
-#   data = imba_clus_merged_sub_bari
-# )
-# bari_anova_result <- anova(batch_ari_model, test = "F")
-# fwrite(
-#   bari_anova_result,
-#   "outs/control/results/06_batch_ari_global_anova.tsv",
-#   sep = "\t",
-#   quote = FALSE,
-#   row.names = FALSE,
-#   col.names = TRUE
-# )
-# 
-# ### Statistical tests for KNN classification results ###
-# 
-# 
+# Create function to perform ANOVA test, given either type or type pooled,
+# a metric, and taking into account method and specific downsampled 
+# celltype 
+anova_metric_test <- function(
+  dataset, 
+  dataset_name,
+  metric,
+  last_covariate
+){
+  model_fit <- lm(
+    as.formula(
+      paste0(
+        metric, 
+        "~",
+        "method+",
+        "downsampled_celltypes+",
+        last_covariate
+      )
+    ),
+    data = dataset
+  )
+  anova_result <- anova(model_fit, test = "F")
+  anova_result_dt <- as.data.table(anova_result, keep.rownames = TRUE)
+  colnames(anova_result_dt)[1] <- "Covariate"
+  anova_result_dt$dataset_name <- dataset_name
+  anova_result_dt$metric <- metric
+  anova_result_dt$last_covariate <- last_covariate
+  return(anova_result_dt)
+}
+
+# Rename columns for use in formulas (no spaces)
+colnames(imba_clus_merged) <- plyr::mapvalues(
+  colnames(imba_clus_merged),
+  from = c(
+    "Celltype ARI",
+    "Celltype AMI",
+    "Celltype Homogeneity",
+    "Celltype Completeness",
+    "Batch ARI",
+    "Batch AMI",
+    "Batch Homogeneity",
+    "Batch Completeness",
+    "Method",
+    "Downsampled celltypes"
+  ),
+  to = c(
+    "celltype_ari",
+    "celltype_ami",
+    "celltype_homogeneity",
+    "celltype_completeness",
+    "batch_ari",
+    "batch_ami",
+    "batch_homogeneity",
+    "batch_completeness",
+    "method",
+    "downsampled_celltypes"
+  )
+)
+
+# Iterate over metrics and the important last covariate (type)
+metrics_aov <- list(
+  "celltype_ari",
+  "celltype_ami",
+  "celltype_homogeneity",
+  "celltype_completeness",
+  "batch_ari",
+  "batch_ami",
+  "batch_homogeneity",
+  "batch_completeness"
+)
+metric_aov_results <- lapply(metrics_aov, function(x) {
+  aov_summary_df <- anova_metric_test(
+    dataset = imba_clus_merged,
+    dataset_name = "PBMC 2 batch base balanced",
+    metric = x,
+    last_covariate = "type"
+  )
+})
+
+# Concatenate results and save 
+metric_aov_results_concat <- Reduce(rbind, metric_aov_results)
+fwrite(
+  metric_aov_results_concat,
+  "outs/control/results/06_metric_aov_results_types_ct_method_ctrl.tsv",
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = TRUE
+)
