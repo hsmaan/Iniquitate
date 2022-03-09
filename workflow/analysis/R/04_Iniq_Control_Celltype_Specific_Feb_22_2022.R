@@ -17,7 +17,8 @@ setwd("imbalance_summaries/")
 imba_files <- list.files()
 imba_files <- grep(
   "pbmc_2_batch_base_balanced",
-  imba_files
+  imba_files,
+  value = TRUE
 )
 imba_loaded <- lapply(imba_files, fread)
 imba_concat <- Reduce(rbind, imba_loaded)
@@ -27,7 +28,8 @@ setwd("../clustering_summaries/")
 clus_files <- list.files()
 clus_files <- grep(
   "pbmc_2_batch_base_balanced",
-  clus_files
+  clus_files,
+  value = TRUE
 )
 clus_loaded <- lapply(clus_files, fread)
 clus_concat <- Reduce(rbind, clus_loaded)
@@ -37,7 +39,8 @@ setwd("../clustering_concord_summaries/")
 clus_concord_files <- list.files()
 clus_concord_files <- grep(
   "pbmc_2_batch_base_balanced",
-  clus_concord_files
+  clus_concord_files,
+  value = TRUE
 )
 clus_concord_loaded <- lapply(clus_concord_files, fread)
 clus_concord_concat <- Reduce(rbind, clus_concord_loaded)
@@ -47,7 +50,8 @@ setwd("../dge_concord_stats/")
 dge_files <- list.files()
 dge_files <- grep(
   "pbmc_2_batch_base_balanced",
-  dge_files
+  dge_files,
+  value = TRUE
 )
 dge_loaded <- lapply(dge_files, fread)
 dge_concat <- Reduce(rbind, dge_loaded)
@@ -57,7 +61,8 @@ setwd("../knn_classification_reports/")
 knn_files <- list.files()
 knn_files <- grep(
   "pbmc_2_batch_base_balanced",
-  knn_files
+  knn_files,
+  value = TRUE
 )
 knn_loaded <- lapply(knn_files, fread)
 knn_concat <- Reduce(rbind, knn_loaded)
