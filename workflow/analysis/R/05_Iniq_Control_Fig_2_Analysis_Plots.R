@@ -19,6 +19,8 @@ library(Cairo)
 # Change to results dir for control data 
 setwd("../../../results/control/")
 
+##### Analysis of PBMC 2 batch balanced data - baseline #####
+
 # Load in and concatenate imbalance summary files 
 setwd("imbalance_summaries/")
 imba_files <- list.files()
@@ -78,7 +80,7 @@ knn_concat <- Reduce(rbind, knn_loaded)
 setwd("../../..")
 
 # Change to PBMC data dir  
-setwd("resources/h5ad_files/int_datasets/pbmc_2_batch_balanced/")
+setwd("resources/h5ad_files/int_datasets/pbmc_2_batch_base_balanced/")
 
 # Convert balanced pbmc data files to h5seurat format
 Convert(
@@ -735,5 +737,327 @@ ggsave(
   device = cairo_pdf
 )
 
+##### Analysis of PBMC 2 batch balanced data - hierarchical agglomeration ##### 
 
+# Remove all previous objects and garbage collect
+rm(list = ls())
+gc()
 
+# Change to results dir for control data 
+setwd("results/control/")
+
+# Load in and concatenate imbalance summary files 
+setwd("imbalance_summaries/")
+imba_files <- list.files()
+imba_files <- grep(
+  "pbmc_2_batch_hierarchical_balanced",
+  imba_files,
+  value = TRUE
+)
+imba_loaded <- lapply(imba_files, fread)
+imba_concat <- Reduce(rbind, imba_loaded)
+
+# Load in and concatenate the clustering summary results 
+setwd("../clustering_summaries/")
+clus_files <- list.files()
+clus_files <- grep(
+  "pbmc_2_batch_hierarchical_balanced",
+  clus_files,
+  value = TRUE
+)
+clus_loaded <- lapply(clus_files, fread)
+clus_concat <- Reduce(rbind, clus_loaded)
+
+# Load in and concatenate clustering concordance summaries 
+setwd("../clustering_concord_summaries/")
+clus_concord_files <- list.files()
+clus_concord_files <- grep(
+  "pbmc_2_batch_hierarchical_balanced",
+  clus_concord_files,
+  value = TRUE
+)
+clus_concord_loaded <- lapply(clus_concord_files, fread)
+clus_concord_concat <- Reduce(rbind, clus_concord_loaded)
+
+# Load in and concatenate dge concordance summaries
+setwd("../dge_concord_stats/")
+dge_files <- list.files()
+dge_files <- grep(
+  "pbmc_2_batch_hierarchical_balanced",
+  dge_files,
+  value = TRUE
+)
+dge_loaded <- lapply(dge_files, fread)
+dge_concat <- Reduce(rbind, dge_loaded)
+
+# Load in and concatenate knn classification summaries
+setwd("../knn_classification_reports/")
+knn_files <- list.files()
+knn_files <- grep(
+  "pbmc_2_batch_hierarchical_balanced",
+  knn_files,
+  value = TRUE
+)
+knn_loaded <- lapply(knn_files, fread)
+knn_concat <- Reduce(rbind, knn_loaded)
+
+# Change to top level dir 
+setwd("../../..")
+
+# Change to PBMC data dir  
+setwd("resources/h5ad_files/int_datasets/pbmc_2_batch_hierarchical_balanced/")
+
+# Convert balanced pbmc data files to h5seurat format
+Convert(
+  "tran_exp5_pbmc_batch1_balanced_hierarchical.h5ad", 
+  dest = "h5seurat", 
+  overwrite = TRUE
+)
+Convert(
+  "tran_exp5_pbmc_batch2_balanced_hierarchical.h5ad",
+  dest = "h5seurat",
+  overwrite = TRUE
+)
+
+# Load h5ad files for both balanced pbmc datasets 
+pbmc_1 <- SeuratDisk::LoadH5Seurat(
+  "tran_exp5_pbmc_batch1_balanced_hierarchical.h5seurat"
+)
+pbmc_2 <- SeuratDisk::LoadH5Seurat(
+  "tran_exp5_pbmc_batch2_balanced_hierarchical.h5seurat"
+)
+
+# Change to top level dir 
+setwd("../../../../")
+
+### Fig 2E) - plotting of pbmc balanced hierarchical dataset and examples of 
+### downsampling and ablation on NK/T Cells 
+
+# Process both datasets independantly and together
+pbmc_combined <- merge(pbmc_1, pbmc_2)
+
+pbmc_1 <- NormalizeData(pbmc_1)
+pbmc_1 <- FindVariableFeatures(
+  pbmc_1, selection.method = "vst", nfeatures = 2000
+)
+all.genes <- rownames(pbmc_1)
+pbmc_1 <- ScaleData(pbmc_1, features = all.genes)
+pbmc_1 <- RunPCA(pbmc_1, features = VariableFeatures(object = pbmc_1))
+pbmc_1 <- FindNeighbors(pbmc_1, dims = 1:20)
+pbmc_1 <- FindClusters(pbmc_1, resolution = 0.5)
+pbmc_1 <- RunUMAP(pbmc_1, dims = 1:20)
+
+pbmc_2 <- NormalizeData(pbmc_2)
+pbmc_2 <- FindVariableFeatures(
+  pbmc_2, selection.method = "vst", nfeatures = 2000
+)
+all.genes <- rownames(pbmc_2)
+pbmc_2 <- ScaleData(pbmc_2, features = all.genes)
+pbmc_2 <- RunPCA(pbmc_2, features = VariableFeatures(object = pbmc_2))
+pbmc_2 <- FindNeighbors(pbmc_2, dims = 1:20)
+pbmc_2 <- FindClusters(pbmc_2, resolution = 0.5)
+pbmc_2 <- RunUMAP(pbmc_2, dims = 1:20)
+
+pbmc_combined <- NormalizeData(pbmc_combined)
+pbmc_combined <- FindVariableFeatures(
+  pbmc_combined, selection.method = "vst", nfeatures = 2000
+)
+all.genes <- rownames(pbmc_combined)
+pbmc_combined <- ScaleData(pbmc_combined, features = all.genes)
+pbmc_combined <- RunPCA(pbmc_combined, features = VariableFeatures(
+  object = pbmc_combined
+))
+pbmc_combined <- FindNeighbors(pbmc_combined, dims = 1:20)
+pbmc_combined <- FindClusters(pbmc_combined, resolution = 0.5)
+pbmc_combined <- RunUMAP(pbmc_combined, dims = 1:20)
+
+### Create plots of celltype embeddings for the two datasets combined
+pbmc_combined@meta.data$batch <- plyr::mapvalues(
+  pbmc_combined@meta.data$batch, 
+  from = c(
+    "batch_1",
+    "batch_2"
+  ),
+  to = c(
+    "Batch 1",
+    "Batch 2"
+  )
+)
+
+# Plot combined data results as they are, for both celltype and batch 
+DimPlot(pbmc_combined, reduction = "umap", group.by = "celltype") +
+  theme(plot.title = element_blank()) + 
+  labs(
+    x = "UMAP 1",
+    y = "UMAP 2"
+  ) +
+  scale_color_brewer(palette = "Dark2") +  
+  theme(aspect.ratio = 1)
+ggsave(
+  "outs/control/figures/05_pbmc_balanced_combined_celltypes.pdf",
+  width = 6, 
+  height = 6
+)
+DimPlot(pbmc_combined, reduction = "umap", group.by = "batch") +
+  theme(plot.title = element_blank()) + 
+  labs(
+    x = "UMAP 1",
+    y = "UMAP 2"
+  ) +
+  scale_color_brewer(palette = "Set1") + 
+  theme(aspect.ratio = 1)
+ggsave(
+  "outs/control/figures/05_pbmc_balanced_hierarchical_combined_batch.pdf",
+  width = 6,
+  height = 6
+)
+
+# Remove (ablate) NK/T-Cells from batch 2 and replot figures 
+pbmc_combined_nkt_ablate <- pbmc_combined[, 
+  -(which(pbmc_combined@meta.data$celltype %in% ("NK/T cell") &
+            pbmc_combined@meta.data$batch %in% ("Batch 2")))
+]
+DimPlot(pbmc_combined_nkt_ablate, reduction = "umap", group.by = "celltype") +
+  theme(plot.title = element_blank()) + 
+  labs(
+    x = "UMAP 1",
+    y = "UMAP 2"
+  ) +
+  scale_color_brewer(palette = "Dark2") +  
+  theme(aspect.ratio = 1)
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "05_pbmc_balanced_hierarchical_combined_celltypes_nkt_ablate.pdf"
+  ),
+  width = 6, 
+  height = 6
+)
+DimPlot(pbmc_combined_nkt_ablate, reduction = "umap", group.by = "batch") +
+  theme(plot.title = element_blank()) + 
+  labs(
+    x = "UMAP 1",
+    y = "UMAP 2"
+  ) +
+  scale_color_brewer(palette = "Set1") + 
+  theme(aspect.ratio = 1)
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "05_pbmc_balanced_hierarchical_combined_batch_nkt_ablate.pdf"
+  ),
+  width = 6,
+  height = 6
+)
+
+# Downsample NK/T Cells from batch 2 and replot figures
+nkt_batch_2_indices <- (
+  which(pbmc_combined@meta.data$celltype %in% ("NK/T cell") &
+          pbmc_combined@meta.data$batch %in% ("Batch 2"))
+)
+nkt_batch_2_indices_sample_90 <- sample(
+  x = nkt_batch_2_indices,
+  size = round(length(nkt_batch_2_indices)*0.9, 0)
+)
+pbmc_combined_nkt_ds <- pbmc_combined[, -(nkt_batch_2_indices_sample_90)]
+
+DimPlot(pbmc_combined_nkt_ds, reduction = "umap", group.by = "celltype") +
+  theme(plot.title = element_blank()) + 
+  labs(
+    x = "UMAP 1",
+    y = "UMAP 2"
+  ) +
+  scale_color_brewer(palette = "Dark2") +  
+  theme(aspect.ratio = 1)
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "05_pbmc_balanced_hierarchical_combined_celltypes_nkt_10_pct_ds.pdf"
+  ),
+  width = 6, 
+  height = 6
+)
+DimPlot(pbmc_combined_nkt_ds, reduction = "umap", group.by = "batch") +
+  theme(plot.title = element_blank()) + 
+  labs(
+    x = "UMAP 1",
+    y = "UMAP 2"
+  ) +
+  scale_color_brewer(palette = "Set1") + 
+  theme(aspect.ratio = 1)
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "05_pbmc_balanced_combined_batch_nkt_10_pct_ds.pdf"
+  ),
+  width = 6,
+  height = 6
+)
+
+### Fig 2E) - plotting of KNN classification results with the hierarchical
+### celltype results 
+
+# Merge imbalance and knn classification results together
+imba_knn_merged <- merge(
+  imba_concat,
+  knn_concat,
+  by = c(
+    "Number of batches downsampled",
+    "Number of celltypes downsampled",
+    "Proportion downsampled",
+    "Replicate"
+  )
+)
+imba_knn_merged <- distinct(imba_knn_merged)
+
+# Subset for only cases where the celltype downsampled is equal to the 
+# celltype being classified
+imba_knn_merged_celltype <- imba_knn_merged[
+  imba_knn_merged$Celltype == imba_knn_merged$`Downsampled celltypes` |
+    imba_knn_merged$`Downsampled celltypes` %in% c("None")
+]
+
+# Indicate which panels are control and which ones are ablations or downsampling
+imba_knn_merged_celltype$type <- ifelse(
+  imba_knn_merged_celltype$`Number of batches downsampled` == 0,
+  "Control",
+  ifelse(
+    imba_knn_merged_celltype$`Proportion downsampled` == 0,
+    "Ablated",
+    "Downsampled"
+  )
+)
+
+ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
+  geom_boxplot(
+    aes(
+      fill = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+    ),
+    notch = FALSE,
+    alpha = 0.8 
+  ) +
+  facet_wrap(.~Celltype, scales = "free_x") +
+  labs(
+    fill = "Type",
+    x = "Method",
+    y = "F1-classification score post-integration"
+  ) +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14))
+ggsave(
+  "outs/control/figures/05_pbmc_hierarchical_ds_ablate_allmethod_knn_f1_score.pdf",
+  width = 14,
+  height = 4,
+  device = cairo_pdf
+)
