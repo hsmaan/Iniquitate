@@ -894,7 +894,7 @@ DimPlot(pbmc_combined, reduction = "umap", group.by = "celltype") +
   scale_color_brewer(palette = "Dark2") +  
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_combined_celltypes.pdf",
+  "outs/control/figures/05_pbmc_balanced_hierarchical_combined_celltypes.pdf",
   width = 6, 
   height = 6
 )
