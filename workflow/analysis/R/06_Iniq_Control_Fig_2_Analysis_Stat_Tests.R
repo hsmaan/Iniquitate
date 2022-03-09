@@ -102,6 +102,23 @@ imba_clus_merged$`Downsampled celltypes` <- plyr::mapvalues(
   )
 )
 
+# Format column names
+colnames(imba_clus_merged) <- plyr::mapvalues(
+  colnames(imba_clus_merged),
+  from = c(
+    "Celltype ARI Imbalanced",
+    "Celltype AMI Imbalanced",
+    "Celltype Homogeneity Imbalanced",
+    "Celltype Completeness Imbalanced"
+  ),
+  to = c(
+    "Celltype ARI",
+    "Celltype AMI",
+    "Celltype Homogeneity",
+    "Celltype Completeness"
+  )
+)
+
 # Indicate which samples are controls and which are real runs
 imba_clus_merged$type <- ifelse(
   imba_clus_merged$`Number of batches downsampled` == 0,
@@ -113,210 +130,226 @@ imba_clus_merged$type <- ifelse(
   )
 ) 
 
-# Do a wilcoxin rank sum test between all control, ablated, and downsampled
-# experiment results - celltype ARI
-imba_clus_control_celltype_aris <- imba_clus_merged[
-  imba_clus_merged$type %in% c("Control")
-]$`Celltype ARI Imbalanced`
-imba_clus_downsampled_celltype_aris <- imba_clus_merged[
-  imba_clus_merged$type %in% c("Downsampled")
-]$`Celltype ARI Imbalanced`
-imba_clus_ablated_celltype_aris <- imba_clus_merged[
-  imba_clus_merged$type %in% c("Ablated")
-]$`Celltype ARI Imbalanced`
+# Create a function to do a wilcoxon rank sum test across the given
+# subsets for the indicated metric 
+wilcox_metric_test <- function(
+    dataset, 
+    dataset_name,
+    subset_col,
+    subset_1, 
+    subset_2, 
+    metric,
+    samples_per_subset
+  ) {
+  subset_1_sub <- dataset[dataset[[subset_col]] %in% subset_1][[metric]]
+  subset_2_sub <- dataset[dataset[[subset_col]] %in% subset_2][[metric]]
+  wrs_p_value <- wilcox.test(subset_1_sub, subset_2_sub)$p.value
+  wrs_summary_df <- data.frame(
+    "Dataset" = dataset_name,
+    "Subset_name" = subset_col,
+    "Subset_1" = subset_1,
+    "Subset_2" = subset_2,
+    "Metric" = metric,
+    "Wilcoxon_Rank_Sum_p" = wrs_p_value,
+    "Samples_subset_1" = length(subset_1_sub),
+    "Samples_subset_2" = length(subset)
+  )
+  return(wrs_summary_df)
+}
 
-# Downsample control to same number as ablated and downsampled for pairwise
+# Do a wilcoxin rank sum test between all control, ablated, and downsampled
+# experiment results for all metrics 
+metrics <- list(
+  "Celltype ARI",
+  "Celltype AMI",
+  "Celltype Homogeneity",
+  "Celltype Completeness",
+  "Batch ARI",
+  "Batch AMI",
+  "Batch Homogeneity",
+  "Batch Completeness"
+)
+comparison_subsets <- list(
+  c("Control", "Downsampled"),
+  c("Control", "Ablated")
+)
+
+# Get all results for batch and celltype metrics (globally) for the two given
 # comparisons 
-imba_clus_control_celltype_aris_sampled <- sample(
-  imba_clus_control_celltype_aris,
-  size = length(imba_clus_downsampled_celltype_aris)
-)
-
-# First test - compare between pooled downsampled and ablated to all controls
-c_ari_ctrl_ds_abla_pooled_wrs <- wilcox.test(
-  imba_clus_control_celltype_aris,
-  c(
-    imba_clus_ablated_celltype_aris,
-    imba_clus_downsampled_celltype_aris
-  )
-)$p.value
-
-# Second test - compare downsampled to all controls
-c_ari_ctrl_ds_wrs <- wilcox.test(
-  imba_clus_control_celltype_aris,
-  imba_clus_downsampled_celltype_aris
-)$p.value
-
-# Third test - compare ablated to all controls 
-c_ari_abla_ds_wrs <- wilcox.test(
-  imba_clus_control_celltype_aris,
-  imba_clus_ablated_celltype_aris
-)$p.value
-
-# Create and save summary dataframe of statistics 
-c_ari_overall_results <- data.frame(
-  "Test" = c(
-    "Ctrl vs pooled ds and ablated",
-    "Ctrl vs ds",
-    "Ctrl vs ablated"
-  ),
-  "Metric" = "Celltype ARI",
-  "Type" = "Global",
-  "Wilcoxin_Rank_Sum_p" = c(
-    c_ari_ctrl_ds_abla_pooled_wrs,
-    c_ari_ctrl_ds_wrs,
-    c_ari_abla_ds_wrs
-  )
-)
-fwrite(
-  c_ari_overall_results,
-  "outs/control/results/06_celltype_ari_global_tests.tsv",
-  sep = "\t",
-  quote = FALSE,
-  row.names = FALSE,
-  col.names = TRUE
-)
-
-# Do a wilcoxin rank sum test between all control, ablated, and downsampled
-# experiment results - batch ARI
-imba_clus_control_batch_aris <- imba_clus_merged[
-  imba_clus_merged$type %in% c("Control")
-]$`Batch ARI`
-imba_clus_downsampled_batch_aris <- imba_clus_merged[
-  imba_clus_merged$type %in% c("Downsampled")
-]$`Batch ARI`
-imba_clus_ablated_batch_aris <- imba_clus_merged[
-  imba_clus_merged$type %in% c("Ablated")
-]$`Batch ARI`
-
-# First test - compare between pooled downsampled and ablated to all controls
-b_ari_ctrl_ds_abla_pooled_wrs <- wilcox.test(
-  imba_clus_control_batch_aris,
-  c(
-    imba_clus_ablated_batch_aris,
-    imba_clus_downsampled_batch_aris
-  )
-)$p.value
-
-# Second test - compare downsampled to all controls
-b_ari_ctrl_ds_wrs <- wilcox.test(
-  imba_clus_control_batch_aris,
-  imba_clus_downsampled_batch_aris
-)$p.value
-
-# Third test - compare ablated to all controls 
-b_ari_abla_ds_wrs <- wilcox.test(
-  imba_clus_control_batch_aris,
-  imba_clus_ablated_batch_aris
-)$p.value
-
-# Create and save summary dataframe of statistics 
-b_ari_overall_results <- data.frame(
-  "Test" = c(
-    "Ctrl vs pooled ds and ablated",
-    "Ctrl vs ds",
-    "Ctrl vs ablated"
-  ),
-  "Metric" = "Batch ARI",
-  "Type" = "Global",
-  "Wilcoxin_Rank_Sum_p" = c(
-    b_ari_ctrl_ds_abla_pooled_wrs,
-    b_ari_ctrl_ds_wrs,
-    b_ari_abla_ds_wrs
-  )
-)
-fwrite(
-  b_ari_overall_results,
-  "outs/control/results/06_batch_ari_global_tests.tsv",
-  sep = "\t",
-  quote = FALSE,
-  row.names = FALSE,
-  col.names = TRUE
-)
-
-# Perform the above for celltype ARI through an ANOVA test, after taking 
-# into account the method and celltype that was downsampled 
-
-# Subset for and rename relevant columns in imba_clus_merged
-imba_clus_merged_sub_cari <- imba_clus_merged[
-  ,c(
-    "Celltype ARI Imbalanced",
-    "Method",
-    "Downsampled celltypes",
-    "type"
-  )
-]
-colnames(imba_clus_merged_sub_cari) <- c(
-  "celltype_ari_imbalanced",
-  "method",
-  "downsampled_celltypes",
-  "type"
-)
-
-# Perform ANOVA test for celltype ari and type, taking into account the 
-# celltype that was downsampled and the method used - save result
-celltype_ari_model <- lm(
-  as.formula(
-    paste0(
-      "celltype_ari_imbalanced", 
-      "~",
-      "method+",
-      "downsampled_celltypes+",
-      "type"
+global_metric_results <- lapply(metrics, function(x) {
+  lapply(comparison_subsets, function(y) {
+    wrs_summary_df <- wilcox_metric_test(
+      dataset = imba_clus_merged,
+      dataset_name = "PBMC 2 batch base balanced",
+      subset_col = "type",
+      subset_1 = y[[1]],
+      subset_2 = y[[2]],
+      metric = x,
+      samples_per_subset = 1200
     )
-  ),
-  data = imba_clus_merged_sub_cari
-)
-cari_anova_result <- anova(celltype_ari_model, test = "F")
-fwrite(
-  cari_anova_result,
-  "outs/control/results/06_celltype_ari_global_anova.tsv",
-  sep = "\t",
-  quote = FALSE,
-  row.names = FALSE,
-  col.names = TRUE
-)
+  })
+})
 
-# Perform the same as above for batch ARI through an ANOVA test, after taking 
-# into account the method and celltype that was downsampled 
+# Concatenate all results for type subset
+global_metric_results_concat_1 <- lapply(
+  global_metric_results,
+  function(x) {
+    x_red <- Reduce(rbind, x)
+    return(x_red)
+  }
+)
+global_metric_results_concat_2 <- Reduce(rbind, global_metric_results_concat_1)
 
-# Subset for and rename relevant columns in imba_clus_merged
-imba_clus_merged_sub_bari <- imba_clus_merged[
-  ,c(
-    "Batch ARI",
-    "Method",
-    "Downsampled celltypes",
-    "type"
+# Reperform for pooled (downsampled, ablated) comparison
+
+# Create new pooled type column
+imba_clus_merged$type_pooled <- ifelse(
+  imba_clus_merged$`Number of batches downsampled` == 0,
+  "Control",
+  "Pooled downsampled/ablated"
+) 
+
+# Get all results for batch and celltype metrics (globally) for the given
+# comparison
+global_metric_results_pooled <- lapply(metrics, function(x) {
+  wrs_summary_df <- wilcox_metric_test(
+    dataset = imba_clus_merged,
+    dataset_name = "PBMC 2 batch base balanced",
+    subset_col = "type_pooled",
+    subset_1 = "Control",
+    subset_2 = "Pooled downsampled/ablated",
+    metric = x,
+    samples_per_subset = 1200
   )
-]
-colnames(imba_clus_merged_sub_bari) <- c(
-  "batch_ari_imbalanced",
-  "method",
-  "downsampled_celltypes",
-  "type"
+})
+
+# Concatenate all results for type_pooled subset
+global_metric_results_pooled_concat <- Reduce(
+  rbind,
+  global_metric_results_pooled
 )
 
-# Perform ANOVA test for batch ari and type, taking into account the 
-# celltype that was downsampled and the method used - save result
-batch_ari_model <- lm(
-  as.formula(
-    paste0(
-      "batch_ari_imbalanced", 
-      "~",
-      "method+",
-      "downsampled_celltypes+",
-      "type"
-    )
-  ),
-  data = imba_clus_merged_sub_bari
+# Concatenate individual and pooled subset results and save
+global_metric_results_indi_pooled <- rbind(
+  global_metric_results_concat_2,
+  global_metric_results_pooled_concat
 )
-bari_anova_result <- anova(batch_ari_model, test = "F")
 fwrite(
-  bari_anova_result,
-  "outs/control/results/06_batch_ari_global_anova.tsv",
+  global_metric_results_indi_pooled,
+  "outs/control/results/06_global_metric_wilcoxon_tests.tsv",
   sep = "\t",
   quote = FALSE,
   row.names = FALSE,
   col.names = TRUE
 )
 
+# # Create function to perform ANOVA test, given either type or type pooled,
+# # a metric, and taking into account method and specific downsampled 
+# # celltype 
+# anova_metric_test <- function(
+#   dataset, 
+#   dataset_name,
+#   metric,
+#   total_samples,
+# )
+#   
+# # Rename columns for use in formulas 
+# colnames(imba_clus_merged) <- plyr::mapvalues(
+#   colnames(imba_clus_merged),
+#   from = c(
+#     "Celltype ARI",
+#     "Celltype AMI",
+#     "Celltype Homogeneity",
+#     "Celltype Completeness",
+#     "Batch ARI",
+#     "Batch AMI",
+#     "Batch Homoge"
+#   )
+# )
+# 
+# # Subset for and rename relevant columns in imba_clus_merged
+# imba_clus_merged_sub_cari <- imba_clus_merged[
+#   ,c(
+#     "Celltype ARI Imbalanced",
+#     "Method",
+#     "Downsampled celltypes",
+#     "type"
+#   )
+# ]
+# colnames(imba_clus_merged_sub_cari) <- c(
+#   "celltype_ari_imbalanced",
+#   "method",
+#   "downsampled_celltypes",
+#   "type"
+# )
+# 
+# # Perform ANOVA test for celltype ari and type, taking into account the 
+# # celltype that was downsampled and the method used - save result
+# celltype_ari_model <- lm(
+#   as.formula(
+#     paste0(
+#       "celltype_ari_imbalanced", 
+#       "~",
+#       "method+",
+#       "downsampled_celltypes+",
+#       "type"
+#     )
+#   ),
+#   data = imba_clus_merged_sub_cari
+# )
+# cari_anova_result <- anova(celltype_ari_model, test = "F")
+# fwrite(
+#   cari_anova_result,
+#   "outs/control/results/06_celltype_ari_global_anova.tsv",
+#   sep = "\t",
+#   quote = FALSE,
+#   row.names = FALSE,
+#   col.names = TRUE
+# )
+# 
+# # Perform the same as above for batch ARI through an ANOVA test, after taking 
+# # into account the method and celltype that was downsampled 
+# 
+# # Subset for and rename relevant columns in imba_clus_merged
+# imba_clus_merged_sub_bari <- imba_clus_merged[
+#   ,c(
+#     "Batch ARI",
+#     "Method",
+#     "Downsampled celltypes",
+#     "type"
+#   )
+# ]
+# colnames(imba_clus_merged_sub_bari) <- c(
+#   "batch_ari_imbalanced",
+#   "method",
+#   "downsampled_celltypes",
+#   "type"
+# )
+# 
+# # Perform ANOVA test for batch ari and type, taking into account the 
+# # celltype that was downsampled and the method used - save result
+# batch_ari_model <- lm(
+#   as.formula(
+#     paste0(
+#       "batch_ari_imbalanced", 
+#       "~",
+#       "method+",
+#       "downsampled_celltypes+",
+#       "type"
+#     )
+#   ),
+#   data = imba_clus_merged_sub_bari
+# )
+# bari_anova_result <- anova(batch_ari_model, test = "F")
+# fwrite(
+#   bari_anova_result,
+#   "outs/control/results/06_batch_ari_global_anova.tsv",
+#   sep = "\t",
+#   quote = FALSE,
+#   row.names = FALSE,
+#   col.names = TRUE
+# )
+# 
+# ### Statistical tests for KNN classification results ###
+# 
+# 
