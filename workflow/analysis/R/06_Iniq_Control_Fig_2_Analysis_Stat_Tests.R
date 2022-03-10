@@ -440,10 +440,8 @@ fwrite(
 )
 
 # Create function to perform ANOVA test, given either type or type pooled,
-# and taking into account method used. We don't need to take into account
-# the celltype downsampled, as we are only considering the cases where the
-# celltype downsampled is equal to the celltype F1 score we are analyzed
-# (degrees of freedom = 1)
+# and taking into account method used and downsampled celltype (same as 
+# the examined celltype)
 anova_knn_test <- function(
   dataset, 
   dataset_name,
@@ -456,6 +454,7 @@ anova_knn_test <- function(
         metric, 
         "~",
         "method+",
+        "downsampled_celltypes+",
         last_covariate
       )
     ),
@@ -475,16 +474,18 @@ colnames(imba_knn_merged_celltype) <- plyr::mapvalues(
   colnames(imba_knn_merged_celltype),
   from = c(
     "F1-score",
-    "Method"
+    "Method",
+    "Downsampled celltypes"
   ),
   to = c(
     "f1_score",
-    "method"
+    "method",
+    "downsampled_celltypes"
   )
 )
 
 # Get the ANOVA KNN classification F1 score for type after taking into account
-# method and save
+# method and downsampled celltype, and save
 knn_aov_results <- anova_knn_test(
   dataset = imba_knn_merged_celltype,
   dataset_name = "PBMC 2 batch base balanced",
@@ -493,7 +494,10 @@ knn_aov_results <- anova_knn_test(
 )
 fwrite(
   knn_aov_results,
-  "outs/control/results/06_pbmc_base_knn_cell_ds_cell_aov_results_ctrl_method.tsv",
+  paste0(
+    "outs/control/results/",
+    "06_pbmc_base_knn_cell_ds_cell_aov_results_ctrl_method_celltype.tsv"
+  ),
   sep = "\t",
   quote = FALSE,
   row.names = FALSE,
@@ -542,6 +546,7 @@ anova_knn_test <- function(
         metric, 
         "~",
         "method+",
+        "downsampled_celltypes+",
         last_covariate
       )
     ),
@@ -683,16 +688,18 @@ colnames(imba_knn_merged_celltype) <- plyr::mapvalues(
   colnames(imba_knn_merged_celltype),
   from = c(
     "F1-score",
-    "Method"
+    "Method",
+    "Downsampled celltypes"
   ),
   to = c(
     "f1_score",
-    "method"
+    "method",
+    "downsampled_celltypes"
   )
 )
 
 # Get the ANOVA KNN classification F1 score for type after taking into account
-# method and save
+# method and downsampled celltype, and save
 knn_aov_results <- anova_knn_test(
   dataset = imba_knn_merged_celltype,
   dataset_name = "PBMC 2 batch hierarchical balanced",
@@ -703,7 +710,7 @@ fwrite(
   knn_aov_results,
   paste0(
     "outs/control/results/",
-    "06_pbmc_hierarchical_knn_cell_ds_cell_aov_results_ctrl_method.tsv"
+    "06_pbmc_hierarchical_knn_cell_ds_cell_aov_results_ctrl_method_ds_celltype.tsv"
   ),
   sep = "\t",
   quote = FALSE,
