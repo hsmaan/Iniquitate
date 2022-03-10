@@ -32,6 +32,7 @@ imba_files <- grep(
 )
 imba_loaded <- lapply(imba_files, fread)
 imba_concat <- Reduce(rbind, imba_loaded)
+gc()
 
 # Load in and concatenate the clustering summary results 
 setwd("../clustering_summaries/")
@@ -43,6 +44,7 @@ clus_files <- grep(
 )
 clus_loaded <- lapply(clus_files, fread)
 clus_concat <- Reduce(rbind, clus_loaded)
+gc()
 
 # Load in and concatenate clustering concordance summaries 
 setwd("../clustering_concord_summaries/")
@@ -54,6 +56,7 @@ clus_concord_files <- grep(
 )
 clus_concord_loaded <- lapply(clus_concord_files, fread)
 clus_concord_concat <- Reduce(rbind, clus_concord_loaded)
+gc()
 
 # Load in and concatenate dge concordance summaries
 setwd("../dge_concord_stats/")
@@ -65,6 +68,19 @@ dge_files <- grep(
 )
 dge_loaded <- lapply(dge_files, fread)
 dge_concat <- Reduce(rbind, dge_loaded)
+gc()
+
+# Load in and concatenate dge ranking summaries
+setwd("../dge_ranking_stats/")
+dge_rank_files <- list.files()
+dge_rank_files <- grep(
+  "pbmc_2_batch_base_balanced",
+  dge_rank_files,
+  value = TRUE
+)
+dge_rank_loaded <- lapply(dge_rank_files, fread)
+dge_rank_concat <- Reduce(rbind, dge_rank_loaded)
+gc()
 
 # Load in and concatenate knn classification summaries
 setwd("../knn_classification_reports/")
@@ -76,11 +92,12 @@ knn_files <- grep(
 )
 knn_loaded <- lapply(knn_files, fread)
 knn_concat <- Reduce(rbind, knn_loaded)
+gc()
 
 # Change to top level dir 
 setwd("../../..")
 
-### Fig 2A) - Variability in number of clusters after downsampling the control
+### Fig 3A) - Variability in number of clusters after downsampling the control
 ### dataset using different celltypes 
 
 # Merge together imbalance and cluster number results
@@ -166,7 +183,7 @@ ggsave(
   device = cairo_pdf
 )  
 
-### Fig 2B) - Correlation between the number of clusters per method and the 
+### Fig 3B) - Correlation between the number of clusters per method and the 
 ### adjusted rand index for celltype and batch ARI, on a per-method level
 ggscatter(imba_clus_merged, 
           x = "Celltype ARI Imbalanced", 
@@ -238,3 +255,4 @@ ggsave(
   device = cairo_pdf
 )
 
+### Fig 3C) - concordance of DGE 
