@@ -11,7 +11,7 @@ setwd("../../../results/control/")
 # Set seed for any sampling done 
 set.seed(42)
 
-###Statistical analysis of PBMC 2 batch balanced data - baseline ### 
+##### Statistical analysis of PBMC 2 batch balanced data - baseline Fig 2 #####
 
 # Load in and concatenate imbalance summary files 
 setwd("imbalance_summaries/")
@@ -138,8 +138,7 @@ wilcox_metric_test <- function(
     subset_col,
     subset_1, 
     subset_2, 
-    metric,
-    samples_per_subset
+    metric
   ) {
   subset_1_sub <- dataset[dataset[[subset_col]] %in% subset_1][[metric]]
   subset_2_sub <- dataset[dataset[[subset_col]] %in% subset_2][[metric]]
@@ -152,7 +151,7 @@ wilcox_metric_test <- function(
     "Metric" = metric,
     "Wilcoxon_Rank_Sum_p" = wrs_p_value,
     "Samples_subset_1" = length(subset_1_sub),
-    "Samples_subset_2" = length(subset)
+    "Samples_subset_2" = length(subset_2_sub)
   )
   return(wrs_summary_df)
 }
@@ -184,8 +183,7 @@ global_metric_results <- lapply(metrics, function(x) {
       subset_col = "type",
       subset_1 = y[[1]],
       subset_2 = y[[2]],
-      metric = x,
-      samples_per_subset = 1200
+      metric = x
     )
   })
 })
@@ -218,8 +216,7 @@ global_metric_results_pooled <- lapply(metrics, function(x) {
     subset_col = "type_pooled",
     subset_1 = "Control",
     subset_2 = "Pooled downsampled/ablated",
-    metric = x,
-    samples_per_subset = 1200
+    metric = x
   )
 })
 
@@ -236,7 +233,7 @@ global_metric_results_indi_pooled <- rbind(
 )
 fwrite(
   global_metric_results_indi_pooled,
-  "outs/control/results/06_global_metric_wilcoxon_tests.tsv",
+  "outs/control/results/06_pbmc_base_global_metric_wilcoxon_tests.tsv",
   sep = "\t",
   quote = FALSE,
   row.names = FALSE,
@@ -326,7 +323,388 @@ metric_aov_results <- lapply(metrics_aov, function(x) {
 metric_aov_results_concat <- Reduce(rbind, metric_aov_results)
 fwrite(
   metric_aov_results_concat,
-  "outs/control/results/06_metric_aov_results_types_ct_method_ctrl.tsv",
+  "outs/control/results/06_pbmc_base_metric_aov_results_types_ct_method_ctrl.tsv",
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = TRUE
+)
+
+### Statistical tests for KNN classification metrics for baseline data ###
+
+# Merge imbalance and knn classification results together
+imba_knn_merged <- merge(
+  imba_concat,
+  knn_concat,
+  by = c(
+    "Number of batches downsampled",
+    "Number of celltypes downsampled",
+    "Proportion downsampled",
+    "Replicate"
+  )
+)
+imba_knn_merged <- distinct(imba_knn_merged)
+
+# Subset for only cases where the celltype downsampled is equal to the 
+# celltype being classified
+imba_knn_merged_celltype <- imba_knn_merged[
+  imba_knn_merged$Celltype == imba_knn_merged$`Downsampled celltypes` |
+    imba_knn_merged$`Downsampled celltypes` %in% c("None")
+]
+
+# Indicate which panels are control and which ones are ablations or downsampling
+imba_knn_merged_celltype$type <- ifelse(
+  imba_knn_merged_celltype$`Number of batches downsampled` == 0,
+  "Control",
+  ifelse(
+    imba_knn_merged_celltype$`Proportion downsampled` == 0,
+    "Ablated",
+    "Downsampled"
+  )
+)
+
+# Create another column for pooling the ablated and downsampled data together
+imba_knn_merged_celltype$type_pooled <- ifelse(
+  imba_knn_merged_celltype$`Number of batches downsampled` == 0,
+  "Control",
+  "Pooled downsampled/ablated"
+)
+
+# Create a function to do a wilcoxon rank sum test across the given
+# subsets for the KNN classification F1 scores where the F1 score 
+# is for the celltype that was downsampled
+wilcox_knn_test <- function(
+  dataset, 
+  dataset_name,
+  subset_col,
+  subset_1, 
+  subset_2, 
+  metric = "F1-score"
+) {
+  subset_1_sub <- dataset[dataset[[subset_col]] %in% subset_1][[metric]]
+  subset_2_sub <- dataset[dataset[[subset_col]] %in% subset_2][[metric]]
+  wrs_p_value <- wilcox.test(subset_1_sub, subset_2_sub)$p.value
+  wrs_summary_df <- data.frame(
+    "Dataset" = dataset_name,
+    "Subset_name" = subset_col,
+    "Subset_1" = subset_1,
+    "Subset_2" = subset_2,
+    "Metric" = metric,
+    "Wilcoxon_Rank_Sum_p" = wrs_p_value,
+    "Samples_subset_1" = length(subset_1_sub),
+    "Samples_subset_2" = length(subset_2_sub)
+  )
+  return(wrs_summary_df)
+}
+
+# Get global KNN classification wilcoxon result across type subsets
+# and concatenate
+global_celltype_knn_results_type <- lapply(comparison_subsets, function(x) {
+    wrs_summary_df <- wilcox_knn_test(
+      dataset = imba_knn_merged_celltype,
+      dataset_name = "PBMC 2 batch base balanced",
+      subset_col = "type",
+      subset_1 = x[[1]],
+      subset_2 = x[[2]],
+      metric = "F1-score"
+    )
+})
+global_celltype_knn_results_type_concat <- Reduce(
+  rbind,
+  global_celltype_knn_results_type
+)
+
+# Get global KNN classification wilcoxon result across type_pooled subsets
+# and concatenate 
+global_celltype_knn_results_type_pooled <- wilcox_knn_test(
+    dataset = imba_knn_merged_celltype,
+    dataset_name = "PBMC 2 batch base balanced",
+    subset_col = "type_pooled",
+    subset_1 = "Control",
+    subset_2 = "Pooled downsampled/ablated",
+    metric = "F1-score"
+)
+
+# Concatenate type and type pooled results together and save
+global_celltype_knn_results_type_and_pooled <- rbind(
+  global_celltype_knn_results_type_concat,
+  global_celltype_knn_results_type_pooled
+)
+fwrite(
+  global_celltype_knn_results_type_and_pooled,
+  "outs/control/results/06_pbmc_base_knn_cell_ds_cell_test_wilcoxon_tests.tsv",
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = TRUE
+)
+
+# Create function to perform ANOVA test, given either type or type pooled,
+# and taking into account method used. We don't need to take into account
+# the celltype downsampled, as we are only considering the cases where the
+# celltype downsampled is equal to the celltype F1 score we are analyzed
+# (degrees of freedom = 1)
+anova_knn_test <- function(
+  dataset, 
+  dataset_name,
+  last_covariate,
+  metric = "f1_score"
+){
+  model_fit <- lm(
+    as.formula(
+      paste0(
+        metric, 
+        "~",
+        "method+",
+        last_covariate
+      )
+    ),
+    data = dataset
+  )
+  anova_result <- anova(model_fit, test = "F")
+  anova_result_dt <- as.data.table(anova_result, keep.rownames = TRUE)
+  colnames(anova_result_dt)[1] <- "Covariate"
+  anova_result_dt$dataset_name <- dataset_name
+  anova_result_dt$metric <- metric
+  anova_result_dt$last_covariate <- last_covariate
+  return(anova_result_dt)
+}
+
+# Rename columns for use in formulas 
+colnames(imba_knn_merged_celltype) <- plyr::mapvalues(
+  colnames(imba_knn_merged_celltype),
+  from = c(
+    "F1-score",
+    "Method"
+  ),
+  to = c(
+    "f1_score",
+    "method"
+  )
+)
+
+# Get the ANOVA KNN classification F1 score for type after taking into account
+# method and save
+knn_aov_results <- anova_knn_test(
+  dataset = imba_knn_merged_celltype,
+  dataset_name = "PBMC 2 batch base balanced",
+  last_covariate = "type",
+  metric = "f1_score"
+)
+fwrite(
+  knn_aov_results,
+  "outs/control/results/06_pbmc_base_knn_cell_ds_cell_aov_results_ctrl_method.tsv",
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = TRUE
+)
+
+##### Statistical analysis of PBMC 2 batch balanced - hierarchical Fig 2 #####
+
+# Clear all previous files and reload KNN functions 
+rm(list = ls())
+gc()
+
+wilcox_knn_test <- function(
+  dataset, 
+  dataset_name,
+  subset_col,
+  subset_1, 
+  subset_2, 
+  metric = "F1-score"
+) {
+  subset_1_sub <- dataset[dataset[[subset_col]] %in% subset_1][[metric]]
+  subset_2_sub <- dataset[dataset[[subset_col]] %in% subset_2][[metric]]
+  wrs_p_value <- wilcox.test(subset_1_sub, subset_2_sub)$p.value
+  wrs_summary_df <- data.frame(
+    "Dataset" = dataset_name,
+    "Subset_name" = subset_col,
+    "Subset_1" = subset_1,
+    "Subset_2" = subset_2,
+    "Metric" = metric,
+    "Wilcoxon_Rank_Sum_p" = wrs_p_value,
+    "Samples_subset_1" = length(subset_1_sub),
+    "Samples_subset_2" = length(subset_2_sub)
+  )
+  return(wrs_summary_df)
+}
+
+anova_knn_test <- function(
+  dataset, 
+  dataset_name,
+  last_covariate,
+  metric = "f1_score"
+){
+  model_fit <- lm(
+    as.formula(
+      paste0(
+        metric, 
+        "~",
+        "method+",
+        last_covariate
+      )
+    ),
+    data = dataset
+  )
+  anova_result <- anova(model_fit, test = "F")
+  anova_result_dt <- as.data.table(anova_result, keep.rownames = TRUE)
+  colnames(anova_result_dt)[1] <- "Covariate"
+  anova_result_dt$dataset_name <- dataset_name
+  anova_result_dt$metric <- metric
+  anova_result_dt$last_covariate <- last_covariate
+  return(anova_result_dt)
+}
+
+# Load in and concatenate summary files - just imbalance and KNN results
+setwd("results/control/imbalance_summaries/")
+imba_files <- list.files()
+imba_files <- grep(
+  "pbmc_2_batch_hierarchical_balanced",
+  imba_files,
+  value = TRUE
+)
+imba_loaded <- lapply(imba_files, fread)
+imba_concat <- Reduce(rbind, imba_loaded)
+
+setwd("../knn_classification_reports/")
+knn_files <- list.files()
+knn_files <- grep(
+  "pbmc_2_batch_hierarchical_balanced",
+  knn_files,
+  value = TRUE
+)
+knn_loaded <- lapply(knn_files, fread)
+knn_concat <- Reduce(rbind, knn_loaded)
+
+# Change to top level dir
+setwd("../../..")
+
+# Merge imbalance and knn classification results together
+imba_knn_merged <- merge(
+  imba_concat,
+  knn_concat,
+  by = c(
+    "Number of batches downsampled",
+    "Number of celltypes downsampled",
+    "Proportion downsampled",
+    "Replicate"
+  )
+)
+imba_knn_merged <- distinct(imba_knn_merged)
+
+# Subset for only cases where the celltype downsampled is equal to the 
+# celltype being classified
+imba_knn_merged_celltype <- imba_knn_merged[
+  imba_knn_merged$Celltype == imba_knn_merged$`Downsampled celltypes` |
+    imba_knn_merged$`Downsampled celltypes` %in% c("None")
+]
+
+# Indicate which panels are control and which ones are ablations or downsampling
+imba_knn_merged_celltype$type <- ifelse(
+  imba_knn_merged_celltype$`Number of batches downsampled` == 0,
+  "Control",
+  ifelse(
+    imba_knn_merged_celltype$`Proportion downsampled` == 0,
+    "Ablated",
+    "Downsampled"
+  )
+)
+
+# Create another column for pooling the ablated and downsampled data together
+imba_knn_merged_celltype$type_pooled <- ifelse(
+  imba_knn_merged_celltype$`Number of batches downsampled` == 0,
+  "Control",
+  "Pooled downsampled/ablated"
+)
+
+# Get global KNN classification wilcoxon result across type subsets
+# and concatenate
+metrics <- list(
+  "Celltype ARI",
+  "Celltype AMI",
+  "Celltype Homogeneity",
+  "Celltype Completeness",
+  "Batch ARI",
+  "Batch AMI",
+  "Batch Homogeneity",
+  "Batch Completeness"
+)
+comparison_subsets <- list(
+  c("Control", "Downsampled"),
+  c("Control", "Ablated")
+)
+
+global_celltype_knn_results_type <- lapply(comparison_subsets, function(x) {
+  wrs_summary_df <- wilcox_knn_test(
+    dataset = imba_knn_merged_celltype,
+    dataset_name = "PBMC 2 batch hierarchical balanced",
+    subset_col = "type",
+    subset_1 = x[[1]],
+    subset_2 = x[[2]],
+    metric = "F1-score"
+  )
+})
+global_celltype_knn_results_type_concat <- Reduce(
+  rbind,
+  global_celltype_knn_results_type
+)
+
+# Get global KNN classification wilcoxon result across type_pooled subsets
+# and concatenate 
+global_celltype_knn_results_type_pooled <- wilcox_knn_test(
+  dataset = imba_knn_merged_celltype,
+  dataset_name = "PBMC 2 batch hierarchical balanced",
+  subset_col = "type_pooled",
+  subset_1 = "Control",
+  subset_2 = "Pooled downsampled/ablated",
+  metric = "F1-score"
+)
+
+# Concatenate type and type pooled results together and save
+global_celltype_knn_results_type_and_pooled <- rbind(
+  global_celltype_knn_results_type_concat,
+  global_celltype_knn_results_type_pooled
+)
+fwrite(
+  global_celltype_knn_results_type_and_pooled,
+  paste0(
+    "outs/control/results/",
+    "06_pbmc_hierarchical_knn_cell_ds_cell_test_wilcoxon_tests.tsv"
+  ),
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = TRUE
+)
+
+# Rename columns for use in formulas 
+colnames(imba_knn_merged_celltype) <- plyr::mapvalues(
+  colnames(imba_knn_merged_celltype),
+  from = c(
+    "F1-score",
+    "Method"
+  ),
+  to = c(
+    "f1_score",
+    "method"
+  )
+)
+
+# Get the ANOVA KNN classification F1 score for type after taking into account
+# method and save
+knn_aov_results <- anova_knn_test(
+  dataset = imba_knn_merged_celltype,
+  dataset_name = "PBMC 2 batch hierarchical balanced",
+  last_covariate = "type",
+  metric = "f1_score"
+)
+fwrite(
+  knn_aov_results,
+  paste0(
+    "outs/control/results/",
+    "06_pbmc_hierarchical_knn_cell_ds_cell_aov_results_ctrl_method.tsv"
+  ),
   sep = "\t",
   quote = FALSE,
   row.names = FALSE,
