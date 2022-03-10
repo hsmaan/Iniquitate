@@ -38,3 +38,4 @@ dependencies:
   - r-multipanelfigure>=2.1.2
   - r-gridextra>=2.3
   - r-cairo>=1.5
+  - r-lemon>=0.4.5
