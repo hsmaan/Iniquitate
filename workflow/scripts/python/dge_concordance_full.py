@@ -54,7 +54,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
                 target_sum = 1e4
             )
             sc.pp.log1p(adata_subset)
-            adata_subset.raw = adata_subset # Freeze for DGE test 
+            adata_subset.raw = adata_subset # Freeze for DGE test - lognorm counts
             method_adatas.append(adata_subset)
                 
         # Extract top 50 DGEs for each cluster in each method 
