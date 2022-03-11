@@ -40,7 +40,7 @@ def main(h5ad_dir, save_loc, top_n = 10):
             adata, 
             groupby = "celltype",
             use_raw = True,
-            method = "wilcoxin" 
+            method = "wilcoxon" 
         )
         
         # Get the top n degs for each celltype and append to all results 
