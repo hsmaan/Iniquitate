@@ -104,6 +104,11 @@ rule all:
                     "tsv"
                 ]
             )
+        ),
+        expand(
+            "../results/{configname}/marker_results/{dataset}_preintegration_marker_selection.tsv",
+                configname = configname,
+                dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
         )
 
 # Integrate the indicated h5ad files from config, based on dataset 
@@ -381,3 +386,24 @@ rule knn_classification:
             --rep {wildcards.rep} \
             &> {log}
         """
+
+# Get Marker genes for each celltype before any integration (top 10) across batches for subsetting DGE results
+rule marker_get:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../resources/h5ad_files/int_datasets/{data_folder}"
+    output:
+        "../results/{configname}/marker_results/{data_folder}_preintegration_marker_selection.tsv"
+    params:
+        script_path = "scripts/python/marker_get.py",
+    log:
+        "logs/{configname}/marker_get/{data_folder}_preintegration_marker_selection.log"
+    shell:
+        """
+        python {params.script_path} \
+            --filedir {input} \
+            --outfile {output} \
+            &> {log}
+        """
+    

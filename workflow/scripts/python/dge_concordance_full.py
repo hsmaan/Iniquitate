@@ -8,7 +8,7 @@ import pandas as pd
 import anndata as ann
 import scanpy as sc
 
-from utils import faiss_kmeans, dge_top_n, diffexp
+from utils import dge_top_n, diffexp
 
 def main(h5ad_loc, save_loc, dataset_name, rep):
     # Load h5ad file 
