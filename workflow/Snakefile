@@ -78,6 +78,7 @@ rule all:
                     "dge_concord_full",
                     "dge_concord_stats",
                     "dge_ranking_stats",
+                    "dge_ranking_stats_marker_sub",
                     "imbalance_summaries",
                     "knn_classification_reports"
                 ], 
@@ -89,6 +90,7 @@ rule all:
                     "dge_concord_full",
                     "dge_concord_stats",
                     "dge_ranking_stats",
+                    "dge_ranking_stats_marker_sub",
                     "imbalance_summary",
                     "knn_classification"
                 ],
@@ -407,3 +409,27 @@ rule marker_get:
             &> {log}
         """
     
+# Subset dge ranking dfs for marker genes 
+rule dge_rank_marker_subset:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        dge_file="../results/{configname}/dge_ranking_stats/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_dge_ranking_stats.tsv",
+        marker_file="../results/{configname}/marker_results/{data_folder}_preintegration_marker_selection.tsv"
+    output:
+        "../results/{configname}/dge_ranking_stats_marker_sub/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_dge_ranking_stats_marker_sub.tsv"
+    params:
+        script_path = "scripts/python/dge_ranking_marker_subset.py",
+    log:
+        "logs/{configname}/dge_ranking_stats_marker_sub/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_dge_ranking_stats_marker_sub.log"
+    shell:
+        """
+        python {params.script_path} \
+            --infile_dge_rank {input.dge_file} \
+            --infile_marker {input.marker_file} \
+            --outfile {output} \
+            &> {log}
+        """
