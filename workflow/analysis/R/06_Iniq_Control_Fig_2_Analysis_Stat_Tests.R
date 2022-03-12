@@ -625,16 +625,6 @@ imba_knn_merged_celltype$type_pooled <- ifelse(
 
 # Get global KNN classification wilcoxon result across type subsets
 # and concatenate
-metrics <- list(
-  "Celltype ARI",
-  "Celltype AMI",
-  "Celltype Homogeneity",
-  "Celltype Completeness",
-  "Batch ARI",
-  "Batch AMI",
-  "Batch Homogeneity",
-  "Batch Completeness"
-)
 comparison_subsets <- list(
   c("Control", "Downsampled"),
   c("Control", "Ablated")
