@@ -285,7 +285,60 @@ imba_dge_merged$type <- ifelse(
     "Ablated",
     "Downsampled"
   )
-) 
+)
+
+# For each method, subset, plot and save the variability results 
+methods <- sort(unique(imba_dge_merged$Method))
+dge_method_plt <- function(imba_dge_df, method) {
+  imba_dge_df_method <- imba_dge_df[which(imba_dge_df$Method %in% method)]
+  ggplot(data = imba_dge_df_method, aes(
+    x = `Gene`,
+    y = `Max rank`
+  )
+  ) +
+    geom_boxplot(
+      fill = "dodgerblue2",
+      notch = FALSE,
+      alpha = 0.8 
+    ) + 
+    facet_wrap(
+      .~factor(type, levels = c("Control", "Downsampled", "Ablated")), 
+      scales = "fixed"
+    ) +
+    scale_fill_manual( 
+      breaks = c("Control", "Downsampled", "Ablated"),
+      values = c("forestgreen", "darkorchid3", "firebrick2")
+    ) +
+    labs(
+      fill = "Type",
+      x = "Gene",
+      y = "Maximum rank in differential expression analysis across clusters"
+    ) +
+    coord_flip() +
+    scale_x_discrete(limits = rev(levels(factor(imba_dge_df$Gene)))) + 
+    theme_few() +
+    theme(axis.title.x = element_text(size = 16)) +
+    theme(axis.title.y = element_text(size = 16)) +
+    theme(strip.text.x = element_text(size = 16)) +
+    theme(plot.title = element_text(size = 14)) +
+    theme(axis.text.x = element_text(size = 14)) +
+    theme(axis.text.y = element_text(size = 10)) +
+    theme(legend.title = element_text(size = 16)) +
+    theme(legend.text = element_text(size = 14))
+}
+lapply(methods, function(x) {
+  dge_method_plt(imba_dge_merged, x)
+  ggsave(
+    paste0(
+      "outs/control/figures/07_pbmc_ds_ablate_",
+      x,
+      "_dge_rankings.pdf"
+    ),
+    width = 14,
+    height = 10,
+    device = cairo_pdf
+  )
+})
 
 # Pick 10 exemplary genes that show the highest variability 
 gene_rank_variance <- imba_dge_merged %>% 
@@ -319,7 +372,160 @@ ggplot(imba_dge_merged_top_10_var_genes, aes(x = Gene, y = `Max rank`)) +
   ) +
   labs(
     fill = "Type",
-    x = "Celltype downsampled",
-    y = "Number of Leiden clusters post-integration"
+    x = "Gene",
+    y = "Maximum rank in differential expression analysis across clusters"
   ) +
-  coord_flip()
+  coord_flip() +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14))
+ggsave(
+  paste0(
+    "outs/control/figures/07_pbmc_ds_ablate_dge_rankings_top_10_var_genes.pdf"
+  ),
+  width = 14,
+  height = 8,
+  device = cairo_pdf
+)
+
+# Get stdev in rank of each gene, subset by type and method 
+gene_rank_variance_grouped <- imba_dge_merged %>% 
+  group_by(Gene, Method, type) %>%
+  summarize(`Max rank stdev` = sd(`Max rank`)) %>%
+  as.data.table
+
+# Get the plots for each method, and the standard deviations of max
+# rank of the genes
+methods <- sort(unique(imba_dge_merged$Method))
+dge_stdev_method_plt <- function(imba_dge_stdev_df, method) {
+  imba_dge_stdev_df_sub <- imba_dge_stdev_df[
+    which(imba_dge_stdev_df$Method %in% method)
+  ]
+  ggplot(
+    data = imba_dge_stdev_df_sub, 
+    aes(
+      x = `Gene`,
+      y = `Max rank stdev`
+    ) 
+  ) +
+    geom_bar(
+      aes(
+        fill = factor(
+        imba_dge_stdev_df_sub$type, 
+        levels = c("Control", "Downsampled", "Ablated")
+        )
+      ),
+      stat = "identity",
+      alpha = 0.8 
+    ) + 
+    facet_wrap(
+      .~factor(
+          imba_dge_stdev_df_sub$type, 
+          levels = c("Control", "Downsampled", "Ablated")
+      ), 
+      scales = "fixed"
+    ) +
+    scale_fill_manual( 
+      breaks = c("Control", "Downsampled", "Ablated"),
+      values = c("forestgreen", "darkorchid3", "firebrick2")
+    ) +
+    labs(
+      fill = "Type",
+      x = "Gene",
+      y = "Standard deviation of maximum rank in differential expression"
+    ) +
+    coord_flip() +
+    scale_x_discrete(limits = rev(levels(factor(imba_dge_stdev_df_sub$Gene)))) + 
+    theme_few() +
+    theme(axis.title.x = element_text(size = 16)) +
+    theme(axis.title.y = element_text(size = 16)) +
+    theme(strip.text.x = element_text(size = 16)) +
+    theme(plot.title = element_text(size = 14)) +
+    theme(axis.text.x = element_text(size = 14)) +
+    theme(axis.text.y = element_text(size = 10)) +
+    theme(legend.title = element_text(size = 16)) +
+    theme(legend.text = element_text(size = 14))
+}
+lapply(methods, function(x) {
+  dge_stdev_method_plt(gene_rank_variance_grouped, x)
+  ggsave(
+    paste0(
+      "outs/control/figures/07_pbmc_ds_ablate_",
+      x,
+      "_dge_rankings_method_type_stdev.pdf"
+    ),
+    width = 14,
+    height = 10,
+    device = cairo_pdf
+  )
+})
+
+
+# Get stdev in rank of each gene, subset by type only (no method) 
+gene_rank_variance_grouped_nomethod <- imba_dge_merged %>% 
+  group_by(Gene, type) %>%
+  summarize(`Max rank stdev` = sd(`Max rank`)) %>%
+  as.data.table
+
+# Plot the values of standard deviations of each gene across all methods 
+ggplot(
+  data = gene_rank_variance_grouped_nomethod, 
+  aes(
+    x = `Gene`,
+    y = `Max rank stdev`
+  ) 
+) +
+  geom_bar(
+    aes(
+      fill = factor(
+        gene_rank_variance_grouped_nomethod$type, 
+        levels = c("Control", "Downsampled", "Ablated")
+      )
+    ),
+    stat = "identity",
+    alpha = 0.8 
+  ) + 
+  facet_wrap(
+    .~factor(
+      gene_rank_variance_grouped_nomethod$type, 
+      levels = c("Control", "Downsampled", "Ablated")
+    ), 
+    scales = "fixed"
+  ) +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  labs(
+    fill = "Type",
+    x = "Gene",
+    y = "Standard deviation of maximum rank in differential expression"
+  ) +
+  coord_flip() +
+  scale_x_discrete(
+    limits = rev(levels(factor(gene_rank_variance_grouped_nomethod$Gene)))
+  ) + 
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 10)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14))
+ggsave(
+  paste0(
+    "outs/control/figures/07_pbmc_ds_ablate_",
+    "_dge_rankings_type_stdev.pdf"
+  ),
+  width = 14,
+  height = 10,
+  device = cairo_pdf
+)
