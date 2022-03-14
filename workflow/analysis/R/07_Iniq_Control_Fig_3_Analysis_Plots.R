@@ -587,3 +587,135 @@ ggsave(
   height = 10,
   device = cairo_pdf
 )
+
+### Fig 3D) - Correlation of marker gene instability and the celltype
+### downsampled - determine if this can impact the instability or 
+### if there is a correlation
+
+# Get stdev in rank of each gene, subset by type, method, downsampled celltype
+# and marker(s) associated with celltype
+gene_rank_variance_grouped_celltype_specific <- imba_dge_merged %>% 
+  group_by(Gene, Method, type, `Downsampled celltypes`) %>%
+  summarize(`Max rank stdev` = sd(`Max rank`)) %>%
+  as.data.table
+
+# Merge the DGE stdev summary stats with the marker data indicating
+# which celltype each marker corresponds to - ALLOW A CARTESIAN PRODUCT
+# HERE AS EACH MARKER MAY BE SPECIFIC TO MORE THAN ONE CELLTYPE. The cartesian
+# product should be valid, as we are considering correlations between celltype-
+# specific markers and change in DGE status
+base_marker_genes_copy <- base_marker_genes
+colnames(base_marker_genes_copy) <- c(
+  "Associated celltype",
+  "Gene"
+)
+gene_rank_variance_grouped_celltype_specific_marker <- merge(
+  gene_rank_variance_grouped_celltype_specific,
+  base_marker_genes_copy,
+  by = c(
+    "Gene"
+  ),
+  allow.cartesian = TRUE
+)
+gene_rank_variance_grouped_celltype_specific_marker <- distinct(
+  gene_rank_variance_grouped_celltype_specific_marker
+)
+
+# Format celltype names for plotting 
+gene_rank_variance_grouped_celltype_specific_marker$`Downsampled celltypes` <-
+  plyr::mapvalues(
+    gene_rank_variance_grouped_celltype_specific_marker$`Downsampled celltypes`,
+    from = c(
+      "Monocyte_CD14",
+      "Monocyte_FCGR3A",
+      "CD4 T cell",
+      "CD8 T cell"
+    ),
+    to = c(
+      "CD14+ Monocyte",
+      "FCGR3A+ Monocyte",
+      "CD4+ T cell",
+      "CD8+ T cell"
+    )
+  )
+
+gene_rank_variance_grouped_celltype_specific_marker$`Associated celltype` <-
+  plyr::mapvalues(
+    gene_rank_variance_grouped_celltype_specific_marker$`Associated celltype`,
+    from = c(
+      "Monocyte_CD14",
+      "Monocyte_FCGR3A",
+      "CD4 T cell",
+      "CD8 T cell"
+    ),
+    to = c(
+      "CD14+ Monocyte",
+      "FCGR3A+ Monocyte",
+      "CD4+ T cell",
+      "CD8+ T cell"
+    )
+  )
+
+# For first plot, collapse/summarize further by averaging across all of the 
+# genes (median - not mean)
+gene_rank_variance_grouped_celltype_specific_marker_median <-
+  gene_rank_variance_grouped_celltype_specific_marker %>%
+  group_by(Method, type, `Downsampled celltypes`, `Associated celltype`) %>%
+  summarize(`Mean max rank stdev` = mean(`Max rank stdev`)) %>%
+  as.data.table
+
+# Remove 'None' from this - only considering cases where the downsampled 
+# celltype is equivalent to the associated celltype of the given marker 
+gene_rank_variance_grouped_celltype_specific_marker_median <-
+  gene_rank_variance_grouped_celltype_specific_marker_median[
+    gene_rank_variance_grouped_celltype_specific_marker_median$
+      `Downsampled celltypes` %ni% "None"
+  ]
+
+# Plot heatmaps specific to the overall results of each method
+ggplot(
+  data = gene_rank_variance_grouped_celltype_specific_marker_median,
+  aes(
+    x = `Downsampled celltypes`,
+    y = `Associated celltype`
+  ) 
+) + 
+  geom_tile(
+    aes(fill = `Mean max rank stdev`)
+  ) +
+  scale_fill_gradient2(
+    low = "red",
+    mid = "white",
+    high = "blue"
+  ) +
+  facet_wrap(.~Method, scales = "free") +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(
+    size = 12, 
+    angle = 90, 
+    vjust = 1, 
+    hjust = 1)
+  ) +
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) +
+  labs(
+    fill = "Mean marker gene \nmax rank \nstandard deviation",
+    x = "Downsampled celltyoe",
+    y = "Celltype associated with marker gene"
+  )
+ggsave(
+  paste0(
+    "outs/control/figures/07_pbmc_ds_ablate_",
+    "_dge_rankings_celltype_marker_celltype_ds_compare.pdf"
+  ),
+  width = 14,
+  height = 9,
+  device = cairo_pdf
+)
+  
+  
