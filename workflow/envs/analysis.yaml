@@ -39,3 +39,4 @@ dependencies:
   - r-gridextra>=2.3
   - r-cairo>=1.5
   - r-lemon>=0.4.5
+  - r-networkd3>=0.4

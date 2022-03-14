@@ -12,6 +12,7 @@ library(ComplexHeatmap)
 library(circlize)
 library(RColorBrewer)
 library(Cairo)
+library(networkD3)
 
 # Helper functions
 `%ni%` <- Negate(`%in%`)
@@ -377,6 +378,7 @@ ggplot(imba_dge_merged_top_10_var_genes, aes(x = Gene, y = `Max rank`)) +
   ) +
   coord_flip() +
   theme_few() +
+  scale_x_discrete(limits = rev(top_10_variable_dge)) +
   theme(axis.title.x = element_text(size = 16)) +
   theme(axis.title.y = element_text(size = 16)) +
   theme(strip.text.x = element_text(size = 16)) +
@@ -503,10 +505,8 @@ ggplot(
     y = "Standard deviation of maximum rank in differential expression"
   ) +
   coord_flip() +
-  scale_x_discrete(
-    limits = rev(levels(factor(gene_rank_variance_grouped_top_10_sub$Gene)))
-  ) + 
   theme_few() +
+  scale_x_discrete(limits = rev(top_10_variable_dge)) +
   theme(axis.title.x = element_text(size = 16)) +
   theme(axis.title.y = element_text(size = 16)) +
   theme(strip.text.x = element_text(size = 16)) +
@@ -586,6 +586,86 @@ ggsave(
   width = 14,
   height = 10,
   device = cairo_pdf
+)
+
+# Plot the correspondence of the top 10 most highly variable marker genes with
+# their respective celltypes
+top_10_variable_dge_markersub <- base_marker_genes[
+  which(
+    base_marker_genes$`Top 10 marker genes (union across batches)` %in% 
+      top_10_variable_dge
+    )
+]
+# Order the results 
+top_10_variable_dge_markersub <- top_10_variable_dge_markersub[
+  match( 
+    top_10_variable_dge,
+    top_10_variable_dge_markersub$`Top 10 marker genes (union across batches)`
+  )
+]
+colnames(top_10_variable_dge_markersub) <- c(
+  "Associated celltype",
+  "Gene"
+)
+# Add the standard deviation values across subsets overall 
+top_10_variable_dge_markersub <- merge(
+  top_10_variable_dge_markersub,
+  gene_rank_variance_sorted,
+  join = "left",
+  by = c(
+    "Gene"
+  ),
+  all.y = FALSE
+)
+
+# Order based on the standard deviation
+top_10_variable_dge_markersub <- top_10_variable_dge_markersub[
+  order(top_10_variable_dge_markersub$var, decreasing = )
+]
+
+# Plot the SankeyNetwork diagram, save and then convert saved html to pdf
+nodes <- data.frame(
+  name = c(
+    as.character(top_10_variable_dge_markersub$Gene), 
+     as.character(top_10_variable_dge_markersub$`Associated celltype`) %>% 
+      unique()
+  )
+)
+top_10_variable_dge_markersub$IDsource <- match(
+  top_10_variable_dge_markersub$Gene, nodes$name)-1 
+top_10_variable_dge_markersub$IDtarget <- match(
+  top_10_variable_dge_markersub$`Associated celltype`, nodes$name)-1
+
+top_10_var_marker_genes_sankey <- sankeyNetwork(
+  Links = top_10_variable_dge_markersub,
+  Nodes = nodes,
+  Source = "IDsource",
+  Target = "IDtarget",
+  Value = "var",
+  NodeID = "name",
+  sinksRight = FALSE
+)
+saveNetwork(
+  top_10_var_marker_genes_sankey,
+  file = paste0(
+    "outs/control/figures/07_pbmc_ds_ablate_",
+    "_top_var_dges_with_assoc_celltypes.html"
+  ),
+  selfcontained = TRUE
+)
+html_to_pdf <- function(html_file, pdf_file) {
+  cmd <- sprintf("pandoc %s -t latex -o %s", html_file, pdf_file)
+  system(cmd)
+}
+html_to_pdf(
+  html_file = paste0(
+    "outs/control/figures/07_pbmc_ds_ablate_",
+    "_top_var_dges_with_assoc_celltypes.html"
+  ),
+  pdf_file = paste0(
+    "outs/control/figures/07_pbmc_ds_ablate_",
+    "_top_var_dges_with_assoc_celltypes.pdf"
+  )
 )
 
 ### Fig 3D) - Correlation of marker gene instability and the celltype
@@ -704,7 +784,7 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Mean marker gene \nmax rank \nstandard deviation",
+    fill = "Mean marker gene \nrank standard deviation",
     x = "Downsampled celltyoe",
     y = "Celltype associated with marker gene"
   )
@@ -717,5 +797,6 @@ ggsave(
   height = 9,
   device = cairo_pdf
 )
+
   
   
