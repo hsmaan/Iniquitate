@@ -466,6 +466,64 @@ lapply(methods, function(x) {
   )
 })
 
+# Plot the top 10 most variable genes in terms of rank (across all methods)
+# based on type and method 
+gene_rank_variance_grouped_top_10_sub <- gene_rank_variance_grouped[
+  which(gene_rank_variance_grouped$Gene %in% top_10_variable_dge)
+]
+ggplot(
+  data = gene_rank_variance_grouped_top_10_sub, 
+  aes(
+    x = `Gene`,
+    y = `Max rank stdev`
+  ) 
+) +
+  geom_bar(
+    aes(
+      fill = factor(
+        gene_rank_variance_grouped_top_10_sub$type, 
+        levels = c("Control", "Downsampled", "Ablated")
+      )
+    ),
+    stat = "identity",
+    alpha = 0.8,
+    position = "dodge2"
+  ) + 
+  facet_wrap(
+    .~Method,
+    scales = "fixed"
+  ) +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  labs(
+    fill = "Type",
+    x = "Gene",
+    y = "Standard deviation of maximum rank in differential expression"
+  ) +
+  coord_flip() +
+  scale_x_discrete(
+    limits = rev(levels(factor(gene_rank_variance_grouped_top_10_sub$Gene)))
+  ) + 
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14))
+ggsave(
+  paste0(
+    "outs/control/figures/07_pbmc_ds_ablate_",
+    "_dge_rankings_method_type_stdev_top_10.pdf"
+  ),
+  width = 14,
+  height = 8,
+  device = cairo_pdf
+)
 
 # Get stdev in rank of each gene, subset by type only (no method) 
 gene_rank_variance_grouped_nomethod <- imba_dge_merged %>% 
