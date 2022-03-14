@@ -288,7 +288,118 @@ imba_dge_merged$type <- ifelse(
   )
 )
 
-# For each method, subset, plot and save the variability results 
+# Plot the max rank of the marker gene across all methods (method agnostic) -
+# ordered by median variability of the rank 
+gene_rank_variance <- imba_dge_merged %>% 
+  group_by(Gene) %>%
+  summarize(var = sd(`Max rank`))
+gene_rank_variance_sorted <- gene_rank_variance[
+  order(gene_rank_variance$var, decreasing = TRUE),
+]
+ggplot(data = imba_dge_merged, aes(
+  x = `Gene`,
+  y = `Max rank`
+)
+) +
+  geom_boxplot(
+    aes(fill = type),
+    notch = FALSE,
+    alpha = 0.8 
+  ) + 
+  facet_grid(
+    .~factor(type, levels = c("Control", "Downsampled", "Ablated")), 
+    scales = "fixed"
+  ) +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  labs(
+    fill = "Type",
+    x = "Marker gene",
+    y = "Maximum rank in differential expression analysis across clusters"
+  ) +
+  coord_flip() +
+  scale_x_discrete(
+    limits = rev(gene_rank_variance_sorted$Gene)
+  ) + 
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 10)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) +
+  theme(legend.position = "None")
+ggsave(
+  paste0(
+    "outs/control/figures/07_pbmc_ds_ablate_",
+    "marker_gene_max_ranks.pdf"
+  ),
+  width = 14,
+  height = 12,
+  device = cairo_pdf
+)
+
+# Plot the max rank of the marker gene across all methods, taking method into
+# account - ordered by median variability of the rank. Omit gene names  
+ggplot(data = imba_dge_merged, aes(
+  x = `Gene`,
+  y = `Max rank`
+)
+) +
+  geom_boxplot(
+    aes(fill = type),
+    notch = FALSE,
+    alpha = 0.8 
+  ) + 
+  facet_grid(
+    Method ~ .~factor(type, levels = c("Control", "Downsampled", "Ablated")), 
+    scales = "fixed"
+  ) +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  scale_color_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  labs(
+    fill = "Type",
+    x = "Marker gene",
+    y = "Maximum rank in differential expression analysis across clusters"
+  ) +
+  coord_flip() +
+  scale_x_discrete(
+    limits = rev(gene_rank_variance_sorted$Gene)
+  ) + 
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_blank()) +
+  theme(axis.ticks.y = element_blank()) + 
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) +
+  theme(legend.position = "None")
+ggsave(
+  paste0(
+    "outs/control/figures/07_pbmc_ds_ablate_",
+    "marker_gene_max_ranks_per_method.pdf"
+  ),
+  width = 14,
+  height = 9,
+  device = cairo_pdf
+)
+
+# For each method, subset, plot and save the variability results
 methods <- sort(unique(imba_dge_merged$Method))
 dge_method_plt <- function(imba_dge_df, method) {
   imba_dge_df_method <- imba_dge_df[which(imba_dge_df$Method %in% method)]
@@ -312,7 +423,7 @@ dge_method_plt <- function(imba_dge_df, method) {
     ) +
     labs(
       fill = "Type",
-      x = "Gene",
+      x = "Marker gene",
       y = "Maximum rank in differential expression analysis across clusters"
     ) +
     coord_flip() +
@@ -341,15 +452,8 @@ lapply(methods, function(x) {
   )
 })
 
-# Pick 10 exemplary genes that show the highest variability 
-gene_rank_variance <- imba_dge_merged %>% 
-  group_by(Gene) %>%
-  summarize(var = sd(`Max rank`))
-gene_rank_variance_sorted <- gene_rank_variance[
-  order(gene_rank_variance$var, decreasing = TRUE),
-]
-
-# Take top 10 with the exclusion of the mitochondrial gene 
+# Pick 10 exemplary genes that show the highest variability - take top 10 with 
+# the exclusion of the mitochondrial gene 
 top_10_variable_dge <- gene_rank_variance_sorted$Gene[1:11]
 top_10_variable_dge <- top_10_variable_dge[-6]
 
@@ -373,7 +477,7 @@ ggplot(imba_dge_merged_top_10_var_genes, aes(x = Gene, y = `Max rank`)) +
   ) +
   labs(
     fill = "Type",
-    x = "Gene",
+    x = "Marker gene",
     y = "Maximum rank in differential expression analysis across clusters"
   ) +
   coord_flip() +
@@ -439,7 +543,7 @@ dge_stdev_method_plt <- function(imba_dge_stdev_df, method) {
     ) +
     labs(
       fill = "Type",
-      x = "Gene",
+      x = "Marker gene",
       y = "Standard deviation of maximum rank in differential expression"
     ) +
     coord_flip() +
@@ -501,7 +605,7 @@ ggplot(
   ) +
   labs(
     fill = "Type",
-    x = "Gene",
+    x = "Marker gene",
     y = "Standard deviation of maximum rank in differential expression"
   ) +
   coord_flip() +
@@ -562,7 +666,7 @@ ggplot(
   ) +
   labs(
     fill = "Type",
-    x = "Gene",
+    x = "Marker gene",
     y = "Standard deviation of maximum rank in differential expression"
   ) +
   coord_flip() +
