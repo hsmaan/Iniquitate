@@ -12,7 +12,6 @@ library(ComplexHeatmap)
 library(circlize)
 library(RColorBrewer)
 library(Cairo)
-library(le)
 
 # Helper functions
 `%ni%` <- Negate(`%in%`)
@@ -70,8 +69,8 @@ dge_loaded <- lapply(dge_files, fread)
 dge_concat <- Reduce(rbind, dge_loaded)
 gc()
 
-# Load in and concatenate dge ranking summaries
-setwd("../dge_ranking_stats/")
+# Load in and concatenate dge ranking summaries, subset by marker genes
+setwd("../dge_ranking_stats_marker_sub")
 dge_rank_files <- list.files()
 dge_rank_files <- grep(
   "pbmc_2_batch_base_balanced",
@@ -81,6 +80,12 @@ dge_rank_files <- grep(
 dge_rank_loaded <- lapply(dge_rank_files, fread)
 dge_rank_concat <- Reduce(rbind, dge_rank_loaded)
 gc()
+
+# Load in markers and corresponding celltypes 
+setwd("../marker_results/")
+base_marker_genes <- fread(
+  "pbmc_2_batch_base_balanced_preintegration_marker_selection.tsv"
+) 
 
 # Load in and concatenate knn classification summaries
 setwd("../knn_classification_reports/")
@@ -255,4 +260,66 @@ ggsave(
   device = cairo_pdf
 )
 
-### Fig 3C) - concordance of DGE 
+### Fig 3C) - concordance of DGE for marker genes before and after 
+### downsampling 
+
+# Merge together imbalanced and dge ranking datasets 
+imba_dge_merged <- merge(
+  imba_concat,
+  dge_rank_concat,
+  by = c(
+    "Number of batches downsampled",
+    "Number of celltypes downsampled",
+    "Proportion downsampled",
+    "Replicate"
+  )
+) 
+imba_dge_merged <- distinct(imba_dge_merged)
+
+# Indicate which samples are controls and which are real runs
+imba_dge_merged$type <- ifelse(
+  imba_dge_merged$`Number of batches downsampled` == 0,
+  "Control",
+  ifelse(
+    imba_dge_merged$`Proportion downsampled` == 0,
+    "Ablated",
+    "Downsampled"
+  )
+) 
+
+# Pick 10 exemplary genes that show the highest variability 
+gene_rank_variance <- imba_dge_merged %>% 
+  group_by(Gene) %>%
+  summarize(var = sd(`Max rank`))
+gene_rank_variance_sorted <- gene_rank_variance[
+  order(gene_rank_variance$var, decreasing = TRUE),
+]
+
+# Take top 10 with the exclusion of the mitochondrial gene 
+top_10_variable_dge <- gene_rank_variance_sorted$Gene[1:11]
+top_10_variable_dge <- top_10_variable_dge[-6]
+
+# Subset data for top 10 with the exclusion of mitochondrial gene and 
+# plot results for ranking change with ablation and downsampling 
+imba_dge_merged_top_10_var_genes <- imba_dge_merged[
+  imba_dge_merged$Gene %in% top_10_variable_dge
+]
+ggplot(imba_dge_merged_top_10_var_genes, aes(x = Gene, y = `Max rank`)) +
+  geom_boxplot(
+    aes(
+      fill = factor(type, levels = c("Control", "Downsampled", "Ablated")),
+    ),
+    notch = FALSE,
+    alpha = 0.8 
+  ) +
+  facet_wrap(.~Method, scales = "fixed") +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  labs(
+    fill = "Type",
+    x = "Celltype downsampled",
+    y = "Number of Leiden clusters post-integration"
+  ) +
+  coord_flip()
