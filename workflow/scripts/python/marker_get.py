@@ -27,6 +27,11 @@ def main(h5ad_dir, save_loc, top_n = 10):
     # for each celltype and get and return the union
     adata_dge_top_n_dfs = []
     for adata in adata_loaded:
+        # Remove any celltypes with less than 5 cells
+        celltype_vcounts = adata.obs.celltype.value_counts()
+        celltype_vounts_sub = celltype_vcounts[celltype_vcounts >= 5]
+        adata = adata[adata.obs.celltype.isin(celltype_vounts_sub.index)]
+    
         # Log-normalize the data
         sc.pp.normalize_total(
             adata,
