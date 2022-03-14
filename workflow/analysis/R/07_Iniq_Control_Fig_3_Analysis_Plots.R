@@ -653,20 +653,6 @@ saveNetwork(
   ),
   selfcontained = TRUE
 )
-html_to_pdf <- function(html_file, pdf_file) {
-  cmd <- sprintf("pandoc %s -t latex -o %s", html_file, pdf_file)
-  system(cmd)
-}
-html_to_pdf(
-  html_file = paste0(
-    "outs/control/figures/07_pbmc_ds_ablate_",
-    "_top_var_dges_with_assoc_celltypes.html"
-  ),
-  pdf_file = paste0(
-    "outs/control/figures/07_pbmc_ds_ablate_",
-    "_top_var_dges_with_assoc_celltypes.pdf"
-  )
-)
 
 ### Fig 3D) - Correlation of marker gene instability and the celltype
 ### downsampled - determine if this can impact the instability or 
@@ -752,9 +738,16 @@ gene_rank_variance_grouped_celltype_specific_marker_median <-
       `Downsampled celltypes` %ni% "None"
   ]
 
-# Plot heatmaps specific to the overall results of each method
+# Plot heatmaps specific to the overall results of each method - first for 
+# the downsampled results 
+gene_rank_variance_grouped_celltype_specific_marker_median_ds <- 
+  gene_rank_variance_grouped_celltype_specific_marker_median[
+    gene_rank_variance_grouped_celltype_specific_marker_median$type %in% 
+      "Downsampled"
+  ]
+
 ggplot(
-  data = gene_rank_variance_grouped_celltype_specific_marker_median,
+  data = gene_rank_variance_grouped_celltype_specific_marker_median_ds,
   aes(
     x = `Downsampled celltypes`,
     y = `Associated celltype`
@@ -763,10 +756,9 @@ ggplot(
   geom_tile(
     aes(fill = `Mean max rank stdev`)
   ) +
-  scale_fill_gradient2(
-    low = "red",
-    mid = "white",
-    high = "blue"
+  scale_fill_gradient(
+    low = "white",
+    high = "firebrick2"
   ) +
   facet_wrap(.~Method, scales = "free") +
   theme_few() +
@@ -785,12 +777,12 @@ ggplot(
   theme(legend.text = element_text(size = 14)) +
   labs(
     fill = "Mean marker gene \nrank standard deviation",
-    x = "Downsampled celltyoe",
+    x = "Downsampled celltype",
     y = "Celltype associated with marker gene"
   )
 ggsave(
   paste0(
-    "outs/control/figures/07_pbmc_ds_ablate_",
+    "outs/control/figures/07_pbmc_ds_only_",
     "_dge_rankings_celltype_marker_celltype_ds_compare.pdf"
   ),
   width = 14,
@@ -798,5 +790,116 @@ ggsave(
   device = cairo_pdf
 )
 
-  
+
+# Plot heatmaps specific to the overall results of each method - first for 
+# the downsampled results 
+gene_rank_variance_grouped_celltype_specific_marker_median_ds <- 
+  gene_rank_variance_grouped_celltype_specific_marker_median[
+    gene_rank_variance_grouped_celltype_specific_marker_median$type %in% 
+      "Downsampled"
+  ]
+
+ggplot(
+  data = gene_rank_variance_grouped_celltype_specific_marker_median_ds,
+  aes(
+    x = `Downsampled celltypes`,
+    y = `Associated celltype`
+  ) 
+) + 
+  geom_tile(
+    aes(fill = `Mean max rank stdev`)
+  ) +
+  scale_fill_gradient(
+    low = "white",
+    high = "firebrick2"
+  ) +
+  facet_wrap(.~Method, scales = "free") +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(
+    size = 12, 
+    angle = 90, 
+    vjust = 1, 
+    hjust = 1)
+  ) +
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) +
+  labs(
+    fill = "Mean marker gene \nrank standard deviation",
+    x = "Downsampled celltype",
+    y = "Celltype associated with marker gene"
+  )
+ggsave(
+  paste0(
+    "outs/control/figures/07_pbmc_ds_only_",
+    "_dge_rankings_celltype_marker_celltype_ds_compare.pdf"
+  ),
+  width = 14,
+  height = 9,
+  device = cairo_pdf
+)
+
+# Plot heatmaps specific to the overall results of each method - now for 
+# the ablated results 
+gene_rank_variance_grouped_celltype_specific_marker_median_ablated <- 
+  gene_rank_variance_grouped_celltype_specific_marker_median[
+    gene_rank_variance_grouped_celltype_specific_marker_median$type %in% 
+      "Ablated"
+  ]
+
+ggplot(
+  data = gene_rank_variance_grouped_celltype_specific_marker_median_ablated,
+  aes(
+    x = `Downsampled celltypes`,
+    y = `Associated celltype`
+  ) 
+) + 
+  geom_tile(
+    aes(fill = `Mean max rank stdev`)
+  ) +
+  scale_fill_gradient(
+    low = "white",
+    high = "firebrick2"
+  ) +
+  facet_wrap(.~Method, scales = "free") +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(
+    size = 12, 
+    angle = 90, 
+    vjust = 1, 
+    hjust = 1)
+  ) +
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) +
+  labs(
+    fill = "Mean marker gene \nrank standard deviation",
+    x = "Ablated celltype",
+    y = "Celltype associated with marker gene"
+  )
+ggsave(
+  paste0(
+    "outs/control/figures/07_pbmc_ablated_only_",
+    "_dge_rankings_celltype_marker_celltype_ablated_compare.pdf"
+  ),
+  width = 14,
+  height = 9,
+  device = cairo_pdf
+)
+
+
+
+
+
+
+
+
   
