@@ -7,3 +7,4 @@ from .sample import downsample
 from .diffexp import diffexp, dge_top_n, set_concordance
 from .cluster_concordance import cluster_concordance
 from .kmeans import faiss_kmeans
+from .seurat_reference_mapping import SeuratReferenceMap
