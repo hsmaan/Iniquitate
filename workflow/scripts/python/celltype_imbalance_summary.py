@@ -42,7 +42,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     val_counts_merged = functools.reduce(merge, val_counts_dfs)
     
     # Replace NAs with 0 and add downsampling information
-    val_counts_merged = val_counts_merged.fillna(0)
+    val_counts_merged.iloc[:, 1:] = val_counts_merged.iloc[:, 1:].fillna(0)
     val_counts_merged["Dataset"] = dataset_name
     val_counts_merged["Number of batches downsampled"] = num_batches_ds
     val_counts_merged["Batches downsampled"] = batches_ds
