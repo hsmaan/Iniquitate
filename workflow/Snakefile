@@ -80,6 +80,7 @@ rule all:
                     "dge_ranking_stats",
                     "dge_ranking_stats_marker_sub",
                     "imbalance_summaries",
+                    "celltype_imbalance_summaries",
                     "knn_classification_reports"
                 ], 
                 [
@@ -92,6 +93,7 @@ rule all:
                     "dge_ranking_stats",
                     "dge_ranking_stats_marker_sub",
                     "imbalance_summary",
+                    "celltype_imbalance_summary",
                     "knn_classification"
                 ],
                 [
@@ -99,6 +101,7 @@ rule all:
                     "tsv", 
                     "tsv", 
                     "tsv", 
+                    "tsv",
                     "tsv",
                     "tsv",
                     "tsv",
@@ -329,6 +332,31 @@ rule imbalance_summary:
     log:
         "logs/{configname}/imbalance_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_imbalance_summary.log"
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            &> {log}
+        """
+
+# Get imbalance summary at a celltype level for integration datasets - vanilla integration
+rule celltype_imbalance_summary:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/{configname}/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
+    output:
+        "../results/{configname}/celltype_imbalance_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_celltype_imbalance_summary.tsv"
+    params:
+        script_path = "scripts/python/celltype_imbalance_summary.py",
+    log:
+        "logs/{configname}/celltype_imbalance_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_celltype_imbalance_summary.log"
     shell:
         """
         python {params.script_path} \
