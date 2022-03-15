@@ -1,6 +1,6 @@
 import os 
 
-configfile: "configs/config_lowcap_control_like.json"
+configfile: "configs/config_control.json"
 configname = config["config_name"]
 
 # Get all combinations through the config file
