@@ -16,7 +16,7 @@ class SeuratReferenceMap:
         file a downsampled and integrated result through an RScript, which then outputs the 
         reference mapped anndata (h5ad) file to be used for later downstream testing and 
         analysis. The reference mapping workflow follows that of: 
-            https://satijalab.org/seurat/articles/integration_mapping.html.
+            https://satijalab.org/seurat/articles/multimodal_reference_mapping.html.
     """
     def __init__(self, integrated_data_h5, reference_h5, mapped_h5):
         """
@@ -55,6 +55,9 @@ class SeuratReferenceMap:
         self.adata.layers = None
         self.adata.raw = None
         
+        # Strip mapped h5 of extension - keep only name for internal seurat h5 conversions
+        self.mapped_h5_name = self.mapped_h5.split(".")[0]
+        
     def _output_temp_h5ad(self):
         # Check if temp exists, if not, make dir
         if not os.path.exists("tmp"):
@@ -68,10 +71,11 @@ class SeuratReferenceMap:
     def _seurat_refmap(self):
         # Call subprocess and call R script
         refmap_script = \
-            "Rscript src/R/seurat_reference_map.R {ref_h5} tmp/{tempfile} {outfile} --verbose".format(
+            "Rscript src/R/seurat_reference_map.R {ref_h5} tmp/{tempfile} {tempname} {out_name} --verbose".format(
                 ref_h5 = self.reference_h5,
                 tempfile = self.file,
-                outfile = self.mapped_h5
+                tempname = self.filename,
+                out_name = self.mapped_h5_name
             )
             
         self.sp_refmap = subprocess.run(refmap_script, shell = True, text = True, capture_output = True)
