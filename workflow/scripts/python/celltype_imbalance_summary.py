@@ -38,21 +38,20 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         val_counts_dfs.append(val_counts_df)
         
     # Concatenate all celltype value counts results 
-    merge = functools.partial(pd.merge, on = ['celltype'], how = "outer")
-    result = functools.reduce(merge, val_counts_dfs)
+    merge = functools.partial(pd.merge, on = ["celltype"], how = "outer")
+    val_counts_merged = functools.reduce(merge, val_counts_dfs)
     
     # Replace NAs with 0 and add downsampling information
-    val_counts_concat = pd.concat(val_counts_dfs)
-    val_counts_concat = val_counts_concat.fillna(0)
-    val_counts_concat["Dataset"] = dataset_name
-    val_counts_concat["Number of batches downsampled"] = num_batches_ds
-    val_counts_concat["Batches downsampled"] = batches_ds
-    val_counts_concat["Number of celltypes downsampled"] = num_celltypes_ds
-    val_counts_concat["Proportion downsampled"] = prop_ds
-    val_counts_concat["Downsampled celltypes"] = downsampled_celltypes
-    val_counts_concat["Replicate"] = rep
-    val_counts_concat["Total batches"] = len(batches)
-    val_counts_concat.to_csv(save_loc, index=False, sep="\t")
+    val_counts_merged = val_counts_merged.fillna(0)
+    val_counts_merged["Dataset"] = dataset_name
+    val_counts_merged["Number of batches downsampled"] = num_batches_ds
+    val_counts_merged["Batches downsampled"] = batches_ds
+    val_counts_merged["Number of celltypes downsampled"] = num_celltypes_ds
+    val_counts_merged["Proportion downsampled"] = prop_ds
+    val_counts_merged["Downsampled celltypes"] = downsampled_celltypes
+    val_counts_merged["Replicate"] = rep
+    val_counts_merged["Total batches"] = len(batches)
+    val_counts_merged.to_csv(save_loc, index=False, sep="\t")
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

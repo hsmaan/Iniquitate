@@ -19,6 +19,7 @@ submit.sh
 workflow/tmp
 resources/h5ad_files
 resources/test_h5ad_objs
+resources/references
 results
 outs
 logs
