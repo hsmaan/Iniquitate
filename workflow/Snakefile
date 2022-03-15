@@ -81,7 +81,8 @@ rule all:
                     "dge_ranking_stats_marker_sub",
                     "imbalance_summaries",
                     "celltype_imbalance_summaries",
-                    "knn_classification_reports"
+                    "knn_classification_reports",
+                    "query_to_reference"
                 ], 
                 [
                     "integrated",
@@ -94,7 +95,8 @@ rule all:
                     "dge_ranking_stats_marker_sub",
                     "imbalance_summary",
                     "celltype_imbalance_summary",
-                    "knn_classification"
+                    "knn_classification",
+                    "reference_annotated"
                 ],
                 [
                     "h5ad",
@@ -106,7 +108,9 @@ rule all:
                     "tsv",
                     "tsv",
                     "tsv",
-                    "tsv"
+                    "tsv",
+                    "tsv",
+                    "h5ad"
                 ]
             )
         ),
@@ -458,6 +462,31 @@ rule dge_rank_marker_subset:
         python {params.script_path} \
             --infile_dge_rank {input.dge_file} \
             --infile_marker {input.marker_file} \
+            --outfile {output} \
+            &> {log}
+        """
+
+# Perform query to reference mapping experiment and get annotations for each dataset
+rule query_to_reference:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/{configname}/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
+    output:
+        "../results/{configname}/query_to_reference/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_reference_annotated.h5ad"
+    params:
+        script_path = "scripts/python/reference_annotation.py",
+        reference_path = "../resources/references/h5Seurat_files/{data_folder}/{data_folder}.h5seurat"
+    log:
+        "logs/{configname}/query_to_reference/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_reference_annotated.log"
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --ref_file {params.reference_path} \
             --outfile {output} \
             &> {log}
         """
