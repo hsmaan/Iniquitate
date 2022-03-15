@@ -54,7 +54,7 @@ class SeuratIntegrate:
     def _seurat_integrate(self):
         # Call subprocess and call R script
         tempfile_script = \
-            "Rscript src/R/seurat.R tmp/{tempfile} {tempfile_name} {int_type} --verbose".format(
+            "Rscript src/R/seurat_integrate.R tmp/{tempfile} {tempfile_name} {int_type} --verbose".format(
                 tempfile = self.file,
                 tempfile_name = self.filename,
                 int_type = self.int_type
