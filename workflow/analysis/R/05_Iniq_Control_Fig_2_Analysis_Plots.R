@@ -407,7 +407,7 @@ ht3 = Heatmap(
 )
 celltype_ari_hm <- ht1 + ht2 + ht3
 CairoPDF(
-  "outs/control/figures/05_celltype_ari_ds_effects_heatmap.pdf", 
+  "outs/control/figures/05_celltype_ari_ds_effects_heatmap.pdf",
   width = 8, 
   height = 6
 )
@@ -623,9 +623,9 @@ imba_knn_cluster_merged <- merge(
     "Number of batches downsampled",
     "Number of celltypes downsampled",
     "Proportion downsampled",
-    "Replicate"
-  ),
-  allow.cartesian = TRUE
+    "Replicate",
+    "Method"
+  )
 )
 imba_knn_cluster_merged <- distinct(imba_knn_cluster_merged)
 
@@ -657,31 +657,35 @@ imba_knn_cluster_merged$type <- ifelse(
   )
 )
 
-
-# Subset for only cases where the celltype downsampled is equal to the 
-# celltype being classified
-imba_knn_cluster_merged_celltype <- imba_knn_cluster_merged[
-  imba_knn_cluster_merged$Celltype == imba_knn_cluster_merged$`Downsampled celltypes` |
-    imba_knn_cluster_merged$`Downsampled celltypes` %in% c("None")
-]
+# Get the median celltype classification score for each of these,
+# grouped by method, type and celltype ARI score
+median_imba_knn_cluster_results_cari <- imba_knn_cluster_merged %>% 
+  group_by(Method, type, `Celltype ARI Imbalanced`) %>% 
+  summarize(
+    `Median F1-score` = median(`F1-score`, na.rm = FALSE),
+    .groups = "keep"
+  ) %>%
+  as.data.frame()
 
 # Plot the result for correlation with the Celltype ARI values 
-ggscatter(imba_knn_cluster_merged_celltype, 
+# THIS IS THE MEDIAN SCORE - must be indicated in figure legend
+ggscatter(median_imba_knn_cluster_results_cari, 
           x = "Celltype ARI Imbalanced", 
-          y = "F1-score", 
+          y = "Median F1-score", 
           size = 0.4,
           combine = TRUE,
           xlab = "Celltype ARI post-integration",
-          ylab = "F1-classification score post-integration",
+          ylab = "Celltype F1-classification score post-integration",
           palette = "jco",
           add = "reg.line", 
           add.params = list(color = "blue", fill = "lightgray"),
           conf.int = TRUE) +
-  facet_wrap(.~`Method.x`, scales = "free") +
+  facet_wrap(.~`Method`, scales = "fixed") +
   stat_cor(
+    aes(label = ..r.label..),
     method = "spearman", 
-    label.x = 0.4, 
-    label.y = 0.1, 
+    label.x = 0.6, 
+    label.y = 0.4, 
     p.digits = 2,
     size = 5
   ) +
@@ -701,22 +705,34 @@ ggsave(
   device = cairo_pdf
 )
 
+# Get the median celltype classification score for each of these,
+# grouped by method, type and Batch ARI score
+median_imba_knn_cluster_results_bari <- imba_knn_cluster_merged %>% 
+  group_by(Method, type, `Batch ARI`) %>% 
+  summarize(
+    `Median F1-score` = median(`F1-score`, na.rm = FALSE),
+    .groups = "keep"
+  ) %>%
+  as.data.frame()
+
 # Plot the result for correlation with the Batch ARI values 
-ggscatter(imba_knn_cluster_merged_celltype, 
+# THIS IS THE MEDIAN SCORE - must be indicated in figure legend
+ggscatter(median_imba_knn_cluster_results_bari, 
           x = "Batch ARI", 
-          y = "F1-score", 
+          y = "Median F1-score", 
           size = 0.4,
           combine = TRUE,
           xlab = "Batch ARI post-integration",
-          ylab = "F1-classification score post-integration",
+          ylab = "Celltype F1-classification score post-integration",
           palette = "jco",
           add = "reg.line", 
           add.params = list(color = "blue", fill = "lightgray"),
           conf.int = TRUE) +
-  facet_wrap(.~`Method.x`, scales = "free") +
+  facet_wrap(.~`Method`, scales = "fixed") +
   stat_cor(
+    aes(label = ..r.label..),
     method = "spearman", 
-    label.x = 0.9, 
+    label.x = 0.97, 
     label.y = 0.1, 
     p.digits = 2,
     size = 5
