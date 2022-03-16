@@ -56,7 +56,7 @@ class SeuratReferenceMap:
         self.adata.raw = None
         
         # Strip mapped h5 of extension - keep only name for internal seurat h5 conversions
-        self.mapped_h5_name = self.mapped_h5.split(".")[0]
+        self.mapped_h5_name = os.path.splitext(self.mapped_h5)[0]
         
     def _output_temp_h5ad(self):
         # Check if temp exists, if not, make dir
