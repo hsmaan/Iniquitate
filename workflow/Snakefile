@@ -134,6 +134,7 @@ rule integrate:
     log:
         "logs/{configname}/integrate/integrate_{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}.log"
+    priority: 0
     shell:
         """
         python {params.script_path} \
@@ -159,6 +160,7 @@ rule integrate_paga:
     log:
         "logs/{configname}/paga_integrate/integrate_paga_{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes_" + 
         "{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}.log"
+    priority: 0
     shell:
         """
         python {params.script_path} \
@@ -186,6 +188,7 @@ rule downsample_summary:
     log:
         "logs/{configname}/downsample_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_downsample_summary.log"
+    priority: 100
     shell:
         """
         python {params.script_path} \
@@ -211,6 +214,7 @@ rule clustering_summary:
     log:
         "logs/{configname}/clustering_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_summary.log"
+    priority: 100
     shell:
         """
         python {params.script_path} \
@@ -236,6 +240,7 @@ rule clustering_concord_summary:
     log:
         "logs/{configname}/clustering_concord_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_clustering_concord_summary.log"
+    priority: 100
     shell:
         """
         python {params.script_path} \
@@ -261,6 +266,7 @@ rule dge_concord_full:
     log:
         "logs/{configname}/dge_concord_full/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_full.log"
+    priority: 100
     shell:
         """
         python {params.script_path} \
@@ -286,6 +292,7 @@ rule dge_concord_stats:
     log:
         "logs/{configname}/dge_concord_stats/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_dge_concord_stats.log"
+    priority: 100
     shell:
         """
         python {params.script_path} \
@@ -311,6 +318,7 @@ rule dge_ranking_stats:
     log:
         "logs/{configname}/dge_ranking_stats/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_dge_ranking_stats.log"
+    priority: 100
     shell:
         """
         python {params.script_path} \
@@ -336,6 +344,7 @@ rule imbalance_summary:
     log:
         "logs/{configname}/imbalance_summary/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_imbalance_summary.log"
+    priority: 100
     shell:
         """
         python {params.script_path} \
@@ -361,6 +370,7 @@ rule celltype_imbalance_summary:
     log:
         "logs/{configname}/celltype_imbalance_summaries/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_celltype_imbalance_summary.log"
+    priority: 100
     shell:
         """
         python {params.script_path} \
@@ -386,6 +396,7 @@ rule imbalance_summary_paga:
     log:
         "logs/{configname}/paga_imbalance_summary/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
         "_{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}_paga_imbalance_summary.log"
+    priority: 100
     shell:
         """
         python {params.script_path} \
@@ -411,6 +422,7 @@ rule knn_classification:
     log:
         "logs/{configname}/knn_classification_report/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_knn_classification.log"
+    priority: 50
     shell:
         """
         python {params.script_path} \
@@ -433,6 +445,7 @@ rule marker_get:
         script_path = "scripts/python/marker_get.py",
     log:
         "logs/{configname}/marker_get/{data_folder}_preintegration_marker_selection.log"
+    priority: 100
     shell:
         """
         python {params.script_path} \
@@ -457,6 +470,7 @@ rule dge_rank_marker_subset:
     log:
         "logs/{configname}/dge_ranking_stats_marker_sub/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
         "_downsample_{num_batches}_batch_ds_c_{rep}_dge_ranking_stats_marker_sub.log"
+    priority: 100
     shell:
         """
         python {params.script_path} \
@@ -482,6 +496,7 @@ rule query_to_reference:
     log:
         "logs/{configname}/query_to_reference/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_reference_annotated.log"
+    priority: 0
     shell:
         """
         python {params.script_path} \
