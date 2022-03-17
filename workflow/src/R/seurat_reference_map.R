@@ -74,3 +74,8 @@ Convert(
     paste0(outfile_name, ".h5Seurat"),
     dest = "h5ad"
 )
+
+# Remove h5seurat file 
+file.remove(
+  paste0(outfile_name, ".h5Seurat")
+)
