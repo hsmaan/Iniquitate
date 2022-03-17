@@ -161,7 +161,7 @@ ggplot(data = imba_clus_merged, aes(
     notch = FALSE,
     alpha = 0.8 
 ) + 
-  geom_jitter(color = "black", size = 0.4, alpha = 0.8) +
+  geom_jitter(color = "black", size = 0.4, alpha = 0.7) +
   facet_wrap(.~Method, scales = "fixed") +
   scale_fill_manual( 
     breaks = c("Control", "Downsampled", "Ablated"),
@@ -289,7 +289,7 @@ imba_dge_merged$type <- ifelse(
 )
 
 # Plot the max rank of the marker gene across all methods (method agnostic) -
-# ordered by median variability of the rank 
+# ordered by median variability of the rank - Supplementary figure
 gene_rank_variance <- imba_dge_merged %>% 
   group_by(Gene) %>%
   summarize(var = sd(`Max rank`))
@@ -400,13 +400,16 @@ ggsave(
 )
 
 # For each method, subset, plot and save the variability results
+# Supplementary figure
 methods <- sort(unique(imba_dge_merged$Method))
 dge_method_plt <- function(imba_dge_df, method) {
   imba_dge_df_method <- imba_dge_df[which(imba_dge_df$Method %in% method)]
-  ggplot(data = imba_dge_df_method, aes(
-    x = `Gene`,
-    y = `Max rank`
-  )
+  ggplot(
+    data = imba_dge_df_method, 
+    aes(
+      x = `Gene`,
+      y = `Max rank`
+    )
   ) +
     geom_boxplot(
       fill = "dodgerblue2",
@@ -422,6 +425,7 @@ dge_method_plt <- function(imba_dge_df, method) {
       values = c("forestgreen", "darkorchid3", "firebrick2")
     ) +
     labs(
+      title = method,
       fill = "Type",
       x = "Marker gene",
       y = "Maximum rank in differential expression analysis across clusters"
@@ -429,10 +433,10 @@ dge_method_plt <- function(imba_dge_df, method) {
     coord_flip() +
     scale_x_discrete(limits = rev(levels(factor(imba_dge_df$Gene)))) + 
     theme_few() +
+    theme(plot.title = element_text(size = 24)) +
     theme(axis.title.x = element_text(size = 16)) +
     theme(axis.title.y = element_text(size = 16)) +
     theme(strip.text.x = element_text(size = 16)) +
-    theme(plot.title = element_text(size = 14)) +
     theme(axis.text.x = element_text(size = 14)) +
     theme(axis.text.y = element_text(size = 10)) +
     theme(legend.title = element_text(size = 16)) +
@@ -700,6 +704,7 @@ top_10_variable_dge_markersub <- base_marker_genes[
       top_10_variable_dge
     )
 ]
+
 # Order the results 
 top_10_variable_dge_markersub <- top_10_variable_dge_markersub[
   match( 
@@ -711,6 +716,7 @@ colnames(top_10_variable_dge_markersub) <- c(
   "Associated celltype",
   "Gene"
 )
+
 # Add the standard deviation values across subsets overall 
 top_10_variable_dge_markersub <- merge(
   top_10_variable_dge_markersub,
@@ -844,6 +850,7 @@ gene_rank_variance_grouped_celltype_specific_marker_median <-
 
 # Plot heatmaps specific to the overall results of each method - first for 
 # the downsampled results 
+# MARKER GENE PERTURBATION SCORE HAS TO BE DEFINED IN RESULTS/METHODS
 gene_rank_variance_grouped_celltype_specific_marker_median_ds <- 
   gene_rank_variance_grouped_celltype_specific_marker_median[
     gene_rank_variance_grouped_celltype_specific_marker_median$type %in% 
@@ -880,60 +887,7 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Mean marker gene \nrank standard deviation",
-    x = "Downsampled celltype",
-    y = "Celltype associated with marker gene"
-  )
-ggsave(
-  paste0(
-    "outs/control/figures/07_pbmc_ds_only_",
-    "_dge_rankings_celltype_marker_celltype_ds_compare.pdf"
-  ),
-  width = 14,
-  height = 9,
-  device = cairo_pdf
-)
-
-
-# Plot heatmaps specific to the overall results of each method - first for 
-# the downsampled results 
-gene_rank_variance_grouped_celltype_specific_marker_median_ds <- 
-  gene_rank_variance_grouped_celltype_specific_marker_median[
-    gene_rank_variance_grouped_celltype_specific_marker_median$type %in% 
-      "Downsampled"
-  ]
-
-ggplot(
-  data = gene_rank_variance_grouped_celltype_specific_marker_median_ds,
-  aes(
-    x = `Downsampled celltypes`,
-    y = `Associated celltype`
-  ) 
-) + 
-  geom_tile(
-    aes(fill = `Mean max rank stdev`)
-  ) +
-  scale_fill_gradient(
-    low = "white",
-    high = "firebrick2"
-  ) +
-  facet_wrap(.~Method, scales = "free") +
-  theme_few() +
-  theme(axis.title.x = element_text(size = 16)) +
-  theme(axis.title.y = element_text(size = 16)) +
-  theme(strip.text.x = element_text(size = 16)) +
-  theme(plot.title = element_text(size = 14)) +
-  theme(axis.text.x = element_text(
-    size = 12, 
-    angle = 90, 
-    vjust = 1, 
-    hjust = 1)
-  ) +
-  theme(axis.text.y = element_text(size = 12)) +
-  theme(legend.title = element_text(size = 16)) +
-  theme(legend.text = element_text(size = 14)) +
-  labs(
-    fill = "Mean marker gene \nrank standard deviation",
+    fill = "Marker gene \nperturbation score",
     x = "Downsampled celltype",
     y = "Celltype associated with marker gene"
   )
@@ -949,12 +903,12 @@ ggsave(
 
 # Plot heatmaps specific to the overall results of each method - now for 
 # the ablated results 
+# MARKER GENE PERTURBATION SCORE HAS TO BE DEFINED IN RESULTS/METHODS
 gene_rank_variance_grouped_celltype_specific_marker_median_ablated <- 
   gene_rank_variance_grouped_celltype_specific_marker_median[
     gene_rank_variance_grouped_celltype_specific_marker_median$type %in% 
       "Ablated"
   ]
-
 ggplot(
   data = gene_rank_variance_grouped_celltype_specific_marker_median_ablated,
   aes(
@@ -985,7 +939,7 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Mean marker gene \nrank standard deviation",
+    fill = "Marker gene \nperturbation score",
     x = "Ablated celltype",
     y = "Celltype associated with marker gene"
   )
