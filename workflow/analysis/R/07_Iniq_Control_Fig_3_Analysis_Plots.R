@@ -1017,43 +1017,43 @@ gene_rank_variance_grouped_celltype_specific_marker$`Associated celltype` <-
   )
 
 # For first plot, collapse/summarize further by averaging across all of the 
-# genes (median - not mean)
-gene_rank_variance_grouped_celltype_specific_marker_median <-
+# genes (mean - not median)
+gene_rank_variance_grouped_celltype_specific_marker_mean <-
   gene_rank_variance_grouped_celltype_specific_marker %>%
   group_by(Method, type, `Downsampled celltypes`, `Associated celltype`) %>%
-  summarize(`Median max rank stdev` = median(`Max rank stdev`)) %>%
+  summarize(`Mean max rank stdev` = mean(`Max rank stdev`)) %>%
   as.data.table
 
 # Remove 'None' from this - only considering cases where the downsampled 
 # celltype is equivalent to the associated celltype of the given marker 
-gene_rank_variance_grouped_celltype_specific_marker_median <-
-  gene_rank_variance_grouped_celltype_specific_marker_median[
-    gene_rank_variance_grouped_celltype_specific_marker_median$
+gene_rank_variance_grouped_celltype_specific_marker_mean <-
+  gene_rank_variance_grouped_celltype_specific_marker_mean[
+    gene_rank_variance_grouped_celltype_specific_marker_mean$
       `Downsampled celltypes` %ni% "None"
   ]
 
 # Plot heatmaps specific to the overall results of each method - first for 
 # the downsampled results 
 # MARKER GENE PERTURBATION SCORE HAS TO BE DEFINED IN RESULTS/METHODS
-gene_rank_variance_grouped_celltype_specific_marker_median_ds <- 
-  gene_rank_variance_grouped_celltype_specific_marker_median[
-    gene_rank_variance_grouped_celltype_specific_marker_median$type %in% 
+gene_rank_variance_grouped_celltype_specific_marker_mean_ds <- 
+  gene_rank_variance_grouped_celltype_specific_marker_mean[
+    gene_rank_variance_grouped_celltype_specific_marker_mean$type %in% 
       "Downsampled"
   ]
 
 ggplot(
-  data = gene_rank_variance_grouped_celltype_specific_marker_median_ds,
+  data = gene_rank_variance_grouped_celltype_specific_marker_mean_ds,
   aes(
     x = `Downsampled celltypes`,
     y = `Associated celltype`
   ) 
 ) + 
   geom_tile(
-    aes(fill = `Median max rank stdev`)
+    aes(fill = `Mean max rank stdev`)
   ) +
   scale_fill_gradient(
     low = "white",
-    high = "firebrick2"
+    high = "darkorchid3"
   ) +
   facet_wrap(.~Method, scales = "free") +
   theme_few() +
@@ -1071,9 +1071,9 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Median marker gene \nperturbation score",
+    fill = "Average marker gene \nperturbation score",
     x = "Downsampled celltype",
-    y = "Celltype associated with marker gene"
+    y = "Celltype associated with marker genes"
   )
 ggsave(
   paste0(
@@ -1088,20 +1088,20 @@ ggsave(
 # Plot heatmaps specific to the overall results of each method - now for 
 # the ablated results 
 # MARKER GENE PERTURBATION SCORE HAS TO BE DEFINED IN RESULTS/METHODS
-gene_rank_variance_grouped_celltype_specific_marker_median_ablated <- 
-  gene_rank_variance_grouped_celltype_specific_marker_median[
-    gene_rank_variance_grouped_celltype_specific_marker_median$type %in% 
+gene_rank_variance_grouped_celltype_specific_marker_mean_ablated <- 
+  gene_rank_variance_grouped_celltype_specific_marker_mean[
+    gene_rank_variance_grouped_celltype_specific_marker_mean$type %in% 
       "Ablated"
   ]
 ggplot(
-  data = gene_rank_variance_grouped_celltype_specific_marker_median_ablated,
+  data = gene_rank_variance_grouped_celltype_specific_marker_mean_ablated,
   aes(
     x = `Downsampled celltypes`,
     y = `Associated celltype`
   ) 
 ) + 
   geom_tile(
-    aes(fill = `Median max rank stdev`)
+    aes(fill = `Mean max rank stdev`)
   ) +
   scale_fill_gradient(
     low = "white",
@@ -1123,9 +1123,9 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Median marker gene \nperturbation score",
+    fill = "Average marker gene \nperturbation score",
     x = "Ablated celltype",
-    y = "Celltype associated with marker gene"
+    y = "Celltype associated with marker genes"
   )
 ggsave(
   paste0(
@@ -1136,12 +1136,6 @@ ggsave(
   height = 9,
   device = cairo_pdf
 )
-
-
-
-
-
-
 
 
   
