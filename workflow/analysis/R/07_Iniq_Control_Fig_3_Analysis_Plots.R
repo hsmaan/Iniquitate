@@ -17,6 +17,23 @@ library(networkD3)
 # Helper functions
 `%ni%` <- Negate(`%in%`)
 
+# Kevin's palette for plotting many catagoricals 
+kev_palette <- c(
+  "dodgerblue2", "#E31A1C",
+  "green4",
+  "#6A3D9A", 
+  "#FF7F00", 
+  "black", "gold1",
+  "skyblue2", "#FB9A99", 
+  "palegreen2",
+  "#CAB2D6", 
+  "#FDBF6F", 
+  "gray70", "khaki2",
+  "maroon", "orchid1", "deeppink1", "blue1", "steelblue4",
+  "darkturquoise", "green1", "yellow4", "yellow3",
+  "darkorange4", "brown"
+)
+
 # Change to results dir for control data 
 setwd("../../../results/control/")
 
@@ -568,7 +585,43 @@ ht3 <- Heatmap(
   show_heatmap_legend = FALSE,
   col = col_pert
 )
-marker_pert_hm <- ht1 + ht2 + ht3
+
+# Create a heatmap indicating which celltype is associated with each
+# marker gene
+base_marker_gene_dup_added <- base_marker_genes %>%
+  group_by(`Top 10 marker genes (union across batches)`) %>%
+  summarize(Celltype = paste0(unique(Celltype), collapse = ', ')) %>%
+  as.data.frame
+base_marker_gene_dup_added_mat <- as.matrix(
+  base_marker_gene_dup_added[, -1]
+)
+rownames(base_marker_gene_dup_added_mat) <- base_marker_gene_dup_added[, 1] 
+
+# Color palette 
+unique_dup_celltypes_sorted <- sort(unique(base_marker_gene_dup_added$Celltype))
+unique_kev_palette_vals <- kev_palette[1:length(unique_dup_celltypes_sorted)]
+col_celltype = unique_kev_palette_vals
+names(col_celltype) <- unique_dup_celltypes_sorted
+
+# Celltype heatmap 
+ht4 <- Heatmap(
+  base_marker_gene_dup_added_mat, 
+  name = "Celltype associated \nwith marker gene", 
+  width = unit(1, "cm"),
+  row_title = "Marker gene",
+  row_names_gp = gpar(fontsize = 4),
+  column_names_gp = gpar(fontsize = 8),
+  column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+  row_title_gp = gpar(fontsize = 10, fontface = "bold"), 
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_row_names = TRUE,
+  show_heatmap_legend = TRUE,
+  col = col_celltype
+)
+
+# Plot and save all of the heatmaps together 
+marker_pert_hm <- ht1 + ht2 + ht3 + ht4
 CairoPDF(
   "outs/control/figures/07_test_heatmap.pdf",
   width = 14, 
