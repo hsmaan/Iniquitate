@@ -94,6 +94,16 @@ gc()
 # Change to top level dir 
 setwd("../../..")
 
+# Format marker genes to indicate which celltypes they belong to (due to 
+# duplicates)
+base_marker_gene_dup_added <- base_marker_genes %>%
+  group_by(`Top 10 marker genes (union across batches)`) %>%
+  summarize(Celltype = paste0(unique(Celltype), collapse = ', ')) %>%
+  as.data.frame
+colnames(base_marker_gene_dup_added) <- c(
+  "marker_gene", "celltype"
+)
+
 ### Statistical tests I - cluster number concordance before and after
 ### downsampling 
 
@@ -359,4 +369,65 @@ fwrite(
   row.names = FALSE,
   col.names = TRUE
 )
+
+## Get summary of linear model fit for each marker gene, after accounting for 
+## method - determine which celltypes downsampled are most significantly 
+## correlated for a given marker gene in this setup
+
+# Create function that returns summary of a linear model for a 
+# marker gene 
+lm_marker_gene <- function(
+  dataset, 
+  dataset_name,
+  marker_gene
+){
+  # Subset dataset for the given marker
+  dataset_marker_sub <- dataset[
+    which(dataset$gene %in% marker_gene)
+  ]
+  
+  # Fit linear regression model
+  model_fit <- lm(
+    as.formula(
+      paste0(
+        "max_rank", 
+        "~",
+        "method+",
+        "downsampled_celltypes"
+      )
+    ),
+    data = dataset_marker_sub
+  )
+  
+  # Format summary and return 
+  model_fit_summary <- summary(model_fit)$coefficients
+  model_fit_summary_dt <- as.data.table(
+    as.data.frame(
+      model_fit_summary
+    ),
+    keep.rownames = TRUE
+  )
+  colnames(model_fit_summary_dt)[1] <- "coefficient"
+  model_fit_summary_dt$marker_gene <- marker_gene
+  model_fit_summary_dt$metric <- "Max DGE rank"
+  model_fit_summary_dt$dataset_name <- "PBMC 2 batch base balanced"
+  model_fit_summary_dt_merged <- merge(
+    model_fit_summary_dt,
+    base_marker_gene_dup_added,
+    by = "marker_gene"
+  )
+  return(model_fit_summary_dt_merged)
+}
+
+# Iterate over marker genes and get results 
+marker_lm_results <- lapply(marker_gene_list, function(x) {
+  aov_summary_df <- lm_marker_gene(
+    dataset = imba_dge_merged,
+    dataset_name = "PBMC 2 batch base balanced",
+    marker_gene = x
+  )
+})
+
+# Concatenate and FDR correct the results 
+marker_lm_summaries_concat <- Reduce(rbind, marker_lm_results)
 

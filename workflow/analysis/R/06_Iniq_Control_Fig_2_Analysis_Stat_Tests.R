@@ -342,8 +342,11 @@ metric_aov_results <- lapply(metrics_aov, function(x) {
   )
 })
 
-# Concatenate results and save 
+# Concatenate results, perform FDR correction, and save 
 metric_aov_results_concat <- Reduce(rbind, metric_aov_results)
+metric_aov_results_concat$`FDR_q` <- p.adjust(
+  metric_aov_results_concat$`Pr(>F)`
+)
 fwrite(
   metric_aov_results_concat,
   "outs/control/results/06_pbmc_base_metric_aov_results_types_ct_method_ctrl.tsv",
