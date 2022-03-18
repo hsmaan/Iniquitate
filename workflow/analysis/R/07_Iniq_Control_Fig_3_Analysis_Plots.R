@@ -189,8 +189,9 @@ ggsave(
   device = cairo_pdf
 )  
 
-### Fig 3B) - Correlation between the number of clusters per method and the 
-### adjusted rand index for celltype and batch ARI, on a per-method level
+### Supplmentary figure - Correlation between the number of clusters per method 
+### and the adjusted rand index for celltype and batch ARI, on a per-method 
+### level
 ggscatter(imba_clus_merged, 
           x = "Celltype ARI Imbalanced", 
           y = "Cluster number", 
@@ -261,7 +262,7 @@ ggsave(
   device = cairo_pdf
 )
 
-### Fig 3C) - concordance of DGE for marker genes before and after 
+### Figures 3B-3D - concordance of DGE for marker genes before and after 
 ### downsampling 
 
 # Merge together imbalanced and dge ranking datasets 
@@ -287,6 +288,8 @@ imba_dge_merged$type <- ifelse(
     "Downsampled"
   )
 )
+
+### Supplementary figures 
 
 # Plot the max rank of the marker gene across all methods (method agnostic) -
 # ordered by median variability of the rank - Supplementary figure
@@ -455,6 +458,134 @@ lapply(methods, function(x) {
     device = cairo_pdf
   )
 })
+
+### Fig 3B - Heatmap of marker gene perturbation scores across methods,
+### for control, downsampled and ablated cases 
+
+# Get the standard deviation of each marker gene, with method and status 
+# factored in 
+gene_rank_var_method_type <- imba_dge_merged %>% 
+  group_by(Gene, Method, type) %>%
+  summarize(var = sd(`Max rank`))
+
+# Create three separate matrices for each of the three types (control, 
+# downsampled, ablated)
+gene_rank_var_method_type_ctrl <- gene_rank_var_method_type[
+  which(gene_rank_var_method_type$type %in% "Control"), 
+]
+gene_rank_var_method_type_ctrl_long <- reshape2::dcast(
+  gene_rank_var_method_type_ctrl,
+  Gene~Method,
+  value.var = "var"
+)
+gene_rank_var_method_type_ctrl_long_mat <- as.matrix(
+  gene_rank_var_method_type_ctrl_long[, -1]
+)
+rownames(gene_rank_var_method_type_ctrl_long_mat) <- 
+  gene_rank_var_method_type_ctrl_long[, 1]
+
+gene_rank_var_method_type_ds <- gene_rank_var_method_type[
+  which(gene_rank_var_method_type$type %in% "Downsampled"), 
+]
+gene_rank_var_method_type_ds_long <- reshape2::dcast(
+  gene_rank_var_method_type_ds,
+  Gene~Method,
+  value.var = "var"
+)
+gene_rank_var_method_type_ds_long_mat <- as.matrix(
+  gene_rank_var_method_type_ds_long[, -1]
+)
+rownames(gene_rank_var_method_type_ds_long_mat) <- 
+  gene_rank_var_method_type_ds_long[, 1]
+
+gene_rank_var_method_type_abla <- gene_rank_var_method_type[
+  which(gene_rank_var_method_type$type %in% "Ablated"), 
+]
+gene_rank_var_method_type_abla_long <- reshape2::dcast(
+  gene_rank_var_method_type_abla,
+  Gene~Method,
+  value.var = "var"
+)
+gene_rank_var_method_type_abla_long_mat <- as.matrix(
+  gene_rank_var_method_type_abla_long[, -1]
+)
+rownames(gene_rank_var_method_type_abla_long_mat) <- 
+  gene_rank_var_method_type_abla_long[, 1]
+
+# Create three separate heatmaps for each of the types
+col_pert = circlize::colorRamp2(
+  c(
+    0,
+    50,
+    100
+  ),
+  c("dodgerblue3","white", "firebrick1")
+)
+ht1 <- Heatmap(
+  gene_rank_var_method_type_ctrl_long_mat, 
+  name = "Marker gene \nperturbation score", 
+  width = unit(3, "cm"),
+  column_title = "Control",
+  row_title = "Marker gene",
+  row_names_gp = gpar(fontsize = 4),
+  column_names_gp = gpar(fontsize = 8),
+  column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+  row_title_gp = gpar(fontsize = 10, fontface = "bold"),
+  cluster_rows = TRUE,
+  cluster_columns = FALSE,
+  show_row_names = TRUE,
+  col = col_pert
+)
+ht2 <- Heatmap(
+  gene_rank_var_method_type_ds_long_mat, 
+  name = "Marker gene \nperturbation score", 
+  width = unit(3, "cm"),
+  column_title = "Downsampled",
+  row_title = "Marker gene",
+  row_names_gp = gpar(fontsize = 4),
+  column_names_gp = gpar(fontsize = 8),
+  column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+  row_title_gp = gpar(fontsize = 10, fontface = "bold"),
+  cluster_rows = TRUE,
+  cluster_columns = FALSE,
+  show_row_names = TRUE,
+  show_heatmap_legend = FALSE,
+  col = col_pert
+)
+ht3 <- Heatmap(
+  gene_rank_var_method_type_abla_long_mat, 
+  name = "Marker gene \nperturbation score", 
+  width = unit(3, "cm"),
+  column_title = "Ablated",
+  row_title = "Marker gene",
+  row_names_gp = gpar(fontsize = 4),
+  column_names_gp = gpar(fontsize = 8),
+  column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+  row_title_gp = gpar(fontsize = 10, fontface = "bold"), 
+  cluster_rows = TRUE,
+  cluster_columns = FALSE,
+  show_row_names = TRUE,
+  show_heatmap_legend = FALSE,
+  col = col_pert
+)
+marker_pert_hm <- ht1 + ht2 + ht3
+CairoPDF(
+  "outs/control/figures/07_test_heatmap.pdf",
+  width = 14, 
+  height = 6
+)
+draw(
+  marker_pert_hm,
+  column_title = "Integration method",
+  column_title_side = "bottom",
+  row_title_side = "right",
+  column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+  row_title_gp = gpar(fontsize = 10, fontface = "bold")
+)
+dev.off()
+
+### Fig 3C - Concordance of DGE genes - top 10 most variable marker
+### genes across methods 
 
 # Pick 10 exemplary genes that show the highest variability - take top 10 with 
 # the exclusion of the mitochondrial gene 
@@ -837,7 +968,7 @@ gene_rank_variance_grouped_celltype_specific_marker$`Associated celltype` <-
 gene_rank_variance_grouped_celltype_specific_marker_median <-
   gene_rank_variance_grouped_celltype_specific_marker %>%
   group_by(Method, type, `Downsampled celltypes`, `Associated celltype`) %>%
-  summarize(`Mean max rank stdev` = mean(`Max rank stdev`)) %>%
+  summarize(`Median max rank stdev` = median(`Max rank stdev`)) %>%
   as.data.table
 
 # Remove 'None' from this - only considering cases where the downsampled 
@@ -865,7 +996,7 @@ ggplot(
   ) 
 ) + 
   geom_tile(
-    aes(fill = `Mean max rank stdev`)
+    aes(fill = `Median max rank stdev`)
   ) +
   scale_fill_gradient(
     low = "white",
@@ -887,7 +1018,7 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Marker gene \nperturbation score",
+    fill = "Median marker gene \nperturbation score",
     x = "Downsampled celltype",
     y = "Celltype associated with marker gene"
   )
@@ -917,7 +1048,7 @@ ggplot(
   ) 
 ) + 
   geom_tile(
-    aes(fill = `Mean max rank stdev`)
+    aes(fill = `Median max rank stdev`)
   ) +
   scale_fill_gradient(
     low = "white",
@@ -939,7 +1070,7 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Marker gene \nperturbation score",
+    fill = "Median marker gene \nperturbation score",
     x = "Ablated celltype",
     y = "Celltype associated with marker gene"
   )
