@@ -85,6 +85,29 @@ imba_clus_merged <- merge(
   )
 )
 
+# Fill in 'None' value for downsampled celltypes with a random 
+# draw from the given celltypes - to block correlation effect of 
+# downsampled celltype and `type` covariate in later use 
+imba_clus_unique_celltypes <- unique(imba_clus_merged$`Downsampled celltypes`)
+imba_clus_unique_celltypes <- imba_clus_unique_celltypes[
+  imba_clus_unique_celltypes %ni% "None"
+]
+imba_clus_none_celltype_len <- length(
+  which(
+    imba_clus_merged$`Downsampled celltypes` %in% "None"
+  )
+)
+imba_clus_none_celltype_draw <- sample(
+  imba_clus_unique_celltypes,
+  imba_clus_none_celltype_len,
+  replace = TRUE
+)
+imba_clus_merged$`Downsampled celltypes`[
+  which(
+    imba_clus_merged$`Downsampled celltypes` %in% "None"
+  )
+] <- imba_clus_none_celltype_draw
+
 # Format celltype names 
 imba_clus_merged$`Downsampled celltypes` <- plyr::mapvalues(
   imba_clus_merged$`Downsampled celltypes`,
@@ -345,6 +368,29 @@ imba_knn_merged <- merge(
 )
 imba_knn_merged <- distinct(imba_knn_merged)
 
+# Fill in 'None' value for downsampled celltypes with a random 
+# draw from the given celltypes - to block correlation effect of 
+# downsampled celltype and `type` covariate in later use 
+imba_knn_unique_celltypes <- unique(imba_knn_merged$`Downsampled celltypes`)
+imba_knn_unique_celltypes <- imba_knn_unique_celltypes[
+  imba_knn_unique_celltypes %ni% "None"
+]
+imba_knn_none_celltype_len <- length(
+  which(
+    imba_knn_merged$`Downsampled celltypes` %in% "None"
+  )
+)
+imba_knn_none_celltype_draw <- sample(
+  imba_knn_unique_celltypes,
+  imba_knn_none_celltype_len,
+  replace = TRUE
+)
+imba_knn_merged$`Downsampled celltypes`[
+  which(
+    imba_knn_merged$`Downsampled celltypes` %in% "None"
+  )
+] <- imba_knn_none_celltype_draw
+
 # Subset for only cases where the celltype downsampled is equal to the 
 # celltype being classified
 imba_knn_merged_celltype <- imba_knn_merged[
@@ -561,6 +607,12 @@ anova_knn_test <- function(
   return(anova_result_dt)
 }
 
+# Reload helper functions and seed
+`%ni%` <- Negate(`%in%`)
+
+# Set seed for any sampling done 
+set.seed(42)
+
 # Load in and concatenate summary files - just imbalance and KNN results
 setwd("results/control/imbalance_summaries/")
 imba_files <- list.files()
@@ -597,6 +649,29 @@ imba_knn_merged <- merge(
   )
 )
 imba_knn_merged <- distinct(imba_knn_merged)
+
+# Fill in 'None' value for downsampled celltypes with a random 
+# draw from the given celltypes - to block correlation effect of 
+# downsampled celltype and `type` covariate in later use 
+imba_knn_unique_celltypes <- unique(imba_knn_merged$`Downsampled celltypes`)
+imba_knn_unique_celltypes <- imba_knn_unique_celltypes[
+  imba_knn_unique_celltypes %ni% "None"
+]
+imba_knn_none_celltype_len <- length(
+  which(
+    imba_knn_merged$`Downsampled celltypes` %in% "None"
+  )
+)
+imba_knn_none_celltype_draw <- sample(
+  imba_knn_unique_celltypes,
+  imba_knn_none_celltype_len,
+  replace = TRUE
+)
+imba_knn_merged$`Downsampled celltypes`[
+  which(
+    imba_knn_merged$`Downsampled celltypes` %in% "None"
+  )
+] <- imba_knn_none_celltype_draw
 
 # Subset for only cases where the celltype downsampled is equal to the 
 # celltype being classified

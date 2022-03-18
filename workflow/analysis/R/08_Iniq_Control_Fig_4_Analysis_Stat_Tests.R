@@ -5,6 +5,9 @@ library(reshape2)
 # Helper functions
 `%ni%` <- Negate(`%in%`)
 
+# Set seed for any sampling done 
+set.seed(42)
+
 # Change to results dir for control data 
 setwd("../../../results/control/")
 
@@ -108,6 +111,29 @@ imba_clus_merged <- merge(
 )
 imba_clus_merged <- distinct(imba_clus_merged)
 
+# Fill in 'None' value for downsampled celltypes with a random 
+# draw from the given celltypes - to block correlation effect of 
+# downsampled celltype and `type` covariate in later use 
+imba_clus_unique_celltypes <- unique(imba_clus_merged$`Downsampled celltypes`)
+imba_clus_unique_celltypes <- imba_clus_unique_celltypes[
+  imba_clus_unique_celltypes %ni% "None"
+]
+imba_clus_none_celltype_len <- length(
+  which(
+    imba_clus_merged$`Downsampled celltypes` %in% "None"
+  )
+)
+imba_clus_none_celltype_draw <- sample(
+  imba_clus_unique_celltypes,
+  imba_clus_none_celltype_len,
+  replace = TRUE
+)
+imba_clus_merged$`Downsampled celltypes`[
+  which(
+    imba_clus_merged$`Downsampled celltypes` %in% "None"
+  )
+] <- imba_clus_none_celltype_draw
+
 # Indicate which samples are controls and which are real runs
 imba_clus_merged$type <- ifelse(
   imba_clus_merged$`Number of batches downsampled` == 0,
@@ -181,6 +207,29 @@ imba_dge_merged <- merge(
   )
 ) 
 imba_dge_merged <- distinct(imba_dge_merged)
+
+# Fill in 'None' value for downsampled celltypes with a random 
+# draw from the given celltypes - to block correlation effect of 
+# downsampled celltype and `type` covariate in later use 
+imba_dge_unique_celltypes <- unique(imba_dge_merged$`Downsampled celltypes`)
+imba_dge_unique_celltypes <- imba_dge_unique_celltypes[
+  imba_dge_unique_celltypes %ni% "None"
+]
+imba_dge_none_celltype_len <- length(
+  which(
+    imba_dge_merged$`Downsampled celltypes` %in% "None"
+  )
+)
+imba_dge_none_celltype_draw <- sample(
+  imba_dge_unique_celltypes,
+  imba_dge_none_celltype_len,
+  replace = TRUE
+)
+imba_dge_merged$`Downsampled celltypes`[
+  which(
+    imba_dge_merged$`Downsampled celltypes` %in% "None"
+  )
+] <- imba_dge_none_celltype_draw
 
 # Indicate which samples are controls and which are real runs
 imba_dge_merged$type <- ifelse(
@@ -294,8 +343,11 @@ marker_aov_results <- lapply(marker_gene_list, function(x) {
   )
 })
 
-# Concatenate results and save 
+# Concatenate results, correct for FDR, and save 
 marker_aov_results_concat <- Reduce(rbind, marker_aov_results)
+marker_aov_results_concat$`FDR_q` <- p.adjust(
+  marker_aov_results_concat$`Pr(>F)`
+)
 fwrite(
   marker_aov_results_concat,
   paste0(
