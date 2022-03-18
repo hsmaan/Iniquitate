@@ -290,7 +290,8 @@ imba_dge_merged <- merge(
     "Number of batches downsampled",
     "Number of celltypes downsampled",
     "Proportion downsampled",
-    "Replicate"
+    "Replicate",
+    "Dataset"
   )
 ) 
 imba_dge_merged <- distinct(imba_dge_merged)
