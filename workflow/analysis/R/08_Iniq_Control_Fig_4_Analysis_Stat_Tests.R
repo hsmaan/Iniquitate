@@ -427,7 +427,7 @@ lm_marker_gene <- function(
       model_fit_summary_dt_merged_coeff$Estimate
     )
   )
-  top_downsampled_celltype_uf <- model_fit_summary_dt_merged_coeff$Coefficient[
+  top_downsampled_celltype_uf <- model_fit_summary_dt_merged_coeff$coefficient[
     top_downsampled_celltype_idx
   ]
   top_downsampled_celltype_formatted <- str_split_fixed(
@@ -435,15 +435,23 @@ lm_marker_gene <- function(
     "downsampled_celltypes",
     2
   )[,2]
-  model_fit_summary_dt$top_ds_celltype <- top_downsampled_celltype_formatted
+  model_fit_summary_dt_merged$top_ds_celltype <- top_downsampled_celltype_formatted
   
   marker_associated_celltypes <- base_marker_gene_dup_added[
     base_marker_gene_dup_added$marker_gene == marker_gene, 
   ]$celltype
-  model_fit_summary_dt$marker_assoc_celltypes <- marker_associated_celltypes
-  model_fit_summary_dt$same_ds_lm_celltype <- ifelse(
-    grep
+  model_fit_summary_dt_merged$marker_assoc_celltypes <- marker_associated_celltypes
+  model_fit_summary_dt_merged$same_ds_lm_celltype <- ifelse(
+    grepl(
+      top_downsampled_celltype_formatted,
+      marker_associated_celltypes,
+      ignore.case = TRUE
+    ),
+    "Yes",
+    "No"
   )
+  
+  # Return summary datatable
   return(model_fit_summary_dt_merged)
 }
 
@@ -458,4 +466,98 @@ marker_lm_results <- lapply(marker_gene_list, function(x) {
 
 # Concatenate and FDR correct the results 
 marker_lm_summaries_concat <- Reduce(rbind, marker_lm_results)
+marker_lm_summaries_concat$q_val <- p.adjust(
+  marker_lm_summaries_concat$`Pr(>|t|)`
+)
 
+# Save results for coefficients and top associated celltypes 
+fwrite(
+  marker_lm_summaries_concat,
+  paste0(
+    "outs/control/results/",
+    "08_pbmc_base_dge_rank_coeffs_celltype_ds_method_importance_ranks.tsv"
+  ),
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = TRUE
+)
+
+# ## Get enrichment of top coefficient for celltype downsampled being the 
+# ## celltype associated with the marker gene being perturbed - perform
+# ## Fisher's exact tests for each downsampled celltype against all others
+# 
+# # Create function for performing fisher's exact test for a specific 
+# # downsampled celltype in the dataframe of results
+# ds_celltype_fishers <- function(
+#   ds_celltype,
+#   data
+# ) {
+#   # Get table for results - contingency over all celltypes
+#   res_table <- as.data.frame(
+#     table(
+#       data$top_ds_celltype,
+#       data$same_ds_lm_celltype
+#     )
+#   )
+#   colnames(res_table) <- c("Celltype", "Type", "Freq")
+#   
+#   # Extract value for given celltype 
+#   res_table_sub <- res_table[res_table$Celltype %in% ds_celltype, ]
+#   celltype_yes <- res_table_sub$Freq[res_table_sub$Type %in% "Yes"]
+#   celltype_no <- res_table_sub$Freq[res_table_sub$Type %in% "No"]
+#   
+#   # Extract and marginalize values for all other celltypes 
+#   res_table_rest <- res_table[res_table$Celltype %ni% ds_celltype, ]
+#   non_celltype_yes <- sum(
+#     res_table_rest$Freq[
+#       res_table_rest$Type %in% "Yes"
+#     ]
+#   )
+#   non_celltype_no <- sum(
+#     res_table_rest$Freq[
+#       res_table_rest$Type %in% "No"
+#     ]
+#   )
+#   
+#   # Create contingency table for values and get Fisher's exact test results
+#   cont_table <- matrix(
+#     c(
+#       celltype_yes,
+#       non_celltype_yes,
+#       celltype_no,
+#       non_celltype_no
+#     ),
+#     nrow = 2,
+#     ncol = 2
+#   )
+#   fishers <- fisher.test(cont_table, y = NULL, workspace = 200000, 
+#                          hybrid = FALSE, 
+#                          hybridPars = c(expect = 5, percent = 80, Emin = 1),
+#                          control = list(), or = 1, alternative = "greater",
+#                          conf.int = TRUE, conf.level = 0.95,
+#                          simulate.p.value = FALSE, B = 2000)
+#   
+#   # Create and return dt of results 
+#   fisher_res_dt <- data.table(
+#     "Downsampled celltype" = ds_celltype,
+#     "Fisher's enrichemnt for top marker coeff" = fishers$p.value,
+#     "Celltype matches" = celltype_yes,
+#     "Celltype non-matches" = celltype_no,
+#     "Non-celltype matches" = non_celltype_yes,
+#     "Non-celltype non-matches" = non_celltype_no
+#   )
+#   return(fisher_res_dt)
+#   
+# }
+# 
+# # Iterate over downsampled celltypes, get results and concatenate 
+# ds_celltypes <- as.list(unique(base_marker_genes$Celltype))
+# ds_celltypes_fishers_res <- lapply(
+#   ds_celltypes,
+#   function(x) {
+#     cont_table <- ds_celltype_fishers(x, marker_lm_summaries_concat)
+#     return(cont_table)
+#   }
+# )
+# 
