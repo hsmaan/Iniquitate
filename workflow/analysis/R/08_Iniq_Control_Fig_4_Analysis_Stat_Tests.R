@@ -399,7 +399,7 @@ lm_marker_gene <- function(
     data = dataset_marker_sub
   )
   
-  # Format summary and return 
+  # Format summary results - append relevant information
   model_fit_summary <- summary(model_fit)$coefficients
   model_fit_summary_dt <- as.data.table(
     as.data.frame(
@@ -415,6 +415,34 @@ lm_marker_gene <- function(
     model_fit_summary_dt,
     base_marker_gene_dup_added,
     by = "marker_gene"
+  )
+  
+  # Indicate if the top `celltype downsampled` coefficient corresponds to the 
+  # celltype the marker gene is indicative of 
+  model_fit_summary_dt_merged_coeff <- model_fit_summary_dt_merged[
+    grep("downsampled_celltypes", model_fit_summary_dt_merged$coefficient)
+  ]
+  top_downsampled_celltype_idx <- which.max(
+    abs(
+      model_fit_summary_dt_merged_coeff$Estimate
+    )
+  )
+  top_downsampled_celltype_uf <- model_fit_summary_dt_merged_coeff$Coefficient[
+    top_downsampled_celltype_idx
+  ]
+  top_downsampled_celltype_formatted <- str_split_fixed(
+    top_downsampled_celltype_uf,
+    "downsampled_celltypes",
+    2
+  )[,2]
+  model_fit_summary_dt$top_ds_celltype <- top_downsampled_celltype_formatted
+  
+  marker_associated_celltypes <- base_marker_gene_dup_added[
+    base_marker_gene_dup_added$marker_gene == marker_gene, 
+  ]$celltype
+  model_fit_summary_dt$marker_assoc_celltypes <- marker_associated_celltypes
+  model_fit_summary_dt$same_ds_lm_celltype <- ifelse(
+    grep
   )
   return(model_fit_summary_dt_merged)
 }
