@@ -492,27 +492,51 @@ fwrite(
 # and returns a multinomial sample test for top associated downsampled
 # celltype coefficient value
 marker_celltype_multinomial <- function(
-  celltype,
-  data
+  celltype_name,
+  dataset
 ) {
   # Get list of all celltypes (no-mixed) and their length
   celltypes_all <- unique(base_marker_genes$Celltype)
   celltypes_all_len <- length(celltypes_all)
   
   # Subset data for the given celltype 
-  data_sub <- data[data$marker_assoc_celltypes %in% celltype,]
+  data_sub <- dataset[dataset$marker_assoc_celltypes %in% celltype_name,]
   
   # Get counts vector for all the different celltypes 
   celltype_counts_vector <- table(data_sub$top_ds_celltype)
   
-  # Add any missing celltypes to vector 
+  # Add any missing celltypes to vector
   missing_celltypes <- celltypes_all[
     celltypes_all %ni% names(celltype_counts_vector)
   ]
   for (celltype in missing_celltypes) {
     celltype_counts_vector[celltype] <- 0
-  } 
-  return(celltype_counts_vector)
+  }
+  
+  # Perform multinomial test for observed celltypes in top downsampled
+  # results
+  prob <- rep(1/celltypes_all_len, celltypes_all_len)
+  observed <- as.vector(celltype_counts_vector)
+  p_val <- multinomial.test(
+    observed, 
+    prob, 
+    ntrial = 1e10,
+    MonteCarlo = TRUE
+  )$p.value
+  print(p_val)
+  
+  # Create results dataframe, sort by celltype, and return
+  res_df <- as.data.frame(as.array(celltype_counts_vector))
+  colnames(res_df) <- c(
+    "Top_celltype_downsampled_coefficient",
+    "Observed_value_for_top_celltype_downsampled"
+  )
+  res_df$Marker_associated_celltype <- celltype_name
+  res_df$multinomial_p_val <- p_val
+  res_df$dataset_name <- "PBMC 2 batch base balanced"
+  res_df <- res_df[order(res_df$Top_celltype_downsampled_coefficient), ]
+  print(res_df)
+  return(res_df)
 }
 
 # Iterate over all celltypes (no mixing) and get multinomial test results
@@ -520,28 +544,23 @@ marker_celltype_multinomial <- function(
 ## ONE CELLTYPE 
 celltypes_list <- as.list(unique(base_marker_genes$Celltype))
 multinomial_results <- lapply(celltypes_list, function(x) {
-  marker_celltype_multinomial(celltype = x, data = marker_lm_summaries_concat)
+  results <- marker_celltype_multinomial(x, marker_lm_summaries_concat)
 })
 
-
-
-# Get list of all celltypes (no-mixed) and their length
-celltypes_all <- unique(base_marker_genes$Celltype)
-celltypes_all_len <- length(celltypes_all)
-
-data <- marker_lm_summaries_concat
-# Subset data for the given celltype 
-data_sub <- data[data$marker_assoc_celltypes %in% "B cells",]
-
-# Get counts vector for all the different celltypes 
-celltype_counts_vector <- table(data_sub$top_ds_celltype)
-
-# Add any missing celltypes to vector 
-missing_celltypes <- celltypes_all[
-  celltypes_all %ni% names(celltype_counts_vector)
-]
-for (celltype in missing_celltypes) {
-  celltype_counts_vector[celltype] <- 0
-} 
-return(celltype_counts_vector)
-}
+# Concatenate, fdr correct, and save the results
+multinomial_results_concat <- Reduce(rbind, multinomial_results)
+multinomial_results_concat$multinomial_q_val <- p.adjust(
+  multinomial_results_concat$multinomial_p_val
+)
+fwrite(
+  multinomial_results_concat,
+  paste0(
+    "outs/control/results/",
+    "08_pbmc_base_ds_dge_marker_celltypes_top_ds_celltype_",
+    "coeff_multinom_tests.tsv"
+  ),
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = TRUE
+)
