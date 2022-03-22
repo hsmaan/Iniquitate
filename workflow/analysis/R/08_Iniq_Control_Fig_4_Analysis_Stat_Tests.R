@@ -1,6 +1,7 @@
 library(data.table)
 library(tidyverse)
 library(reshape2)
+library(EMT)
 
 # Helper functions
 `%ni%` <- Negate(`%in%`)
@@ -487,3 +488,60 @@ fwrite(
 ## celltype associated with the marker gene being perturbed - perform
 ## multinomial test for each downsampled celltype against all others
 
+# Create function that takes a subset of marker associated celltypes 
+# and returns a multinomial sample test for top associated downsampled
+# celltype coefficient value
+marker_celltype_multinomial <- function(
+  celltype,
+  data
+) {
+  # Get list of all celltypes (no-mixed) and their length
+  celltypes_all <- unique(base_marker_genes$Celltype)
+  celltypes_all_len <- length(celltypes_all)
+  
+  # Subset data for the given celltype 
+  data_sub <- data[data$marker_assoc_celltypes %in% celltype,]
+  
+  # Get counts vector for all the different celltypes 
+  celltype_counts_vector <- table(data_sub$top_ds_celltype)
+  
+  # Add any missing celltypes to vector 
+  missing_celltypes <- celltypes_all[
+    celltypes_all %ni% names(celltype_counts_vector)
+  ]
+  for (celltype in missing_celltypes) {
+    celltype_counts_vector[celltype] <- 0
+  } 
+  return(celltype_counts_vector)
+}
+
+# Iterate over all celltypes (no mixing) and get multinomial test results
+## THIS WILL NOT CONSIDER MARKER GENES THAT ARE MARKERS TO MORE THAN
+## ONE CELLTYPE 
+celltypes_list <- as.list(unique(base_marker_genes$Celltype))
+multinomial_results <- lapply(celltypes_list, function(x) {
+  marker_celltype_multinomial(celltype = x, data = marker_lm_summaries_concat)
+})
+
+
+
+# Get list of all celltypes (no-mixed) and their length
+celltypes_all <- unique(base_marker_genes$Celltype)
+celltypes_all_len <- length(celltypes_all)
+
+data <- marker_lm_summaries_concat
+# Subset data for the given celltype 
+data_sub <- data[data$marker_assoc_celltypes %in% "B cells",]
+
+# Get counts vector for all the different celltypes 
+celltype_counts_vector <- table(data_sub$top_ds_celltype)
+
+# Add any missing celltypes to vector 
+missing_celltypes <- celltypes_all[
+  celltypes_all %ni% names(celltype_counts_vector)
+]
+for (celltype in missing_celltypes) {
+  celltype_counts_vector[celltype] <- 0
+} 
+return(celltype_counts_vector)
+}
