@@ -40,3 +40,4 @@ dependencies:
   - r-cairo>=1.5
   - r-lemon>=0.4.5
   - r-networkd3>=0.4
+  - r-emt>=1.2
