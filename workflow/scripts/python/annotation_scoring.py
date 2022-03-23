@@ -7,20 +7,95 @@ import numpy as np
 import pandas as pd
 import anndata as ann
 import scanpy as sc
-from sklearn import metrics
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.metrics import accuracy_score, balanced_accuracy_score, \
+    f1_score, roc_auc_score, classification_report
 
 def none_or_str(value):
     if value == 'None':
         return None
     return value
 
-def main(h5ad_loc, save_loc, annofile, dataset_name, ds_celltypes, ds_celltypes_names, 
-         ds_proportions, num_batches, rep):
-    # Load h5ad file 
+def main(h5ad_loc, save_loc, annofile, dataset_name, ds_celltypes, ds_proportions, 
+         num_batches, rep):
+    # Load h5ad file for query to reference mapping results
     adata = sc.read_h5ad(h5ad_loc)
     
     # Load acceptable annotations
     annos = pd.read_csv(annofile, sep="\t")
+    
+    # Get the classification results as a dataframe 
+    class_results = pd.DataFrame({
+        "Real celltype": adata.obs["celltype"],
+        "Predicted L1": adata.obs["predicted.celltype.l1"],
+        "Predicted L2": adata.obs["predicted.celltype.l2"]
+    }) 
+    
+    # Format classification results by acceptable annotations
+    class_results_l1 = []
+    for celltype_real, celltype_pred in zip(
+        class_results["Real celltype"], class_results["Predicted L1"]
+    ):
+        l1_accept = annos[annos["Real celltype"] == celltype_real]["Acceptable L1"]
+        if celltype_pred in l1_accept:
+            class_results_l1.append(celltype_real)
+        else:
+            class_results_l1.append(celltype_pred)
+    
+    class_results_l2 = []
+    for celltype_real, celltype_pred in zip(
+        class_results["Real celltype"], class_results["Predicted L2"]
+    ):
+        l2_accept = annos[annos["Real celltype"] == celltype_real]["Acceptable L2"]
+        if celltype_pred in l2_accept:
+            class_results_l2.append(celltype_real)
+        else:
+            class_results_l2.append(celltype_pred)
+    
+    # Append formatted results to class_results
+    class_results["Predicted L1 Formatted"] = class_results_l1
+    class_results["Predicted L2 Formatted"] = class_results_l2
+    
+    # Compute scores for L1 results and concatenate
+    l1_true = class_results["Real celltype"]
+    l1_pred = class_results["Predicted L1 Formatted"]
+    l1_accuracy = accuracy_score(l1_true, l1_pred)
+    l1_bal_accuracy = balanced_accuracy_score(l1_true, l1_pred)
+    l1_f1 = f1_score(l1_true, l1_pred, average = "micro")
+    l1_class_report = pd.DataFrame(
+        classification_report(l1_true, l1_pred, output_dict = True)
+    )
+    l1_class_report["Overall accuracy"] = l1_accuracy
+    l1_class_report["Overall balanced accuracy"] = l1_bal_accuracy
+    l1_class_report["Overall F1-score"] = l1_f1
+    l1_class_report["Subset"] = "L1"
+    
+    # Compute scores for L2 results and concatenate
+    l2_true = class_results["Real celltype"]
+    l2_pred = class_results["Predicted L2 Formatted"]
+    l2_accuracy = accuracy_score(l2_true, l2_pred)
+    l2_bal_accuracy = balanced_accuracy_score(l2_true, l2_pred)
+    l2_f1 = f1_score(l2_true, l2_pred, average = "micro")
+    l2_class_report = pd.DataFrame(
+        classification_report(l2_true, l2_pred, output_dict = True)
+    )
+    l2_class_report["Overall accuracy"] = l2_accuracy
+    l2_class_report["Overall balanced accuracy"] = l2_bal_accuracy
+    l2_class_report["Overall F1-score"] = l2_f1
+    l2_class_report["Subset"] = "L2"
+    
+    # Concatenate L1 and L2 results
+    l1_l2_results = pd.concat([l1_class_report, l2_class_report], axis=0)
+    
+    # Append information on dataset to results
+    l1_l2_results["Dataset"] = dataset_name
+    l1_l2_results["Number of batches downsampled"] = num_batches
+    l1_l2_results["Number of celltypes downsampled"] = ds_celltypes
+    l1_l2_results["Proportion downsampled"] = ds_proportions
+    l1_l2_results["Replicate"] = rep
+    
+    # Save results to file
+    l1_l2_results.to_csv(save_loc, index=False, sep="\t")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -57,13 +132,6 @@ if __name__ == '__main__':
         help = "Number of celltypes to randomly downsample in given batch"
     )
     parser.add_argument(
-        "--ds_celltype_names",
-        type = none_or_str,
-        nargs = "?",
-        default = None,
-        help = "Custom names of celltypes to downsample in given batch"
-    )
-    parser.add_argument(
         "--ds_proportions",
         type = float,
         help = "Proportion of downsampling per celltype in a given batch"
@@ -81,7 +149,6 @@ if __name__ == '__main__':
         dataset_name = args.dataset,
         rep = args.rep,
         ds_celltypes = args.ds_celltypes,
-        ds_celltypes_names = args.ds_celltype_names,
         ds_proportions = args.ds_proportions,
         num_batches = args.num_batches  
     )
