@@ -82,7 +82,8 @@ rule all:
                     "imbalance_summaries",
                     "celltype_imbalance_summaries",
                     "knn_classification_reports",
-                    "query_to_reference"
+                    "query_to_reference",
+                    "annotation_scores"
                 ], 
                 [
                     "integrated",
@@ -96,7 +97,8 @@ rule all:
                     "imbalance_summary",
                     "celltype_imbalance_summary",
                     "knn_classification",
-                    "reference_annotated"
+                    "reference_annotated",
+                    "annotation_score"
                 ],
                 [
                     "h5ad",
@@ -110,7 +112,8 @@ rule all:
                     "tsv",
                     "tsv",
                     "tsv",
-                    "h5ad"
+                    "h5ad",
+                    "tsv"
                 ]
             )
         ),
@@ -503,5 +506,36 @@ rule query_to_reference:
             --infile {input} \
             --ref_file {params.reference_path} \
             --outfile {output} \
+            &> {log}
+        """
+
+# Analysis of query to reference annotation results
+rule annotation_score:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/{configname}/query_to_reference/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_reference_annotated.h5ad"
+    output:
+        "../results/{configname}/annotation_scores/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_annotation_score.tsv"
+    params:
+        script_path = "scripts/python/annotation_scoring.py",
+        score_guide_path = "../resources/annotation_guides/{data_folder}/{data_folder}_score_guide.tsv"
+    log:
+        "logs/{configname}/annotation_scores/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_annotation_score.log"
+    priority: 0
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --outfile {output} \
+            --annofile {params.score_guide_path} \
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            --ds_celltypes {wildcards.ds_celltype} \
+            --ds_proportions {wildcards.ds_proportion} \
+            --num_batches {wildcards.num_batches} \
             &> {log}
         """
