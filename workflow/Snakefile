@@ -513,7 +513,7 @@ rule query_to_reference:
         """
 
 # Returning overall query to reference annotation results 
-rule annotation_results:
+rule annotation_result:
     conda:
         "envs/integrate.yaml"
     input:
