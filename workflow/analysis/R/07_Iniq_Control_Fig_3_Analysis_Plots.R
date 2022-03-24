@@ -534,10 +534,9 @@ rownames(gene_rank_var_method_type_abla_long_mat) <-
 col_pert = circlize::colorRamp2(
   c(
     0,
-    50,
-    100
+    40
   ),
-  c("dodgerblue3","white", "firebrick1")
+  c("white", "firebrick1")
 )
 ht1 <- Heatmap(
   gene_rank_var_method_type_ctrl_long_mat, 
@@ -624,7 +623,7 @@ ht4 <- Heatmap(
 # Plot and save all of the heatmaps together 
 marker_pert_hm <- ht1 + ht2 + ht3 + ht4
 CairoPDF(
-  "outs/control/figures/07_test_heatmap.pdf",
+  "outs/control/figures/07_marker_gene_pert_pbmc_control_heatmap.pdf",
   width = 14, 
   height = 6
 )
@@ -635,6 +634,70 @@ draw(
   row_title_side = "right",
   column_title_gp = gpar(fontsize = 10, fontface = "bold"),
   row_title_gp = gpar(fontsize = 10, fontface = "bold")
+)
+dev.off()
+
+# Plot one version without the celltype labels 
+ht1 <- Heatmap(
+  gene_rank_var_method_type_ctrl_long_mat, 
+  name = "Marker gene \nperturbation score", 
+  width = unit(3, "cm"),
+  column_title = "Control",
+  row_title = "Marker gene",
+  row_names_gp = gpar(fontsize = 4),
+  column_names_gp = gpar(fontsize = 10),
+  column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+  row_title_gp = gpar(fontsize = 10, fontface = "bold"),
+  cluster_rows = TRUE,
+  cluster_columns = FALSE,
+  show_row_names = TRUE,
+  col = col_pert
+)
+ht2 <- Heatmap(
+  gene_rank_var_method_type_ds_long_mat, 
+  name = "Marker gene \nperturbation score", 
+  width = unit(3, "cm"),
+  column_title = "Downsampled",
+  row_title = "Marker gene",
+  row_names_gp = gpar(fontsize = 4),
+  column_names_gp = gpar(fontsize = 10),
+  column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+  row_title_gp = gpar(fontsize = 10, fontface = "bold"),
+  cluster_rows = TRUE,
+  cluster_columns = FALSE,
+  show_row_names = TRUE,
+  show_heatmap_legend = FALSE,
+  col = col_pert
+)
+ht3 <- Heatmap(
+  gene_rank_var_method_type_abla_long_mat, 
+  name = "Marker gene \nperturbation score", 
+  width = unit(3, "cm"),
+  column_title = "Ablated",
+  row_title = "Marker gene",
+  row_names_gp = gpar(fontsize = 4),
+  column_names_gp = gpar(fontsize = 10),
+  column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+  row_title_gp = gpar(fontsize = 10, fontface = "bold"), 
+  cluster_rows = TRUE,
+  cluster_columns = FALSE,
+  show_row_names = TRUE,
+  show_heatmap_legend = FALSE,
+  col = col_pert
+)
+marker_per_hm_no_celltype <- ht1 + ht2 + ht3
+CairoPDF(
+  "outs/control/figures/07_marker_gene_pert_pbmc_control_heatmap_no_ctype.pdf",
+  width = 14, 
+  height = 6
+)
+draw(
+  marker_per_hm_no_celltype,
+  column_title = "Integration method",
+  column_title_side = "bottom",
+  row_title_side = "right",
+  column_title_gp = gpar(fontsize = 10, fontface = "bold"),
+  row_title_gp = gpar(fontsize = 10, fontface = "bold"),
 )
 dev.off()
 
