@@ -525,7 +525,7 @@ rule annotation_score:
     log:
         "logs/{configname}/annotation_scores/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_annotation_score.log"
-    priority: 0
+    priority: 100
     shell:
         """
         python {params.script_path} \
