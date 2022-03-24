@@ -98,7 +98,7 @@ def main(h5ad_loc, save_loc, annofile, dataset_name, ds_celltypes, ds_proportion
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description = "Input and output files for annotation results summary"
+        description = "Input and output files for annotation scoring summary"
     )
     parser.add_argument(
         "--infile",

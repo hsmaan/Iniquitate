@@ -83,6 +83,7 @@ rule all:
                     "celltype_imbalance_summaries",
                     "knn_classification_reports",
                     "query_to_reference",
+                    "annotation_results",
                     "annotation_scores"
                 ], 
                 [
@@ -98,6 +99,7 @@ rule all:
                     "celltype_imbalance_summary",
                     "knn_classification",
                     "reference_annotated",
+                    "annotation_result",
                     "annotation_score"
                 ],
                 [
@@ -113,6 +115,7 @@ rule all:
                     "tsv",
                     "tsv",
                     "h5ad",
+                    "tsv",
                     "tsv"
                 ]
             )
@@ -508,6 +511,35 @@ rule query_to_reference:
             --outfile {output} \
             &> {log}
         """
+
+# Returning overall query to reference annotation results 
+rule annotation_results:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/{configname}/query_to_reference/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_reference_annotated.h5ad"
+    output:
+        "../results/{configname}/annotation_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_annotation_result.tsv"
+    params:
+        script_path = "scripts/python/annotation_results.py"
+    log:
+        "logs/{configname}/annotation_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_annotation_result.log"
+    priority: 100
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            --ds_celltypes {wildcards.ds_celltype} \
+            --ds_proportions {wildcards.ds_proportion} \
+            --num_batches {wildcards.num_batches} \
+            &> {log}
+        """    
 
 # Analysis of query to reference annotation results
 rule annotation_score:
