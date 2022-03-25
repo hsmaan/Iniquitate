@@ -36,6 +36,7 @@ class SeuratReferenceMap:
         # Load the integrated data and subset for the seurat results 
         self.adata = sc.read_h5ad(self.integrated_data_h5)
         self.adata = self.adata[self.adata.obs.integration_method == "seurat"]
+        self.adata.obs.index = range(len(self.adata.obs)) # Reset index
     
     def _format(self):
         # Substitute in raw counts for X, remove unecessary obs, obsm, and uns info
