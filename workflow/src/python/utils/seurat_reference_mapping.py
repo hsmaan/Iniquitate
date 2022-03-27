@@ -34,8 +34,8 @@ class SeuratReferenceMap:
     
     def _load(self):
         # Load the integrated data and subset for the seurat results 
-        self.adata = sc.read_h5ad(self.integrated_data_h5)
-        self.adata = self.adata[self.adata.obs.integration_method == "seurat"]
+        self.adata = sc.read_h5ad(self.integrated_data_h5, as_sparse = "raw/X")
+        self.adata = self.adata[self.adata.obs.integration_method == "seurat"].copy()
         self.adata.obs.index = range(len(self.adata.obs)) # Reset index
     
     def _format(self):
@@ -68,7 +68,7 @@ class SeuratReferenceMap:
         # Output temporary file with data 
         self.filename = ''.join(str(uuid.uuid4()).split("-"))
         self.file = "{filename}.h5ad".format(filename = self.filename)
-        self.adata.write_h5ad(os.path.join("tmp", self.file), compression = "gzip")
+        self.adata.write_h5ad(os.path.join("tmp", self.file))
     
     def _seurat_refmap(self):
         # Call subprocess and call R script

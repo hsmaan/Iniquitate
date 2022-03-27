@@ -12,15 +12,20 @@ outfile_name <- args[4]
 # Read in h5seurat reference data 
 ref_data <- LoadH5Seurat(ref_file) 
 
-# Convert h5ad anndata temp file to h5seurat 
-Convert(temp_adata_file, dest = "h5seurat", overwrite = TRUE)
-
 # Load anndata and scanpy 
 ad <- import("anndata")
 sc <- import("scanpy")
 
-# Create Seurat object and split by batch information
-query_obj <- LoadH5Seurat(paste0("./tmp/", temp_adata_filename, ".h5seurat"))
+# Convert h5ad anndata temp file 
+temp_adata <- ad$read_h5ad(temp_adata_file)
+
+# Create Seurat object and split by batch information - use anndata import
+exprs <- t(temp_adata$X$todense())
+colnames(exprs) <- temp_adata$obs_names$to_list()
+rownames(exprs) <- temp_adata$var_names$to_list()
+query_obj <- CreateSeuratObject(exprs)
+query_obj <- SetAssayData(query_obj, "data", exprs)
+query_obj <- AddMetaData(query_obj, temp_adata$obs)
 query_obj_list <- SplitObject(
     query_obj,
     split.by = "batch"
