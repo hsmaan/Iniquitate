@@ -53,7 +53,8 @@ class SeuratReferenceMap:
         self.adata.var["gene"] = self.adata.var_names
         
         # Remove layers and raw from AnnData object (avoid conflicts with h5seurat)
-        self.adata.layers = None
+        if self.adata.layers["raw"] is not None:
+            del self.adata.layers["raw"]
         self.adata.raw = None
         
         # Strip mapped h5 of extension - keep only name for internal seurat h5 conversions
@@ -67,7 +68,7 @@ class SeuratReferenceMap:
         # Output temporary file with data 
         self.filename = ''.join(str(uuid.uuid4()).split("-"))
         self.file = "{filename}.h5ad".format(filename = self.filename)
-        self.adata.write_h5ad(os.path.join("tmp", self.file))
+        self.adata.write_h5ad(os.path.join("tmp", self.file), compression = "gzip")
     
     def _seurat_refmap(self):
         # Call subprocess and call R script
