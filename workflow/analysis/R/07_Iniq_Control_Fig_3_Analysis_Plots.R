@@ -1301,8 +1301,140 @@ imba_anno_merged_score_format_l2 <- imba_anno_merged_score_format[
 ]
 
 ggplot(data = imba_anno_merged_score_format_l1, aes(
-  x = `Celltype scored`,
+  x = `Downsampled celltypes`,
   y = Score
 )) +
-  geom_boxplot(aes(color = type), position = "dodge2") +
-  facet_wrap(.~`Downsampled celltypes`)
+  geom_boxplot(
+    aes(
+      fill = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+    ),
+    notch = FALSE,
+    alpha = 0.8 
+  ) + 
+  geom_jitter(color = "black", size = 0.4, alpha = 0.7) +
+  facet_wrap(.~`Celltype scored`, scales = "fixed") +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  labs(
+    fill = "Type",
+    x = "Celltype downsampled",
+    y = "L1 annotation accuracy (F1-score)"
+  ) +
+  coord_flip() +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14))
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "07_pbmc_ds_ablate_l1_annotation_f1_scores_celltype_ds.pdf"
+  ),
+  width = 16,
+  height = 7,
+  device = cairo_pdf
+)  
+
+ggplot(data = imba_anno_merged_score_format_l2, aes(
+  x = `Downsampled celltypes`,
+  y = Score
+)) +
+  geom_boxplot(
+    aes(
+      fill = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+    ),
+    notch = FALSE,
+    alpha = 0.8 
+  ) + 
+  geom_jitter(color = "black", size = 0.4, alpha = 0.7) +
+  facet_wrap(.~`Celltype scored`, scales = "fixed") +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  labs(
+    fill = "Type",
+    x = "Celltype downsampled",
+    y = "L2 annotation accuracy (F1-score)"
+  ) +
+  coord_flip() +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14))
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "07_pbmc_ds_ablate_l2_annotation_f1_scores_celltype_ds.pdf"
+  ),
+  width = 16,
+  height = 7,
+  device = cairo_pdf
+)  
+
+## Focus on T-cells here, plot the variability of T cell annotation
+## accuracy within downsampled, ablated, and control results
+
+# Get the variance of the F1-score, based on celltype scored and 
+# downsampling status
+imba_anno_merged_score_format_l1_sd <- imba_anno_merged_score_format_l1 %>% 
+  group_by(`Celltype scored`, type) %>%
+  summarize(F1_sd = sd(`Score`)) 
+
+# Plot these results, emphasizing high variance of F1-scores for T cells 
+ggplot(data = imba_anno_merged_score_format_l1_sd, aes(
+  x = `Celltype scored`,
+  y = F1_sd
+)) +
+  geom_bar(
+    aes(fill = factor(`type`, levels = c("Control", "Downsampled", "Ablated"))),
+    alpha = 0.8,
+    stat = "identity",
+    position = "dodge",
+    width = 3
+  ) + 
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  labs(
+    fill = "Type",
+    x = "Celltype",
+    y = "Standard deviation of L1 F1-scores"
+  ) +
+  theme_few() +
+  coord_flip() +
+  scale_x_discrete(
+    limits = rev(imba_anno_merged_score_format_l1_sd$`Celltype scored`)
+  ) + 
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) 
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "07_pbmc_ds_ablate_l1_annotation_f1_scores_celltype_sdev.pdf"
+  ),
+  width = 7,
+  height = 5,
+  device = cairo_pdf
+)  
+
