@@ -64,6 +64,8 @@ def main(h5ad_loc, save_loc, annofile, dataset_name, ds_celltypes, ds_proportion
     l1_class_report = pd.DataFrame(
         classification_report(l1_true, l1_pred, output_dict = True)
     )
+    l1_class_report["Score type"] = ["precision", "recall", "f1-score", "support"]
+    l1_class_report = l1_class_report[["Score type"] + [col for col in l1_class_report.columns if col != "Score type"]]
     l1_class_report["Overall accuracy"] = l1_accuracy
     l1_class_report["Overall balanced accuracy"] = l1_bal_accuracy
     l1_class_report["Overall F1-score"] = l1_f1
@@ -78,6 +80,8 @@ def main(h5ad_loc, save_loc, annofile, dataset_name, ds_celltypes, ds_proportion
     l2_class_report = pd.DataFrame(
         classification_report(l2_true, l2_pred, output_dict = True)
     )
+    l2_class_report["Score type"] = ["precision", "recall", "f1-score", "support"]
+    l2_class_report = l2_class_report[["Score type"] + [col for col in l2_class_report.columns if col != "Score type"]]
     l2_class_report["Overall accuracy"] = l2_accuracy
     l2_class_report["Overall balanced accuracy"] = l2_bal_accuracy
     l2_class_report["Overall F1-score"] = l2_f1
