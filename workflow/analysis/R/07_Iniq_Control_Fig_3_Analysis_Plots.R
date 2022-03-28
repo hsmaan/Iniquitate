@@ -117,6 +117,30 @@ knn_loaded <- lapply(knn_files, fread)
 knn_concat <- Reduce(rbind, knn_loaded)
 gc()
 
+# Load in and concatenate raw annotation results 
+setwd("../annotation_results/")
+anno_files <- list.files()
+anno_files <- grep(
+  "pbmc_2_batch_base_balanced",
+  anno_files,
+  value = TRUE
+)
+anno_loaded <- lapply(anno_files, fread)
+anno_concat <- Reduce(rbind, anno_loaded)
+gc()
+
+# Load in and concatenate annotation summary results 
+setwd("../annotation_scores")
+anno_scores_files <- list.files()
+anno_scores_files <- grep(
+  "pbmc_2_batch_base_balanced",
+  anno_scores_files,
+  value = TRUE
+)
+anno_scores_loaded <- lapply(anno_scores_files, fread)
+anno_scores_concat <- Reduce(rbind, anno_scores_loaded)
+gc()
+
 # Change to top level dir 
 setwd("../../..")
 
@@ -1201,5 +1225,84 @@ ggsave(
   device = cairo_pdf
 )
 
+### Fig 3E) - Impact of imbalance on annotation of data using an external
+### reference
 
+# Combine annotation score and imbalance dataframes
+imba_anno_merged <- merge(
+  imba_concat,
+  anno_scores_concat,
+  by = c(
+    "Number of batches downsampled",
+    "Number of celltypes downsampled",
+    "Proportion downsampled",
+    "Replicate",
+    "Dataset"
+  )
+) 
+imba_anno_merged <- distinct(imba_anno_merged)
+
+# Indicate which samples are controls and which are real runs
+imba_anno_merged$type <- ifelse(
+  imba_anno_merged$`Number of batches downsampled` == 0,
+  "Control",
+  ifelse(
+    imba_anno_merged$`Proportion downsampled` == 0,
+    "Ablated",
+    "Downsampled"
+  )
+)
+
+# Reformat to get the celltype-specific F1-scores for both L1 and L2 
+# annotations 
+imba_anno_merged_score_format <- imba_anno_merged[
+  ,
+  c(
+    "Downsampled celltypes",
+    "B cell", 
+    "CD4 T cell", 
+    "CD8 T cell", 
+    "Monocyte_CD14", 
+    "Monocyte_FCGR3A",
+    "NK cell",
+    "Overall balanced accuracy",
+    "Overall F1-score",
+    "Subset",
+    "Score type",
+    "type"
+  ),
+  with = FALSE
+] 
+imba_anno_merged_score_format <- melt(
+  imba_anno_merged_score_format,
+  id.vars = c(
+    "Downsampled celltypes",
+    "Overall balanced accuracy",
+    "Overall F1-score",
+    "Subset",
+    "Score type",
+    "type"
+  ),
+  value.name = "Score",
+  variable.name = "Celltype scored"
+) 
+imba_anno_merged_score_format <- imba_anno_merged_score_format[
+  imba_anno_merged_score_format$`Score type` %in% "f1-score", 
+]
   
+# Plot the celltype specific downsampling results, for both L1, and L2 
+# annotations - F1 scores as a function of type, and celltype downsampled, 
+# for each annotation
+imba_anno_merged_score_format_l1 <- imba_anno_merged_score_format[
+  imba_anno_merged_score_format$Subset %in% "L1", 
+]
+imba_anno_merged_score_format_l2 <- imba_anno_merged_score_format[
+  imba_anno_merged_score_format$Subset %in% "L2", 
+]
+
+ggplot(data = imba_anno_merged_score_format_l1, aes(
+  x = `Celltype scored`,
+  y = Score
+)) +
+  geom_boxplot(aes(color = type), position = "dodge2") +
+  facet_wrap(.~`Downsampled celltypes`)
