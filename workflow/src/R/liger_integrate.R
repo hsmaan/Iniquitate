@@ -17,11 +17,16 @@ ad <- import("anndata")
 sc <- import("scanpy")
 sp_sparse <- import("scipy.sparse")
 
-# Convert h5ad file to h5seurat 
-Convert(file, dest = "h5seurat", overwrite = TRUE)
+# Load h5ad object through reticulate and create Seurat object
+temp_adata <- ad$read_h5ad(file) 
+exprs <- t(temp_adata$X$todense())
+colnames(exprs) <- temp_adata$obs_names$to_list()
+rownames(exprs) <- temp_adata$var_names$to_list()
+seur_obj <- CreateSeuratObject(exprs)
+seur_obj <- SetAssayData(seur_obj, "data", exprs)
+seur_obj <- AddMetaData(seur_obj, temp_adata$obs)
 
-# Create Seurat object and split by batch information
-seur_obj <- LoadH5Seurat(paste0("./tmp/", filename, ".h5seurat"))
+# Split object by batch information
 seur_obj_list <- SplitObject(
     seur_obj,
     split.by = "batch"
