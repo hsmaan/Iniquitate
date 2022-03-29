@@ -1,5 +1,5 @@
 {
-    "config_name": "lowcap",
+    "config_name": "lowcap_modified",
     "int_datasets": {
         "pbmc_2_batch" : {
             "data_folder": "pbmc_2_batch",
