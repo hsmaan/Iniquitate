@@ -1253,6 +1253,23 @@ imba_anno_merged$type <- ifelse(
   )
 )
 
+# Format celltype names for plotting 
+imba_anno_merged$`Downsampled celltypes` <- plyr::mapvalues(
+  imba_anno_merged$`Downsampled celltypes`,
+  from = c(
+    "Monocyte_CD14",
+    "Monocyte_FCGR3A",
+    "CD4 T cell",
+    "CD8 T cell"
+  ),
+  to = c(
+    "CD14+ Monocyte",
+    "FCGR3A+ Monocyte",
+    "CD4+ T cell",
+    "CD8+ T cell"
+  )
+)
+
 # Reformat to get the celltype-specific F1-scores for both L1 and L2 
 # annotations 
 imba_anno_merged_score_format <- imba_anno_merged[
@@ -1289,6 +1306,23 @@ imba_anno_merged_score_format <- melt(
 imba_anno_merged_score_format <- imba_anno_merged_score_format[
   imba_anno_merged_score_format$`Score type` %in% "f1-score", 
 ]
+
+# Format celltype names for plotting 
+imba_anno_merged_score_format$`Celltype scored` <- plyr::mapvalues(
+  imba_anno_merged_score_format$`Celltype scored`,
+  from = c(
+    "Monocyte_CD14",
+    "Monocyte_FCGR3A",
+    "CD4 T cell",
+    "CD8 T cell"
+  ),
+  to = c(
+    "CD14+ Monocyte",
+    "FCGR3A+ Monocyte",
+    "CD4+ T cell",
+    "CD8+ T cell"
+  )
+)
   
 # Plot the celltype specific downsampling results, for both L1, and L2 
 # annotations - F1 scores as a function of type, and celltype downsampled, 
@@ -1392,6 +1426,9 @@ ggsave(
 imba_anno_merged_score_format_l1_sd <- imba_anno_merged_score_format_l1 %>% 
   group_by(`Celltype scored`, type) %>%
   summarize(F1_sd = sd(`Score`)) 
+imba_anno_merged_score_format_l2_sd <- imba_anno_merged_score_format_l2 %>% 
+  group_by(`Celltype scored`, type) %>%
+  summarize(F1_sd = sd(`Score`)) 
 
 # Plot these results, emphasizing high variance of F1-scores for T cells 
 ggplot(data = imba_anno_merged_score_format_l1_sd, aes(
@@ -1438,3 +1475,144 @@ ggsave(
   device = cairo_pdf
 )  
 
+ggplot(data = imba_anno_merged_score_format_l2_sd, aes(
+  x = `Celltype scored`,
+  y = F1_sd
+)) +
+  geom_bar(
+    aes(fill = factor(`type`, levels = c("Control", "Downsampled", "Ablated"))),
+    alpha = 0.8,
+    stat = "identity",
+    position = "dodge",
+    width = 3
+  ) + 
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  labs(
+    fill = "Type",
+    x = "Celltype",
+    y = "Standard deviation of L2 F1-scores"
+  ) +
+  theme_few() +
+  coord_flip() +
+  scale_x_discrete(
+    limits = rev(imba_anno_merged_score_format_l2_sd$`Celltype scored`)
+  ) + 
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) 
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "07_pbmc_ds_ablate_l2_annotation_f1_scores_celltype_sdev.pdf"
+  ),
+  width = 7,
+  height = 5,
+  device = cairo_pdf
+)  
+
+# Determine the celltypes that are being predicted for both CD4 and CD8 
+# T cells, L1 and L2, for control, downsampled and ablated experiments 
+
+# Merge all of the annotation results and imbalance results
+imba_anno_merged_all <- merge(
+  imba_concat,
+  anno_concat,
+  by = c(
+    "Number of batches downsampled",
+    "Number of celltypes downsampled",
+    "Proportion downsampled",
+    "Replicate",
+    "Dataset"
+  )
+)
+
+# Indicate which samples are controls and which are real runs
+imba_anno_merged_all$type <- ifelse(
+  imba_anno_merged_all$`Number of batches downsampled` == 0,
+  "Control",
+  ifelse(
+    imba_anno_merged_all$`Proportion downsampled` == 0,
+    "Ablated",
+    "Downsampled"
+  )
+)
+
+# Subset for L1 and L2 cases for only the T cells 
+imba_anno_merged_all_tcell <- imba_anno_merged_all[
+  imba_anno_merged_all$`Real celltype` %in% c("CD4 T cell", "CD8 T cell") 
+]
+
+# Plot the results for the celltypes that are most predicted for the T-cell
+# subsets - for L1 and L2 
+ggplot(data = imba_anno_merged_all_tcell, aes(
+  x = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+  fill = `Predicted L1`
+)) +
+  geom_bar(position = "fill") +
+  scale_fill_brewer(palette = "Set1") +
+  facet_wrap(.~`Real celltype`) +
+  labs(
+    fill = "Predicted L1 \ncelltype",
+    x = "Type",
+    y = "Proportion of L1 predictions"
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) 
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "07_pbmc_ds_ablate_l1_annotation_t_cell_preds_barplot.pdf"
+  ),
+  width = 10,
+  height = 7,
+  device = cairo_pdf
+) 
+
+ggplot(data = imba_anno_merged_all_tcell, aes(
+  x = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+  fill = `Predicted L2`
+)) +
+  geom_bar(position = "fill") +
+  scale_fill_brewer(palette = "Set3") +
+  facet_wrap(.~`Real celltype`) +
+  labs(
+    fill = "Predicted L2 \ncelltype",
+    x = "Type",
+    y = "Proportion of L2 predictions"
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) 
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "07_pbmc_ds_ablate_l2_annotation_t_cell_preds_barplot.pdf"
+  ),
+  width = 10,
+  height = 7,
+  device = cairo_pdf
+) 
