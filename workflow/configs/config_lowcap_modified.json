@@ -1,0 +1,44 @@
+{
+    "config_name": "lowcap",
+    "int_datasets": {
+        "pbmc_2_batch" : {
+            "data_folder": "pbmc_2_batch",
+            "ds_celltypes": [0],
+            "ds_proportions": [0],
+            "num_batches": [0],
+            "repetitions": 50
+        },
+        "pbmc_4_batch" : {
+            "data_folder": "pbmc_4_batch",
+            "ds_celltypes": [0],
+            "ds_proportions": [0],
+            "num_batches": [0],
+            "repetitions": 50
+        },
+        "mouse_hindbrain_6_batch": {
+            "data_folder": "mouse_hindbrain_6_batch",
+            "ds_celltypes": [0],
+            "ds_proportions": [0],
+            "num_batches": [0],
+            "repetitions": 50
+        },
+        "peng_pdac_8_batch": {
+            "data_folder": "peng_pdac_8_batch",
+            "ds_celltypes": [0],
+            "ds_proportions": [0],
+            "num_batches": [0],
+            "repetitions": 50
+        }
+    },
+    "int_ti_datasets": {
+        "cao_organ_dev_sublin_2_batch": {
+            "data_folder": "cao_organ_dev_sublin_2_batch",
+            "root_celltype": "Early_mesenchyme",
+            "ds_celltypes": [1],
+            "ds_proportions": [0.25, 0.1, 0.05, 0],
+            "num_batches": [0, 1],
+            "repetitions": 50
+        }
+    },
+    "query_to_reference": "No"
+}

@@ -16,5 +16,6 @@
             "repetitions": 200
         }
     },
-    "int_ti_datasets": {}
+    "int_ti_datasets": {},
+    "query_to_reference": "Yes"
 }
