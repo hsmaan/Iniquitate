@@ -12,7 +12,7 @@ int_type <- args[3] # Integration type
 ad <- import("anndata")
 sc <- import("scanpy")
 
-# Load h5ad object through reticulate and create Subset object
+# Load h5ad object through reticulate and create Seurat object
 temp_adata <- ad$read_h5ad(file) 
 exprs <- t(temp_adata$X$todense())
 colnames(exprs) <- temp_adata$obs_names$to_list()
@@ -22,7 +22,6 @@ seur_obj <- SetAssayData(seur_obj, "data", exprs)
 seur_obj <- AddMetaData(seur_obj, temp_adata$obs)
 
 # Split object by batch information
-seur_obj <- LoadH5Seurat(paste0("./tmp/", filename, ".h5seurat"))
 seur_obj_list <- SplitObject(
     seur_obj,
     split.by = "batch"
