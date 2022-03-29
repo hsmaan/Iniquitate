@@ -1546,9 +1546,41 @@ imba_anno_merged_all$type <- ifelse(
   )
 )
 
+# Format celltype names for plotting
+imba_anno_merged_all$`Downsampled celltypes` <- plyr::mapvalues(
+  imba_anno_merged_all$`Downsampled celltypes`,
+  from = c(
+    "Monocyte_CD14",
+    "Monocyte_FCGR3A",
+    "CD4 T cell",
+    "CD8 T cell"
+  ),
+  to = c(
+    "CD14+ Monocyte",
+    "FCGR3A+ Monocyte",
+    "CD4+ T cell",
+    "CD8+ T cell"
+  )
+)
+imba_anno_merged_all$`Real celltype` <- plyr::mapvalues(
+  imba_anno_merged_all$`Real celltype`,
+  from = c(
+    "Monocyte_CD14",
+    "Monocyte_FCGR3A",
+    "CD4 T cell",
+    "CD8 T cell"
+  ),
+  to = c(
+    "CD14+ Monocyte",
+    "FCGR3A+ Monocyte",
+    "CD4+ T cell",
+    "CD8+ T cell"
+  )
+)
+
 # Subset for L1 and L2 cases for only the T cells 
 imba_anno_merged_all_tcell <- imba_anno_merged_all[
-  imba_anno_merged_all$`Real celltype` %in% c("CD4 T cell", "CD8 T cell") 
+  imba_anno_merged_all$`Real celltype` %in% c("CD4+ T cell", "CD8+ T cell") 
 ]
 
 # Plot the results for the celltypes that are most predicted for the T-cell
@@ -1616,3 +1648,148 @@ ggsave(
   height = 7,
   device = cairo_pdf
 ) 
+
+# Plot the same results as above, separately this time for CD4 and CD8 T cells,
+# and L1 and L2 predictions, but conditioned on the celltype that has been
+# downsampled
+
+# Subsample data for both celltypes
+imba_anno_merged_all_cd4_tcell <- imba_anno_merged_all_tcell[
+  imba_anno_merged_all_tcell$`Real celltype` %in% "CD4+ T cell"
+]
+imba_anno_merged_all_cd8_tcell <- imba_anno_merged_all_tcell[
+  imba_anno_merged_all_tcell$`Real celltype` %in% "CD8+ T cell"
+]
+
+ggplot(data = imba_anno_merged_all_cd4_tcell, aes(
+  x = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+  fill = `Predicted L1`
+)) +
+  geom_bar(position = "fill", width = 0.75) +
+  scale_fill_brewer(palette = "Set1") +
+  facet_wrap(.~`Downsampled celltypes`, scales = "free_x") +
+  labs(
+    fill = "Predicted L1 \ncelltype",
+    x = "",
+    y = "Proportion of L1 predictions for CD4+ T cells"
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) 
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "07_pbmc_ds_ablate_l1_annotation_cd4t_cell_preds",
+    "_celltype_ds_specific_barplots.pdf"
+  ),
+  width = 12,
+  height = 7,
+  device = cairo_pdf
+) 
+
+ggplot(data = imba_anno_merged_all_cd4_tcell, aes(
+  x = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+  fill = `Predicted L2`
+)) +
+  geom_bar(position = "fill", width = 0.75) +
+  scale_fill_brewer(palette = "Set3") +
+  facet_wrap(.~`Downsampled celltypes`, scales = "free_x") +
+  labs(
+    fill = "Predicted L2 \ncelltype",
+    x = "",
+    y = "Proportion of L2 predictions for CD4+ T cells"
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) 
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "07_pbmc_ds_ablate_l2_annotation_cd4t_cell_preds",
+    "_celltype_ds_specific_barplots.pdf"
+  ),
+  width = 12,
+  height = 7,
+  device = cairo_pdf
+) 
+
+ggplot(data = imba_anno_merged_all_cd8_tcell, aes(
+  x = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+  fill = `Predicted L1`
+)) +
+  geom_bar(position = "fill", width = 0.75) +
+  scale_fill_brewer(palette = "Set1") +
+  facet_wrap(.~`Downsampled celltypes`, scales = "free_x") +
+  labs(
+    fill = "Predicted L1 \ncelltype",
+    x = "",
+    y = "Proportion of L1 predictions for CD8+ T cells"
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) 
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "07_pbmc_ds_ablate_l1_annotation_cd8t_cell_preds",
+    "_celltype_ds_specific_barplots.pdf"
+  ),
+  width = 12,
+  height = 7,
+  device = cairo_pdf
+) 
+
+ggplot(data = imba_anno_merged_all_cd8_tcell, aes(
+  x = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+  fill = `Predicted L2`
+)) +
+  geom_bar(position = "fill", width = 0.75) +
+  scale_fill_brewer(palette = "Set3") +
+  facet_wrap(.~`Downsampled celltypes`, scales = "free_x") +
+  labs(
+    fill = "Predicted L2 \ncelltype",
+    x = "",
+    y = "Proportion of L2 predictions for CD8+ T cells"
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) 
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "07_pbmc_ds_ablate_l2_annotation_cd8t_cell_preds",
+    "_celltype_ds_specific_barplots.pdf"
+  ),
+  width = 12,
+  height = 7,
+  device = cairo_pdf
+) 
+
