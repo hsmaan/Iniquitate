@@ -1,6 +1,7 @@
 library(Seurat)
 library(SeuratDisk)
 library(reticulate)
+library(RANN)
 
 # Read in arguments  
 args <- commandArgs(trailingOnly = TRUE)
@@ -16,7 +17,7 @@ ref_data <- LoadH5Seurat(ref_file)
 ad <- import("anndata")
 sc <- import("scanpy")
 
-# Convert h5ad anndata temp file 
+# Load h5ad anndata temp file through reticulate  
 temp_adata <- ad$read_h5ad(temp_adata_file)
 
 # Create Seurat object and split by batch information - use anndata import
@@ -60,6 +61,44 @@ for (i in 1:length(query_obj_list)) {
     ),
     reference.reduction = "spca",
     reduction.model = "wnn.umap"
+  )
+}
+
+# For setting up a control annotation, use only the 1 nearest neighbor in the 
+# multimodal reference to get the l1 and l2 annotations for the query data
+multimodal_ref_l1 <- ref_data@meta.data$celltype.l1
+multimodal_ref_l2 <- ref_data@meta.data$celltype.l2
+multimodal_ref_rna <- ref_data@assays$SCT[,]
+multimodal_ref_query_obj_gene_overlap <- intersect(
+    rownames(multimodal_ref_rna),
+    rownames(query_obj_list[[1]]@assays$SCT)
+)
+multimodal_ref_rna_sub <- t(
+  as.matrix(
+    multimodal_ref_rna[multimodal_ref_query_obj_gene_overlap,]
+  )
+)
+for (i in 1:length(query_obj_list)) {
+  query_obj_list_rna <- query_obj_list[[i]]@assays$SCT[,]
+  query_obj_list_rna_sub <- t(
+    as.matrix(
+      query_obj_list_rna[multimodal_ref_query_obj_gene_overlap,]
+    )
+  )
+  knn_res <- nn2(
+    multimodal_ref_rna_sub,
+    query_obj_list_rna_sub,
+    k = 1
+  )[1][,1]
+  query_obj_list[[i]] <- AddMetaData(
+    object = query_obj_list[[i]],
+    metadata = multimodal_ref_l1[knn_res],
+    col.name = "baseline_knn_l1_pred",
+  )
+  query_obj_list[[i]] <- AddMetaData(
+    object = query_obj_list[[i]],
+    metadata = multimodal_ref_l2[knn_res],
+    col.name = "baseline_knn_l2_pred",
   )
 }
 
