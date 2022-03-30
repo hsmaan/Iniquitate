@@ -85,11 +85,13 @@ for (i in 1:length(query_obj_list)) {
       query_obj_list_rna[multimodal_ref_query_obj_gene_overlap,]
     )
   )
-  knn_res <- nn2(
-    multimodal_ref_rna_sub,
-    query_obj_list_rna_sub,
-    k = 1
-  )[1][,1]
+  knn_res <- unlist(
+    nn2(
+      multimodal_ref_rna_sub,
+      query_obj_list_rna_sub,
+      k = 1
+    )[1]
+  )
   query_obj_list[[i]] <- AddMetaData(
     object = query_obj_list[[i]],
     metadata = multimodal_ref_l1[knn_res],
