@@ -92,16 +92,8 @@ for (i in 1:length(query_obj_list)) {
       k = 1
     )[1]
   )
-  query_obj_list[[i]] <- AddMetaData(
-    object = query_obj_list[[i]],
-    metadata = multimodal_ref_l1[knn_res],
-    col.name = "baseline.knn.l1",
-  )
-  query_obj_list[[i]] <- AddMetaData(
-    object = query_obj_list[[i]],
-    metadata = multimodal_ref_l2[knn_res],
-    col.name = "baseline.knn.l2",
-  )
+  query_obj_list[[i]]@meta.data$baseline.knn.l1 <- multimodal_ref_l1[knn_res]
+  query_obj_list[[i]]@meta.data$baseline.knn.l2 <- multimodal_ref_l2[knn_res]
 }
 
 # Remerge the batches into one object 
