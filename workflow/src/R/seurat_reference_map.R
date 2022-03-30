@@ -93,12 +93,12 @@ for (i in 1:length(query_obj_list)) {
   query_obj_list[[i]] <- AddMetaData(
     object = query_obj_list[[i]],
     metadata = multimodal_ref_l1[knn_res],
-    col.name = "baseline_knn_l1_pred",
+    col.name = "baseline.knn.l1",
   )
   query_obj_list[[i]] <- AddMetaData(
     object = query_obj_list[[i]],
     metadata = multimodal_ref_l2[knn_res],
-    col.name = "baseline_knn_l2_pred",
+    col.name = "baseline.knn.l2",
   )
 }
 
