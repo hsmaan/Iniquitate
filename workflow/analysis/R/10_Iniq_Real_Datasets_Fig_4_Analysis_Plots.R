@@ -37,7 +37,7 @@ kev_palette <- c(
 # Change to results dir for lowcap modified data 
 setwd("../../../results/lowcap_modified/")
 
-##### Analysis of PBMC 2 batch imbalanced data #####
+##### Analysis of PBMC 2 batch imbalanced data vs balanced data #####
 
 # Load in and concatenate celltype imbalance summary files
 setwd("celltype_imbalance_summaries")
