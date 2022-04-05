@@ -52,7 +52,7 @@ cimba_concat <- Reduce(rbind, cimba_loaded)
 gc()
 
 # Load in and concatenate full imbalance summary files 
-setwd("imbalance_summaries/")
+setwd("../imbalance_summaries/")
 imba_files <- list.files()
 imba_files <- grep(
   "pbmc_2_batch",
@@ -115,3 +115,39 @@ gc()
 # Change to top level dir 
 setwd("../../..")
 
+
+### Fig 4A) - The effects of celltype imbalance (by proportion) on the 
+### KNN classification results of the individual celltypes 
+
+# Reformat celltype names in cimba and add combined count column
+colnames(cimba_concat)[1] <- "Celltype"
+cimba_concat$`celltype_count_batch_combined` <- 
+  cimba_concat$celltype_count_batch_0 + cimba_concat$celltype_count_batch_1
+
+# Merge together celltype imbalance and KNN results
+cimba_knn_merged <- merge(
+  cimba_concat,
+  knn_concat,
+  by = c(
+    "Number of batches downsampled",
+    "Number of celltypes downsampled",
+    "Proportion downsampled",
+    "Replicate",
+    "Celltype"
+  )
+)
+cimba_knn_merged <- distinct(cimba_knn_merged)
+
+# Plot the resultant F1 scores as a function of the number of cells in each
+# batch
+ggplot(data = cimba_knn_merged, aes(
+    x = celltype_count_batch_combined,
+    y = `F1-score`
+  )
+) + 
+  geom_violin(aes(fill = `Celltype`),
+               notch = FALSE,
+               alpha = 0.8 
+  ) + 
+  facet_wrap(.~Method)
+  
