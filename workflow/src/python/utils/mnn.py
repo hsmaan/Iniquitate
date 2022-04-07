@@ -104,6 +104,28 @@ def mutual_nn(data_1, data_2, k1, k2):
     mutual_2_arr = np.asarray(mutual_2)
     return mutual_1_arr, mutual_2_arr
 
+def cross_data_knn(data_1, data_2, k):
+    """Given two datasets, gets and returns KNN of dataset 1 in dataset 2.
+    
+    data_1 (array): Data array 1 that is used to create the graph representing
+        dataset 1. Dataset 1 and 2 must have the same numbers of featres.
+    data_2 (array): Data array 1 that is used to create the graph representing
+        dataset 2. Dataset 1 and 2 must have the same numbers of features.
+    k (integer): Positive integer value indicating how many neighbors to consider
+        in the cross-data knn lookup.
+
+    Returns:
+        knn_arr (array): Array of k-nearest neighbors corresponding to indices in dataset 1, 
+            with indices in dataset 2.
+    """
+    data_1 = np.ascontiguousarray(data_1, dtype = np.float32)
+    data_2 = np.ascontiguousarray(data_2, dtype = np.float32)
+    
+    index_2 = faiss.IndexFlatL2(data_2.shape[1])
+    d_index_2, k_index_2 = index_2.search(data_1, k)
+    
+    return k_index_2
+
 
 def find_knn(data_list, k = 15):
     """Gets k nearest-neighbors for all datasets.
