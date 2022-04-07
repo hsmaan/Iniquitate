@@ -84,6 +84,7 @@ if config["query_to_reference"] == "Yes":
                         "celltype_imbalance_summaries",
                         "knn_classification_reports",
                         "query_to_reference",
+                        "reference_full_annotated",
                         "annotation_results",
                         "annotation_scores"
                     ], 
@@ -100,6 +101,7 @@ if config["query_to_reference"] == "Yes":
                         "celltype_imbalance_summary",
                         "knn_classification",
                         "reference_annotated",
+                        "reference_full_annotated",
                         "annotation_result",
                         "annotation_score"
                     ],
@@ -115,6 +117,7 @@ if config["query_to_reference"] == "Yes":
                         "tsv",
                         "tsv",
                         "tsv",
+                        "h5ad",
                         "h5ad",
                         "tsv",
                         "tsv"
@@ -586,22 +589,22 @@ rule query_to_reference:
             &> {log}
         """
 
-# Analysis of query to reference baseline results 
-rule annotation_baseline_score:
+# Perform baseline reference mapping experiments and get annotations for each dataset 
+rule annotation_baseline:
     conda:
         "envs/integrate.yaml"
     input:
         "../results/{configname}/query_to_reference/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_reference_annotated.h5ad"
     output:
-        "../results/{configname}/annotation_baseline_scores/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
-        "_downsample_{num_batches}_batch_ds_c_{rep}_annotation_baseline_score.tsv"
+        "../results/{configname}/reference_full_annotated/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_reference_full_annotated.h5ad"
     params:
-        script_path = "scripts/python/annotation_baseline_get_and_scoring.py",
+        script_path = "scripts/python/reference_control_annotation.py",
         reference_path = "../resources/references/h5ad_files/{data_folder}/{data_folder}.h5ad"
     log:
-        "logs/{configname}/annotation_baseline_scores/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
-        "_downsample_{num_batches}_batch_ds_c_{rep}_annotation_baseline_score.log"
+        "logs/{configname}/reference_full_annotated/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_reference_full_annotated.log"
     priority: 100
     shell:
         """
@@ -609,22 +612,16 @@ rule annotation_baseline_score:
             --infile {input} \
             --ref_file {params.reference_path} \
             --outfile {output} \
-            --annofile {params.score_guide_path} \
-            --dataset {wildcards.data_folder} \
-            --rep {wildcards.rep} \
-            --ds_celltypes {wildcards.ds_celltype} \
-            --ds_proportions {wildcards.ds_proportion} \
-            --num_batches {wildcards.num_batches} \
             &> {log}
         """
 
-# Returning overall query to reference annotation results 
+# Returning overall query to reference annotation results - both seurat annotation and baseline annotation 
 rule annotation_result:
     conda:
         "envs/integrate.yaml"
     input:
-        "../results/{configname}/query_to_reference/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
-        "_downsample_{num_batches}_batch_ds_c_{rep}_reference_annotated.h5ad"
+        "../results/{configname}/reference_full_annotated/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_reference_full_annotated.h5ad"
     output:
         "../results/{configname}/annotation_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_annotation_result.tsv"
@@ -647,13 +644,13 @@ rule annotation_result:
             &> {log}
         """    
 
-# Analysis of query to reference annotation results
+# Analysis of query to reference annotation results - both seurat annotation and baseline annotation
 rule annotation_score:
     conda:
         "envs/integrate.yaml"
     input:
-        "../results/{configname}/query_to_reference/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
-        "_downsample_{num_batches}_batch_ds_c_{rep}_reference_annotated.h5ad"
+        "../results/{configname}/reference_full_annotated/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_reference_full_annotated.h5ad"
     output:
         "../results/{configname}/annotation_scores/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_annotation_score.tsv"
