@@ -108,7 +108,7 @@ def cross_data_knn(data_1, data_2, k):
     """Given two datasets, gets and returns KNN of dataset 1 in dataset 2.
     
     data_1 (array): Data array 1 that is used to create the graph representing
-        dataset 1. Dataset 1 and 2 must have the same numbers of featres.
+        dataset 1. Dataset 1 and 2 must have the same numbers of features.
     data_2 (array): Data array 1 that is used to create the graph representing
         dataset 2. Dataset 1 and 2 must have the same numbers of features.
     k (integer): Positive integer value indicating how many neighbors to consider
@@ -122,6 +122,7 @@ def cross_data_knn(data_1, data_2, k):
     data_2 = np.ascontiguousarray(data_2, dtype = np.float32)
     
     index_2 = faiss.IndexFlatL2(data_2.shape[1])
+    index_2.add(data_2)
     d_index_2, k_index_2 = index_2.search(data_1, k)
     
     return k_index_2
