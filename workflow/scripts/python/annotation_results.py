@@ -24,7 +24,9 @@ def main(h5ad_loc, save_loc, dataset_name, ds_celltypes, ds_proportions,
     class_results = pd.DataFrame({
         "Real celltype": adata.obs["celltype"],
         "Predicted L1": adata.obs["predicted.celltype.l1"],
-        "Predicted L2": adata.obs["predicted.celltype.l2"]
+        "Predicted L2": adata.obs["predicted.celltype.l2"],
+        "Control predicted L1": adata.obs["baseline.knn.l1"],
+        "Control predicted L2": adata.obs["baseline.knn.l2"]
     }) 
     
     # Append information on dataset to results

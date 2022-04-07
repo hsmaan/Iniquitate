@@ -27,10 +27,13 @@ def main(h5ad_loc, save_loc, annofile, dataset_name, ds_celltypes, ds_proportion
     class_results = pd.DataFrame({
         "Real celltype": adata.obs["celltype"],
         "Predicted L1": adata.obs["predicted.celltype.l1"],
-        "Predicted L2": adata.obs["predicted.celltype.l2"]
+        "Predicted L2": adata.obs["predicted.celltype.l2"],
+        "Control predicted L1": adata.obs["baseline.knn.l1"],
+        "Control predicted L2": adata.obs["baseline.knn.l2"]
     }) 
     
-    # Format classification results by acceptable annotations
+    # Format classification results by acceptable annotations - both L1 and L2,
+    # control (baseline) and query to reference predictions
     class_results_l1 = []
     for celltype_real, celltype_pred in zip(
         class_results["Real celltype"], class_results["Predicted L1"]
@@ -51,11 +54,33 @@ def main(h5ad_loc, save_loc, annofile, dataset_name, ds_celltypes, ds_proportion
         else:
             class_results_l2.append("Incorrect")
     
+    baseline_results_l1 = []
+    for celltype_real, celltype_pred in zip(
+        class_results["Real celltype"], class_results["Control predicted L1"]
+    ):
+        l1_accept = annos[annos["Real celltype"] == celltype_real]["Acceptable L1"].__array__()[0]
+        if celltype_pred in l1_accept:
+            baseline_results_l1.append(celltype_real)
+        else:
+            baseline_results_l1.append("Incorrect")
+    
+    baseline_results_l2 = []
+    for celltype_real, celltype_pred in zip(
+        class_results["Real celltype"], class_results["Control predicted L2"]
+    ):
+        l2_accept = annos[annos["Real celltype"] == celltype_real]["Acceptable L2"].__array__()[0]
+        if celltype_pred in l2_accept:
+            baseline_results_l2.append(celltype_real)
+        else:
+            baseline_results_l2.append("Incorrect")
+    
     # Append formatted results to class_results
     class_results["Predicted L1 Formatted"] = class_results_l1
     class_results["Predicted L2 Formatted"] = class_results_l2
+    class_results["Baseline L1 Formatted"] = baseline_results_l1
+    class_results["Baseline L2 Formatted"] = baseline_results_l2
     
-    # Compute scores for L1 results and concatenate
+    # Compute scores for predicted L1 results
     l1_true = class_results["Real celltype"].__array__()
     l1_pred = class_results["Predicted L1 Formatted"].__array__()
     l1_accuracy = accuracy_score(l1_true, l1_pred)
@@ -71,7 +96,7 @@ def main(h5ad_loc, save_loc, annofile, dataset_name, ds_celltypes, ds_proportion
     l1_class_report["Overall F1-score"] = l1_f1
     l1_class_report["Subset"] = "L1"
     
-    # Compute scores for L2 results and concatenate
+    # Compute scores for predicted L2 results 
     l2_true = class_results["Real celltype"].__array__()
     l2_pred = class_results["Predicted L2 Formatted"].__array__()
     l2_accuracy = accuracy_score(l2_true, l2_pred)
@@ -87,18 +112,62 @@ def main(h5ad_loc, save_loc, annofile, dataset_name, ds_celltypes, ds_proportion
     l2_class_report["Overall F1-score"] = l2_f1
     l2_class_report["Subset"] = "L2"
     
-    # Concatenate L1 and L2 results
-    l1_l2_results = pd.concat([l1_class_report, l2_class_report], axis=0)
+    # Compute scores for baseline L1 results
+    l1_true = class_results["Real celltype"].__array__()
+    l1_baseline_pred = class_results["Baseline L1 Formatted"].__array__()
+    l1_baseline_accuracy = accuracy_score(l1_true, l1_baseline_pred)
+    l1_baseline_bal_accuracy = balanced_accuracy_score(l1_true, l1_baseline_pred)
+    l1_baseline_f1 = f1_score(l1_true, l1_baseline_pred, average = "micro")
+    l1_baseline_class_report = pd.DataFrame(
+        classification_report(l1_true, l1_baseline_pred, output_dict = True)
+    )
+    l1_baseline_class_report["Score type"] = ["precision", "recall", "f1-score", "support"]
+    l1_baseline_class_report = l1_baseline_class_report[
+        ["Score type"] + [col for col in l1_baseline_class_report.columns if col != "Score type"]
+    ]
+    l1_baseline_class_report["Overall accuracy"] = l1_baseline_accuracy
+    l1_baseline_class_report["Overall balanced accuracy"] = l1_baseline_bal_accuracy
+    l1_baseline_class_report["Overall F1-score"] = l1_baseline_f1
+    l1_baseline_class_report["Subset"] = "L1 baseline"
+    
+    # Compute scores for baseline L2 results 
+    l2_true = class_results["Real celltype"].__array__()
+    l2_baseline_pred = class_results["Baseline L2 Formatted"].__array__()
+    l2_baseline_accuracy = accuracy_score(l2_true, l2_baseline_pred)
+    l2_baseline_bal_accuracy = balanced_accuracy_score(l2_true, l2_baseline_pred)
+    l2_baseline_f1 = f1_score(l2_true, l2_baseline_pred, average = "micro")
+    l2_baseline_class_report = pd.DataFrame(
+        classification_report(l2_true, l2_baseline_pred, output_dict = True)
+    )
+    l2_baseline_class_report["Score type"] = ["precision", "recall", "f1-score", "support"]
+    l2_baseline_class_report = l2_baseline_class_report[
+        ["Score type"] + [col for col in l2_baseline_class_report.columns if col != "Score type"]
+    ]
+    l2_baseline_class_report["Overall accuracy"] = l2_baseline_accuracy
+    l2_baseline_class_report["Overall balanced accuracy"] = l2_baseline_bal_accuracy
+    l2_baseline_class_report["Overall F1-score"] = l2_baseline_f1
+    l2_baseline_class_report["Subset"] = "L2 baseline"
+    
+    # Concatenate L1 and L2 results - predicted and baseline
+    l1_l2_results_all = pd.concat(
+        [
+            l1_class_report, 
+            l2_class_report, 
+            l1_baseline_class_report, 
+            l2_baseline_class_report
+        ], 
+        axis=0
+    )
     
     # Append information on dataset to results
-    l1_l2_results["Dataset"] = dataset_name
-    l1_l2_results["Number of batches downsampled"] = num_batches
-    l1_l2_results["Number of celltypes downsampled"] = ds_celltypes
-    l1_l2_results["Proportion downsampled"] = ds_proportions
-    l1_l2_results["Replicate"] = rep
+    l1_l2_results_all["Dataset"] = dataset_name
+    l1_l2_results_all["Number of batches downsampled"] = num_batches
+    l1_l2_results_all["Number of celltypes downsampled"] = ds_celltypes
+    l1_l2_results_all["Proportion downsampled"] = ds_proportions
+    l1_l2_results_all["Replicate"] = rep
     
     # Save results to file
-    l1_l2_results.to_csv(save_loc, index=False, sep="\t")
+    l1_l2_results_all.to_csv(save_loc, index=False, sep="\t")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
