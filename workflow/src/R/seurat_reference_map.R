@@ -63,8 +63,14 @@ for (i in 1:length(query_obj_list)) {
   )
 }
 
-# Remerge the batches into one object 
+# Set default assay of all to SCT (for outputting scTransformed counts)
+for (i in 1:length(query_obj_list)) {
+  DefaultAssay(query_obj_list[[i]]) <- "SCT"
+}
+
+# Remerge the batches into one object - reset default assay as failsafe 
 query_ref_mapped_obj <- Reduce(merge, query_obj_list)
+DefaultAssay(query_ref_mapped_obj) <- "SCT"
 
 # Return reference mapped adata object as hda5 file -> tempfile
 SaveH5Seurat(
