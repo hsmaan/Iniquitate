@@ -16,8 +16,8 @@ def main(h5ad_loc, ref_h5_loc, save_loc):
     ref_h5ad = sc.read_h5ad(ref_h5_loc)
     
     # Get the SCTransformed subsets for both the query and reference 
-    query_sct = query_h5ad.X 
-    ref_sct = ref_h5ad.X
+    query_sct = query_h5ad.X
+    ref_sct = ref_h5ad.X.todense()
     
     # Get the (1) nearest neighbors for the reference data within the query data
     query_1_nn = cross_data_knn(query_sct, ref_sct, 1)
