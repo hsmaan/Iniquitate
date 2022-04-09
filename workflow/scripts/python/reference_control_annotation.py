@@ -53,6 +53,13 @@ def main(h5ad_loc, ref_h5_loc, save_loc):
     # Append the celltypes to the query h5ad file
     query_h5ad.obs["baseline.knn.l1"] = ref_celltypes_l1
     query_h5ad.obs["baseline.knn.l2"] = ref_celltypes_l2
+
+    # Change colnames of query var to not collide with h5ad writing in anndata
+    query_h5ad.var = query_h5ad.var.drop(query_h5ad.var.columns[0], axis=1)
+    query_h5ad.var.columns = ["gene_name"]
+
+    # Remove raw layer from query h5ad file to avoid collision with h5ad writing in anndata
+    query_h5ad.raw = None
     
     # Save the query h5ad file with baseline annotations
     query_h5ad.write_h5ad(
