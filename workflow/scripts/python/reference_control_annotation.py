@@ -47,8 +47,8 @@ def main(h5ad_loc, ref_h5_loc, save_loc):
     query_1_nn = cross_data_knn(query_sct_subset, ref_sct_subset, 1)
     
     # Get the celltypes (both l1 and l2) corresponding to the nearest neighbors for the reference data
-    ref_celltypes_l1 = ref_h5ad.obs["celltype.l1"][query_1_nn].flatten()
-    ref_celltypes_l2 = ref_h5ad.obs["celltype.l2"][query_1_nn].flatten()
+    ref_celltypes_l1 = ref_h5ad.obs["celltype.l1"][query_1_nn.flatten()].__array__()
+    ref_celltypes_l2 = ref_h5ad.obs["celltype.l2"][query_1_nn.flatten()].__array__()
     
     # Append the celltypes to the query h5ad file
     query_h5ad.obs["baseline.knn.l1"] = ref_celltypes_l1
