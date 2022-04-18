@@ -701,7 +701,7 @@ rule relatedness_metric:
     shell:
         """
         python {params.script_path} \
-            --infile {input} \
+            --filedir {input} \
             --outfile {output} \
             --dataset {wildcards.data_folder} \
             &> {log}
