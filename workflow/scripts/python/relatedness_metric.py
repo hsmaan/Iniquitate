@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 import scanpy as sc
 
+from utils import relatedness_score
+
 def main(h5ad_dir, save_loc, dataset_name):
     # Load h5ad files 
     files_list = os.listdir(h5ad_dir)
@@ -17,24 +19,7 @@ def main(h5ad_dir, save_loc, dataset_name):
     # Get relatedness metric for each celltype within each batch 
     celltype_relatedness_dfs = []
     for adata in adata_loaded:
-        batch_name = np.unique(adata.obs["batch"].__array__())[0]
-        celltypes = np.unique(adata.obs["celltype"].__array__())
-        celltype_i = []
-        celltype_j = []
-        relatedness_scores = []
-        for celltype_i in celltypes:
-            for celltype_j in celltypes:
-                celltype_i.append(celltype_i)
-                celltype_j.append(celltype_j)
-                relatedness_scores.append(
-                    relatedness(adata, celltype_i, celltype_j) # Placeholder for now 
-                )
-        celltype_relatedness_df = pd.DataFrame({
-            "Celltype 1": celltype_i,
-            "Celltype 2": celltype_j,
-            "Relatedness": relatedness_scores,
-            "Batch": batch_name
-        })
+        celltype_relatedness_df = relatedness_score(adata, pca_performed = False)
         celltype_relatedness_dfs.append(celltype_relatedness_df)
         
     # Concatenate results, add relevant metadata and save
