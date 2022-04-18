@@ -15,6 +15,7 @@ def main(h5ad_dir, save_loc, dataset_name):
     adata_loaded = []
     for f in files_list:
         adata = sc.read_h5ad(os.path.join(h5ad_dir, f), as_sparse = "raw/X")
+        adata_loaded.append(adata)
         
     # Get relatedness metric for each celltype within each batch 
     celltype_relatedness_dfs = []
