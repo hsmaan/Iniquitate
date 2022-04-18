@@ -674,3 +674,25 @@ rule annotation_score:
             --num_batches {wildcards.num_batches} \
             &> {log}
         """
+
+# Rule for relatedness metric between celltypes in a dataset 
+rule relatedness_metric:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../resources/h5ad_files/int_datasets/{data_folder}"
+    output:
+        "../results/{configname}/relatedness_results/{data_folder}_celltype_relatedness.tsv"
+    params:
+        script_path = "scripts/python/relatedness_metric.py"
+    log:
+        "logs/{configname}/relatedness_results/{data_folder}_celltype_relatedness.log"
+    priority: 100
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
+            &> {log}
+        """
