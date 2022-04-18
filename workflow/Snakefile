@@ -128,6 +128,11 @@ if config["query_to_reference"] == "Yes":
                 "../results/{configname}/marker_results/{dataset}_preintegration_marker_selection.tsv",
                     configname = configname,
                     dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
+            ),
+            expand(
+                "../results/{configname}/relatedness_results/{dataset}_celltype_relatedness.tsv",
+                    configname = configname,
+                    dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
             )
 else:
     rule all:
@@ -199,6 +204,11 @@ else:
             ),
             expand(
                 "../results/{configname}/marker_results/{dataset}_preintegration_marker_selection.tsv",
+                    configname = configname,
+                    dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
+            ),
+            expand(
+                "../results/{configname}/relatedness_results/{dataset}_celltype_relatedness.tsv",
                     configname = configname,
                     dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
             )
