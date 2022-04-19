@@ -48,10 +48,9 @@ def main(h5ad_loc, ref_h5_loc, save_loc):
             "Genes not equal between query and reference h5ad files after intersection"
         )
     
-    # Get highly variable gene subsets of both jointly and return indices 
-    query_ref_sub_concat = ann.AnnData.concatenate(query_h5ad_sub, ref_h5ad_sub)
-    sc.pp.highly_variable_genes(query_ref_sub_concat, flavor="seurat", n_top_genes=2500)
-    hvg_indices = query_ref_sub_concat.var["highly_variable"].__array__()
+    # Get highly variable gene subset of the reference data and return 
+    sc.pp.highly_variable_genes(ref_h5ad_sub, flavor="seurat", n_top_genes=2500)
+    hvg_indices = ref_h5ad_sub.var["highly_variable"].__array__()
 
     # Get the SCTransformed data subsets for both the query and reference (common gene subsets)
     query_sct = query_h5ad_sub.X.toarray()
