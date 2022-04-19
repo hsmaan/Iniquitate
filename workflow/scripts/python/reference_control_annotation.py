@@ -8,41 +8,31 @@ import anndata as ann
 
 from utils import cross_data_knn
 
-def main(h5ad_loc, ref_h5_loc, save_loc):
+def main(h5ad_loc, ref_h5ad_loc, save_loc):
     # Load the seurat reference mapped h5ad file 
     query_h5ad_full = sc.read_h5ad(h5ad_loc)
     query_h5ad = query_h5ad_full.raw.to_adata() # Use sctransformed counts
     
     # Load the reference h5ad file
-    ref_h5ad = sc.read_h5ad(ref_h5_loc)
+    ref_h5ad = sc.read_h5ad(ref_h5ad_loc)
+
+    # Add var/gene of both information to indices of both
+    query_h5ad.var.index = query_h5ad.var._index
+    ref_h5ad.var.index = ref_h5ad.var._index 
     
     # Get the intersection of the genes in the query and reference h5ad files
-    query_genes = set(query_h5ad.var._index.__array__())
-    ref_genes = set(ref_h5ad.var._index.__array__())
+    query_genes = set(query_h5ad.var.index.__array__())
+    ref_genes = set(ref_h5ad.var.index.__array__())
     common_genes_list = list(ref_genes.intersection(query_genes))
 
-    # Get indices of the common genes in both query and ref h5ad files
-    query_sct_gene_indices = np.where(
-        np.isin(
-            query_h5ad.var._index.__array__(), 
-            common_genes_list
-        )
-    )[0]
-    ref_sct_gene_indices = np.where(
-        np.isin(
-            ref_h5ad.var._index.__array__(),
-            common_genes_list
-        )
-    )[0]
-
     # Subset anndata objects for the common genes
-    query_h5ad_sub = query_h5ad[:, query_sct_gene_indices]
-    ref_h5ad_sub = ref_h5ad[:, ref_sct_gene_indices]
+    query_h5ad_sub = query_h5ad[:, common_genes_list]
+    ref_h5ad_sub = ref_h5ad[:, common_genes_list]
 
     # Ensure genes are equal between query and reference 
     if not np.array_equal(
-        query_h5ad_sub.var._index.__array__(), 
-        ref_h5ad_sub.var._index.__array__()
+        query_h5ad_sub.var.index.__array__(), 
+        ref_h5ad_sub.var.index.__array__()
     ):
         raise ValueError(
             "Genes not equal between query and reference h5ad files after intersection"
@@ -72,7 +62,7 @@ def main(h5ad_loc, ref_h5_loc, save_loc):
     query_h5ad.obs["baseline.knn.l2"] = ref_celltypes_l2
 
     # Change colnames of query var to not collide with h5ad writing in anndata
-    query_h5ad.var["gene_name"] = query_h5ad.var._index 
+    query_h5ad.var["gene_name"] = query_h5ad.var.index 
     query_h5ad.var = query_h5ad.var.drop(query_h5ad.var.columns[0], axis=1)
     
     # Save the query h5ad file with baseline annotations
@@ -103,7 +93,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     main(
         h5ad_loc = args.infile,
-        ref_h5_loc = args.ref_file,
+        ref_h5ad_loc = args.ref_file,
         save_loc = args.outfile,
     )
     
