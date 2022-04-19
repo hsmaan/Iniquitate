@@ -84,6 +84,7 @@ if config["query_to_reference"] == "Yes":
                         "celltype_imbalance_summaries",
                         "knn_classification_reports",
                         "query_to_reference",
+                        "reference_full_annotated",
                         "annotation_results",
                         "annotation_scores"
                     ], 
@@ -100,6 +101,7 @@ if config["query_to_reference"] == "Yes":
                         "celltype_imbalance_summary",
                         "knn_classification",
                         "reference_annotated",
+                        "reference_full_annotated",
                         "annotation_result",
                         "annotation_score"
                     ],
@@ -116,6 +118,7 @@ if config["query_to_reference"] == "Yes":
                         "tsv",
                         "tsv",
                         "h5ad",
+                        "h5ad",
                         "tsv",
                         "tsv"
                     ]
@@ -123,6 +126,11 @@ if config["query_to_reference"] == "Yes":
             ),
             expand(
                 "../results/{configname}/marker_results/{dataset}_preintegration_marker_selection.tsv",
+                    configname = configname,
+                    dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
+            ),
+            expand(
+                "../results/{configname}/relatedness_results/{dataset}_celltype_relatedness.tsv",
                     configname = configname,
                     dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
             )
@@ -196,6 +204,11 @@ else:
             ),
             expand(
                 "../results/{configname}/marker_results/{dataset}_preintegration_marker_selection.tsv",
+                    configname = configname,
+                    dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
+            ),
+            expand(
+                "../results/{configname}/relatedness_results/{dataset}_celltype_relatedness.tsv",
                     configname = configname,
                     dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
             )
@@ -586,13 +599,39 @@ rule query_to_reference:
             &> {log}
         """
 
-# Returning overall query to reference annotation results 
-rule annotation_result:
+# Perform baseline reference mapping experiments and get annotations for each dataset 
+rule annotation_baseline:
     conda:
         "envs/integrate.yaml"
     input:
         "../results/{configname}/query_to_reference/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_reference_annotated.h5ad"
+    output:
+        "../results/{configname}/reference_full_annotated/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_reference_full_annotated.h5ad"
+    params:
+        script_path = "scripts/python/reference_control_annotation.py",
+        reference_path = "../resources/references/h5ad_files/{data_folder}/{data_folder}.h5ad"
+    log:
+        "logs/{configname}/reference_full_annotated/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_reference_full_annotated.log"
+    priority: 100
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --ref_file {params.reference_path} \
+            --outfile {output} \
+            &> {log}
+        """
+
+# Returning overall query to reference annotation results - both seurat annotation and baseline annotation 
+rule annotation_result:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/{configname}/reference_full_annotated/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_reference_full_annotated.h5ad"
     output:
         "../results/{configname}/annotation_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_annotation_result.tsv"
@@ -615,13 +654,13 @@ rule annotation_result:
             &> {log}
         """    
 
-# Analysis of query to reference annotation results
+# Analysis of query to reference annotation results - both seurat annotation and baseline annotation
 rule annotation_score:
     conda:
         "envs/integrate.yaml"
     input:
-        "../results/{configname}/query_to_reference/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
-        "_downsample_{num_batches}_batch_ds_c_{rep}_reference_annotated.h5ad"
+        "../results/{configname}/reference_full_annotated/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_reference_full_annotated.h5ad"
     output:
         "../results/{configname}/annotation_scores/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_annotation_score.tsv"
@@ -643,5 +682,27 @@ rule annotation_score:
             --ds_celltypes {wildcards.ds_celltype} \
             --ds_proportions {wildcards.ds_proportion} \
             --num_batches {wildcards.num_batches} \
+            &> {log}
+        """
+
+# Rule for relatedness metric between celltypes in a dataset 
+rule relatedness_metric:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../resources/h5ad_files/int_datasets/{data_folder}"
+    output:
+        "../results/{configname}/relatedness_results/{data_folder}_celltype_relatedness.tsv"
+    params:
+        script_path = "scripts/python/relatedness_metric.py"
+    log:
+        "logs/{configname}/relatedness_results/{data_folder}_celltype_relatedness.log"
+    priority: 100
+    shell:
+        """
+        python {params.script_path} \
+            --filedir {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
             &> {log}
         """
