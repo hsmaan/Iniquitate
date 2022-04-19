@@ -213,5 +213,100 @@ imba_clus_merged_imba <- merge(
   )
 )
 
+# Create dataframe of ARI celltype and batch values for both datasets 
+imba_clus_imba_sub <- imba_clus_merged_imba[,
+  c("Method", "Celltype ARI Imbalanced", "Batch ARI")
+]
+imba_clus_imba_sub$Dataset <- "PBMC full \ndataset imbalanced"
+
+imba_clus_bal_sub <- imba_clus_merged_bal_control[,
+  c("Method", "Celltype ARI Imbalanced", "Batch ARI")
+]
+imba_clus_bal_sub$Dataset <- "PBMC control \ndataset balanced"
+
+imba_clus_imba_bal_sub_merged <- rbind(
+  imba_clus_imba_sub, imba_clus_bal_sub
+)
+
+# Plot comparison of ARI - celltype and batch - values between the two datasets
+ggplot(
+  data = imba_clus_imba_bal_sub_merged, 
+  aes(
+    x = Method, 
+    y = `Celltype ARI Imbalanced`
+  )
+) +
+  geom_point(aes(color = Dataset), position = position_jitterdodge()) +
+  geom_boxplot(
+    aes(fill = Dataset), 
+    position = "dodge2",
+    alpha = 0.8,
+    notch = TRUE
+  ) +
+  ylim(c(0, 1)) +
+  labs(
+    x = "Method",
+    y = "Celltype ARI"
+  ) +
+  scale_fill_brewer(palette = "Set2") +
+  scale_color_brewer(palette = "Set2") +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_blank()) +
+  theme(legend.text = element_text(size = 14))
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "10_pbmc_full_dataset_vs_control_dataset_celltype_ari_no_ds.pdf"
+  ),
+  width = 9,
+  height = 6,
+  device = cairo_pdf
+)  
+
+ggplot(
+  data = imba_clus_imba_bal_sub_merged, 
+  aes(
+    x = Method, 
+    y = `Batch ARI`
+  )
+) +
+  geom_point(aes(color = Dataset), position = position_jitterdodge()) +
+  geom_boxplot(
+    aes(fill = Dataset), 
+    position = "dodge2",
+    alpha = 0.8,
+    notch = TRUE
+  ) +
+  labs(
+    x = "Method",
+    y = "(1 - batch) ARI"
+  ) +
+  ylim(c(0, max(imba_clus_imba_bal_sub_merged$`Batch ARI`))) +
+  scale_fill_brewer(palette = "Set2") +
+  scale_color_brewer(palette = "Set2") +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 14)) +
+  theme(axis.text.y = element_text(size = 14)) +
+  theme(legend.title = element_blank()) +
+  theme(legend.text = element_text(size = 14))
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "10_pbmc_full_dataset_vs_control_dataset_batch_ari_no_ds.pdf"
+  ),
+  width = 9,
+  height = 6,
+  device = cairo_pdf
+)
 
 
