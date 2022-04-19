@@ -38,6 +38,15 @@ def main(h5ad_loc, ref_h5_loc, save_loc):
     # Subset anndata objects for the common genes
     query_h5ad_sub = query_h5ad[:, query_sct_gene_indices]
     ref_h5ad_sub = ref_h5ad[:, ref_sct_gene_indices]
+
+    # Ensure genes are equal between query and reference 
+    if not np.array_equal(
+        query_h5ad_sub.var._index.__array__(), 
+        ref_h5ad_sub.var._index.__array__()
+    ):
+        raise ValueError(
+            "Genes not equal between query and reference h5ad files after intersection"
+        )
     
     # Get highly variable gene subsets of both jointly and return indices 
     query_ref_sub_concat = ann.AnnData.concatenate(query_h5ad_sub, ref_h5ad_sub)
