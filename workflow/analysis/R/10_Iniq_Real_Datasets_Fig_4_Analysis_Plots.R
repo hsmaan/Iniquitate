@@ -174,6 +174,11 @@ pbmc_2_batch_bal_relate_loaded <- fread(pbmc_2_batch_bal_relate_file)
 # Change to top level dir 
 setwd("../../..")
 
+# Make lowcap figure directory if it does not exist
+if (!dir.exists("outs/lowcap_modified/figures")) {
+  dir.create("outs/lowcap_modified/figures")
+}
+
 ### Fig 4A) - Analysis of PBMC 2 batch results with respect to integration
 ### and measures of relatedness 
 
@@ -261,7 +266,7 @@ ggplot(
   theme(legend.text = element_text(size = 14))
 ggsave(
   paste0(
-    "outs/control/figures/",
+    "outs/lowcap_modified/figures/",
     "10_pbmc_full_dataset_vs_control_dataset_celltype_ari_no_ds.pdf"
   ),
   width = 9,
@@ -301,7 +306,7 @@ ggplot(
   theme(legend.text = element_text(size = 14))
 ggsave(
   paste0(
-    "outs/control/figures/",
+    "outs/lowcap_modified/figures/",
     "10_pbmc_full_dataset_vs_control_dataset_batch_ari_no_ds.pdf"
   ),
   width = 9,
@@ -362,10 +367,14 @@ celltype_imba_files_loaded <- lapply(
 )
 names(celltype_imba_files_loaded) <- datasets
 
+# Change to top level dir
+setwd("../../..")
 
 # Create function to plot concordance of KNN classification performance
 # with respect to relatedness metrics 
-knn_relatedness_plot <- function(dataset, relatedness_df, knn_class_df) {
+knn_relatedness_plot <- function(
+    dataset, relatedness_df, knn_class_df, plot_height, plot_width
+  ) {
   # Format relatedness df to take the minimum (distance) of each celltype 
   # to another celltype in the dataset, while excluding self-matches 
   relatedness_df_sub <- relatedness_df[
@@ -386,58 +395,161 @@ knn_relatedness_plot <- function(dataset, relatedness_df, knn_class_df) {
     )
   )
   
-  # Plot the relationship between the min celltype relatedness and f1-scores
-  x <- ggplot(
+  # Plot and save the relationship between the min celltype relatedness and 
+  # f1-scores
+  ggplot(
     data = relatedness_knn_class_merged, 
     aes(
       x = `Celltype`,
       y = `F1-score`
     )
   ) +
+    scale_x_discrete(limits = rev(
+      levels(
+        factor(relatedness_knn_class_merged$Celltype)
+        )
+      )
+    ) +
     coord_flip() +
-    facet_wrap(.~Method) +
-    geom_jitter() +
-    geom_boxplot(aes(fill = `Min PCA cosine dist`))
-  print(x)
-  # Merge together knn class df and relatedness df subset 
-  
+    scale_y_continuous(
+      limits = (
+        c(
+          min(relatedness_knn_class_merged$`F1-score`), 
+          max(relatedness_knn_class_merged$`F1-score`)
+        )
+      ),
+      oob = scales::squish
+    ) +
+    facet_wrap(.~Method, scales = "free_x") +
+    geom_jitter(aes(color = `Min PCA cosine dist`)) +
+    geom_boxplot(aes(fill = `Min PCA cosine dist`)) +
+    scale_fill_gradient(low = "blue", high = "red", na.value = NA) +
+    scale_color_gradient(low = "blue", high = "red", na.value = NA) +
+    labs(
+      fill = "Minimum \npairwise \ncelltype \ndistance",
+      x = "Celltype",
+      y = "F1-classification score post-integration"
+    ) +
+    guides(
+      color = "none"
+    ) +
+    theme_few() +
+    theme(axis.title.x = element_text(size = 16)) +
+    theme(axis.title.y = element_text(size = 16)) +
+    theme(strip.text.x = element_text(size = 16)) +
+    theme(plot.title = element_text(size = 14)) +
+    theme(axis.text.x = element_text(size = 14)) +
+    theme(axis.text.y = element_text(size = 14)) +
+    theme(legend.title = element_text(size = 16)) +
+    theme(legend.text = element_text(size = 14))
+  ggsave(
+    paste0(
+      "outs/lowcap_modified/figures/10_",
+      dataset,
+      "_knn_results_celltype_relatedness_comp.pdf"
+    ),
+    width = plot_width,
+    height = plot_height,
+    device = cairo_pdf
+  )
+
 }
+
+# Create lists of heights and widths to save plots
+heights <- list(
+  7, 7, 20, 7
+)
+widths <- list(
+  16, 16, 16, 16
+)
 
 # Iterate over datasets, relatedness_dfs, knn_class_dfs and plot
 mapply(
   knn_relatedness_plot,
   dataset = datasets,
   relatedness_df = relatedness_loaded,
-  knn_class_df = knn_class_files_loaded
+  knn_class_df = knn_class_files_loaded,
+  plot_height = heights,
+  plot_width = widths
 )
 
 # Create function to plot concordance of KNN classification performance
 # with respect to support for the given celltypes
-knn_support_plot <- function(dataset, knn_class_df) {
+
+knn_support_plot <- function(dataset, knn_class_df, plot_height, plot_width) {
   # Add log of support to knn class df
   knn_class_df$Log_support <- log2(knn_class_df$Support)
   
-  # Plot the relationship between celltype support and f1-scores
-  x <- ggplot(
+  # Plot the relationship between celltype support and f1-scores and save
+  ggplot(
     data = knn_class_df, 
     aes(
       x = `Celltype`,
       y = `F1-score`
     )
   ) +
+    scale_x_discrete(
+      limits = rev(levels(factor(knn_class_df$Celltype)))
+    ) +
     coord_flip() +
-    facet_wrap(.~Method) +
+    scale_y_continuous(
+      limits = (
+        c(
+          min(knn_class_df$`F1-score`), 
+          max(knn_class_df$`F1-score`)
+        )
+      ),
+      oob = scales::squish
+    ) +
+    facet_wrap(.~Method, scales = "free_x") +
+    scale_fill_gradient(low = "yellow", high = "red", na.value = NA) +
+    scale_color_gradient(low = "yellow", high = "red", na.value = NA) +
     geom_jitter(aes(color = Log_support)) +
-    geom_boxplot(aes(fill = Log_support))
-  print(x)
-  # Merge together knn class df and relatedness df subset 
+    geom_boxplot(aes(fill = Log_support)) +
+    labs(
+      fill = "Log2 \ncelltype \nnumber",
+      x = "Celltype",
+      y = "F1-classification score post-integration"
+    ) +
+    guides(
+      color = "none"
+    ) +
+    theme_few() +
+    theme(axis.title.x = element_text(size = 16)) +
+    theme(axis.title.y = element_text(size = 16)) +
+    theme(strip.text.x = element_text(size = 16)) +
+    theme(plot.title = element_text(size = 14)) +
+    theme(axis.text.x = element_text(size = 14)) +
+    theme(axis.text.y = element_text(size = 14)) +
+    theme(legend.title = element_text(size = 16)) +
+    theme(legend.text = element_text(size = 14))
+  ggsave(
+    paste0(
+      "outs/lowcap_modified/figures/10_",
+      dataset,
+      "_knn_results_celltype_num_comp.pdf"
+    ),
+    width = plot_width,
+    height = plot_height,
+    device = cairo_pdf
+  )
   
 }
 
-# Iterate over datasets, knn_class_dfs and plot
+# Create lists of heights and widths to save plots
+heights <- list(
+  7, 7, 20, 7
+)
+widths <- list(
+  16, 16, 16, 16
+)
+
+# Iterate over datasets, knn_class_dfs and plot and save 
 mapply(
   knn_support_plot,
   dataset = datasets,
-  knn_class_df = knn_class_files_loaded
+  knn_class_df = knn_class_files_loaded, 
+  plot_height = heights,
+  plot_width = widths
 )
   
