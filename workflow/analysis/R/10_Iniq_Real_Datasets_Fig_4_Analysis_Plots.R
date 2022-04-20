@@ -410,4 +410,34 @@ mapply(
   relatedness_df = relatedness_loaded,
   knn_class_df = knn_class_files_loaded
 )
+
+# Create function to plot concordance of KNN classification performance
+# with respect to support for the given celltypes
+knn_support_plot <- function(dataset, knn_class_df) {
+  # Add log of support to knn class df
+  knn_class_df$Log_support <- log2(knn_class_df$Support)
+  
+  # Plot the relationship between celltype support and f1-scores
+  x <- ggplot(
+    data = knn_class_df, 
+    aes(
+      x = `Celltype`,
+      y = `F1-score`
+    )
+  ) +
+    coord_flip() +
+    facet_wrap(.~Method) +
+    geom_jitter(aes(color = Log_support)) +
+    geom_boxplot(aes(fill = Log_support))
+  print(x)
+  # Merge together knn class df and relatedness df subset 
+  
+}
+
+# Iterate over datasets, knn_class_dfs and plot
+mapply(
+  knn_support_plot,
+  dataset = datasets,
+  knn_class_df = knn_class_files_loaded
+)
   
