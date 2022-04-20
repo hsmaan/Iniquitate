@@ -17,5 +17,6 @@
         }
     },
     "int_ti_datasets": {},
-    "query_to_reference": "Yes"
+    "query_to_reference": "Yes",
+    "celltype_list": "No"
 }

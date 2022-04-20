@@ -40,5 +40,6 @@
             "repetitions": 50
         }
     },
-    "query_to_reference": "No"
+    "query_to_reference": "No",
+    "celltype_list": "No"
 }
