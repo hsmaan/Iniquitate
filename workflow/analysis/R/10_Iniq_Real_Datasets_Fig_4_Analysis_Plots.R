@@ -309,4 +309,105 @@ ggsave(
   device = cairo_pdf
 )
 
+##### Analysis of relatedness metric and cell number with respect to #####
+##### KNN clasification results for each dataset analyzed #####
 
+# Define datasets and keywords to grep
+datasets <- c(
+  "pbmc_2_batch",
+  "pbmc_4_batch",
+  "mouse_hindbrain_6_batch",
+  "peng_pdac_8_batch"
+)
+
+# Load relatedness metrics for all four datasets
+setwd("results/lowcap_modified/relatedness_results/")
+relatedness_files <- list.files()
+relatedness_loaded <- lapply(
+  datasets, function(x) {
+    file_grep <- grep(x, relatedness_files, value = TRUE)
+    file_loaded <- fread(file_grep)
+    return(file_loaded)
+  }
+)
+names(relatedness_loaded) <- datasets
+
+# Load in KNN classification results for all four datasets
+setwd("../knn_classification_reports/")
+knn_class_files <- list.files()
+knn_class_files_loaded <- lapply(
+  datasets, function(x) {
+    files_grep <- grep(x, knn_class_files, value = TRUE)
+    files_loaded <- lapply(
+      files_grep, fread
+    )
+    files_concat <- Reduce(rbind, files_loaded)
+    return(files_concat)
+  }
+)
+names(knn_class_files_loaded) <- datasets
+
+# Load in celltype imbalance results for all four datasets 
+setwd("../celltype_imbalance_summaries/")
+celltype_imba_files <- list.files()
+celltype_imba_files_loaded <- lapply(
+  datasets, function(x) {
+    files_grep <- grep(x, celltype_imba_files, value = TRUE)
+    files_loaded <- lapply(
+      files_grep, fread
+    )
+    files_concat <- Reduce(rbind, files_loaded)
+    return(files_concat)
+  }
+)
+names(celltype_imba_files_loaded) <- datasets
+
+
+# Create function to plot concordance of KNN classification performance
+# with respect to relatedness metrics 
+knn_relatedness_plot <- function(dataset, relatedness_df, knn_class_df) {
+  # Format relatedness df to take the minimum (distance) of each celltype 
+  # to another celltype in the dataset, while excluding self-matches 
+  relatedness_df_sub <- relatedness_df[
+    relatedness_df$`Celltype 1` != relatedness_df$`Celltype 2`
+  ]
+  relatedness_df_min <- relatedness_df_sub %>%
+    group_by(`Celltype 1`) %>% 
+    summarize(var = min(`PCA cosine dist`)) %>%
+    as.data.frame()
+  colnames(relatedness_df_min) <- c("Celltype", "Min PCA cosine dist")
+  
+  # Merge together relatedness and knn class df
+  relatedness_knn_class_merged <- merge(
+    relatedness_df_min,
+    knn_class_df,
+    by = c(
+      "Celltype"
+    )
+  )
+  
+  # Plot the relationship between the min celltype relatedness and f1-scores
+  x <- ggplot(
+    data = relatedness_knn_class_merged, 
+    aes(
+      x = `Celltype`,
+      y = `F1-score`
+    )
+  ) +
+    coord_flip() +
+    facet_wrap(.~Method) +
+    geom_jitter() +
+    geom_boxplot(aes(fill = `Min PCA cosine dist`))
+  print(x)
+  # Merge together knn class df and relatedness df subset 
+  
+}
+
+# Iterate over datasets, relatedness_dfs, knn_class_dfs and plot
+mapply(
+  knn_relatedness_plot,
+  dataset = datasets,
+  relatedness_df = relatedness_loaded,
+  knn_class_df = knn_class_files_loaded
+)
+  
