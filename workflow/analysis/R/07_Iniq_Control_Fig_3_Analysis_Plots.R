@@ -1795,8 +1795,8 @@ ggsave(
 
 
 # Plot the celltype specific downsampling results, for the L1 and L2 baseline
-# annotations - F1 scores as a function of type, and celltype downsampled, 
-# for each annotation
+# annotations (using just HVG KNN) - F1 scores as a function of type, and 
+# celltype downsampled, for each annotation
 imba_anno_merged_score_format_l1_baseline <- imba_anno_merged_score_format[
   imba_anno_merged_score_format$Subset %in% "L1 baseline", 
 ]
@@ -1888,34 +1888,3 @@ ggsave(
   device = cairo_pdf
 )  
 
-# FAISS HVG Control yields all predictions for L1 and L2 celltypes of other 
-# cells as erythrocytes
-ggplot(data = imba_anno_merged_all, aes(
-  x = `Real celltype`
-)) +
-  geom_bar(aes(fill = `Control predicted L2`), stat = "count") + 
-  scale_fill_brewer(palette = "Dark2") +
-  labs(
-    fill = "L2 prediction \n(KNN baseline)",
-    x = "Query celltype",
-    y = "Count"
-  ) +
-  theme_few() +
-  coord_flip() +
-  theme(axis.title.x = element_text(size = 16)) +
-  theme(axis.title.y = element_text(size = 16)) +
-  theme(strip.text.x = element_text(size = 16)) +
-  theme(plot.title = element_text(size = 14)) +
-  theme(axis.text.x = element_text(size = 14)) +
-  theme(axis.text.y = element_text(size = 14)) +
-  theme(legend.title = element_text(size = 16)) +
-  theme(legend.text = element_text(size = 14))
-ggsave(
-  paste0(
-    "outs/control/figures/",
-    "07_pbmc_ds_ablate_l2_baseline_annotation_celltype_predictions.pdf"
-  ),
-  width = 9,
-  height = 7,
-  device = cairo_pdf
-)  
