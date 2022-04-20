@@ -1,6 +1,6 @@
 import os 
 
-configfile: "configs/config_control.json"
+configfile: "configs/config_pdac_comp.json"
 configname = config["config_name"]
 
 # Get all combinations through the config file
