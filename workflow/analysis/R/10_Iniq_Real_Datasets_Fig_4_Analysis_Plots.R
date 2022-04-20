@@ -176,7 +176,7 @@ setwd("../../..")
 
 # Make lowcap figure directory if it does not exist
 if (!dir.exists("outs/lowcap_modified/figures")) {
-  dir.create("outs/lowcap_modified/figures")
+  dir.create("outs/lowcap_modified/figures", recursive = TRUE)
 }
 
 ### Fig 4A) - Analysis of PBMC 2 batch results with respect to integration
