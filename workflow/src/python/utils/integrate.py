@@ -181,7 +181,7 @@ class Integration:
             adata = aseurat,
             int_type = int_type
         )
-        aseurat_int = seurat_integrate.integrate() # Substitute seurat integrated anndata object
+        aseurat_int = seurat_integrate.integrate() # Create seurat integrated anndata object
         sc.pp.pca(aseurat_int, svd_solver = "arpack")
         sc.pp.neighbors(
             aseurat_int,

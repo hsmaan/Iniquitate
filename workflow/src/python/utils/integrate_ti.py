@@ -240,7 +240,7 @@ class IntegrationPAGA:
             adata = aseurat,
             int_type = int_type
         )
-        aseurat_int = seurat_integrate.integrate() # Substitute seurat integrated anndata object
+        aseurat_int = seurat_integrate.integrate() # Create seurat integrated anndata object
         sc.pp.pca(aseurat_int, svd_solver = "arpack")
         sc.pp.neighbors(
             aseurat_int,
@@ -281,22 +281,30 @@ class IntegrationPAGA:
         liger_integrate = LigerIntegrate(
             adata = aliger,
         )
-        aliger = liger_integrate.integrate() # Substitute liger integrated anndata object
+        aliger_int = liger_integrate.integrate() # Create liger integrated anndata object
         sc.pp.neighbors(
-            aliger,
+            aliger_int,
             n_neighbors = n_neighbors,
             n_pcs = n_pcs,
             use_rep = "X_liger"
         )
-        sc.tl.leiden(aliger)
-        sc.tl.umap(aliger)
+        sc.tl.leiden(aliger_int)
+        sc.tl.umap(aliger_int)
         sc.tl.paga(
-            aliger, 
+            aliger_int, 
             groups = "celltype"
         )
-        aliger.uns["iroot"] = np.flatnonzero(
-            aliger.obs["celltype"] == self.root_celltype
+        aliger_int.uns["iroot"] = np.flatnonzero(
+            aliger_int.obs["celltype"] == self.root_celltype
         )[0]
-        sc.tl.dpt(aliger)
+        sc.tl.dpt(aliger_int)
+        # Append Liger integrated data to original adata object
+        aliger.obs["leiden"] = aliger_int.obs["leiden"]
+        aliger.obsm["X_umap"] = aliger_int.obsm["X_umap"]
+        aliger.obs["dpt_pseudotime"] = aliger_int.obs["dpt_pseudotime"]
+        aliger.uns["iroot"] = aliger_int.uns["iroot"]
+        aliger.uns["paga"] = aliger_int.uns["paga"]
+        aliger.obsp["distances"] = aliger_int.obsp["distances"]
+        aliger.obsp["connectivities"] = aliger_int.obsp["connectivities"]
         print("Done!" + "\n")
         return aliger
