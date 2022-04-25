@@ -182,6 +182,18 @@ if (!dir.exists("outs/lowcap_modified/figures")) {
 ### Fig 4A) - Analysis of PBMC 2 batch results with respect to integration
 ### and measures of relatedness 
 
+# Format the relatedness metric results for both the balanced and imbalanced
+# PBMC 2 batch datasets 
+pbmc_2_batch_bal_relate_formatted <- pbmc_2_batch_bal_relate_loaded %>%
+  group_by(`Celltype 1`, `Celltype 2`) %>%
+  summarize(`Average PCA cosine dist` = mean(`PCA cosine dist`)) %>%
+  as.data.frame() 
+
+pbmc_2_batch_imba_relate_formatted <- pbmc_2_batch_imba_relate_loaded %>%
+  group_by(`Celltype 1`, `Celltype 2`) %>%
+  summarize(`Average PCA cosine dist` = mean(`PCA cosine dist`)) %>%
+  as.data.frame() 
+
 # Merge and subset balanced clustering data to only include control experiments 
 imba_clus_merged_bal <- merge(
   pbmc_2_batch_bal_clus_concat,
@@ -314,6 +326,102 @@ ggsave(
   device = cairo_pdf
 )
 
+##### Plotting of relatedness metric for both PBMC 2 batch balanced and ##### 
+##### imbalanced datasets #####
+ggplot(
+  data = pbmc_2_batch_bal_relate_formatted,
+  aes(
+    x = `Celltype 1`,
+    y = `Celltype 2`
+  ) 
+) + 
+  geom_tile(
+    aes(fill = `Average PCA cosine dist`)
+  ) +
+  scale_fill_gradient(
+    low = "firebrick2",
+    high = "white"
+  ) +
+  scale_x_discrete(
+    limits = rev(levels(factor(pbmc_2_batch_bal_relate_formatted$`Celltype 1`)))
+  ) + 
+  scale_y_discrete(
+    limits = rev(levels(factor(pbmc_2_batch_bal_relate_formatted$`Celltype 2`)))
+  ) + 
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(
+    size = 12, 
+    angle = 90, 
+    vjust = 1, 
+    hjust = 1)
+  ) +
+  theme(aspect.ratio = 1) + 
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) +
+  labs(
+    fill = "Average PCA distance \n across batches",
+    x = "Celltype 1",
+    y = "Celltype 2"
+  )
+ggsave(
+  "outs/lowcap_modified/figures/10_pbmc_2_batch_bal_celltype_relatedness.pdf",
+  width = 7,
+  height = 7,
+  device = cairo_pdf
+)
+
+ggplot(
+  data = pbmc_2_batch_imba_relate_formatted,
+  aes(
+    x = `Celltype 1`,
+    y = `Celltype 2`
+  ) 
+) + 
+  geom_tile(
+    aes(fill = `Average PCA cosine dist`)
+  ) +
+  scale_fill_gradient(
+    low = "firebrick2",
+    high = "white"
+  ) +
+  scale_x_discrete(
+    limits = rev(levels(factor(pbmc_2_batch_imba_relate_formatted$`Celltype 1`)))
+  ) + 
+  scale_y_discrete(
+    limits = rev(levels(factor(pbmc_2_batch_imba_relate_formatted$`Celltype 2`)))
+  ) + 
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(
+    size = 12, 
+    angle = 90, 
+    vjust = 1, 
+    hjust = 1)
+  ) +
+  theme(aspect.ratio = 1) + 
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) +
+  labs(
+    fill = "Average PCA distance \n across batches",
+    x = "Celltype 1",
+    y = "Celltype 2"
+  )
+ggsave(
+  "outs/lowcap_modified/figures/10_pbmc_2_batch_imba_celltype_relatedness.pdf",
+  width = 7,
+  height = 7,
+  device = cairo_pdf
+)
+
 ##### Analysis of relatedness metric and cell number with respect to #####
 ##### KNN clasification results for each dataset analyzed #####
 
@@ -426,7 +534,7 @@ knn_relatedness_plot <- function(
     scale_fill_gradient(low = "blue", high = "red", na.value = NA) +
     scale_color_gradient(low = "blue", high = "red", na.value = NA) +
     labs(
-      fill = "Minimum \npairwise \ncelltype \ndistance",
+      fill = "Minimum \nPCA \ncelltype \ndistance",
       x = "Celltype",
       y = "F1-classification score post-integration"
     ) +
@@ -502,8 +610,8 @@ knn_support_plot <- function(dataset, knn_class_df, plot_height, plot_width) {
       oob = scales::squish
     ) +
     facet_wrap(.~Method, scales = "free_x") +
-    scale_fill_gradient(low = "yellow", high = "red", na.value = NA) +
-    scale_color_gradient(low = "yellow", high = "red", na.value = NA) +
+    scale_fill_gradient(low = "yellow", high = "firebrick2", na.value = NA) +
+    scale_color_gradient(low = "yellow", high = "firebrick2", na.value = NA) +
     geom_jitter(aes(color = Log_support)) +
     geom_boxplot(aes(fill = Log_support)) +
     labs(
