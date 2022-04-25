@@ -534,7 +534,7 @@ knn_relatedness_plot <- function(
     scale_fill_gradient(low = "blue", high = "red", na.value = NA) +
     scale_color_gradient(low = "blue", high = "red", na.value = NA) +
     labs(
-      fill = "Minimum \npairwise \ncelltype \ndistance",
+      fill = "Minimum \nPCA \ncelltype \ndistance",
       x = "Celltype",
       y = "F1-classification score post-integration"
     ) +
@@ -610,8 +610,8 @@ knn_support_plot <- function(dataset, knn_class_df, plot_height, plot_width) {
       oob = scales::squish
     ) +
     facet_wrap(.~Method, scales = "free_x") +
-    scale_fill_gradient(low = "goldenrod1", high = "firebrick2", na.value = NA) +
-    scale_color_gradient(low = "goldenrod1", high = "firebrick2", na.value = NA) +
+    scale_fill_gradient(low = "yellow", high = "firebrick2", na.value = NA) +
+    scale_color_gradient(low = "yellow", high = "firebrick2", na.value = NA) +
     geom_jitter(aes(color = Log_support)) +
     geom_boxplot(aes(fill = Log_support)) +
     labs(
