@@ -76,7 +76,6 @@ def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_celltypes_names, ds
     )
     
     # Integrate across subsets
-    unintegrated = integration_paga.unintegrated()
     harmony_integrated = integration_paga.harmony_integrate()
     scvi_integrated = integration_paga.scvi_integrate()
     bbknn_integrated = integration_paga.bbknn_integrate()
@@ -85,7 +84,6 @@ def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_celltypes_names, ds
     liger_integrated = integration_paga.liger_integrate()
     
     # Add integration type to each subset and concatenate
-    unintegrated.obs["integration_method"] = "unintegrated"
     harmony_integrated.obs["integration_method"] = "harmony" 
     scvi_integrated.obs["integration_method"] = "scvi"
     bbknn_integrated.obs["integration_method"] = "bbknn"
@@ -94,7 +92,6 @@ def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_celltypes_names, ds
     liger_integrated.obs["integration_method"] = "liger"
     
     integrated_concat = ann.concat([
-        unintegrated,
         harmony_integrated,
         scvi_integrated,
         bbknn_integrated,
