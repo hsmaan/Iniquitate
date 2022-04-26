@@ -106,9 +106,9 @@ def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_celltypes_names, ds
     if num_batches == 0:
         integrated_concat.uns["downsampling_stats"] = {
             "num_batches": 0,
-            "num_celltypes_downsampled": 0,
+            "num_celltypes_downsampled": ds_celltypes,
             "ds_batch_names": "None",
-            "proportion_downsampled": 1,
+            "proportion_downsampled": ds_proportions,
             "downsampled_celltypes": "None"
         }
     else:
