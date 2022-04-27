@@ -14,10 +14,8 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     
     # Extract summary statistics from h5ad file
     num_batches_ds = adata.uns["downsampling_stats"]["num_batches"]
-    batches_ds = adata.uns["downsampling_stats"]["ds_batch_names"]
     num_celltypes_ds = adata.uns["downsampling_stats"]["num_celltypes_downsampled"]
     prop_ds = adata.uns["downsampling_stats"]["proportion_downsampled"]
-    downsampled_celltypes = adata.uns["downsampling_stats"]["downsampled_celltypes"]
     batches = np.unique(adata.obs.batch.__array__())
     
     # Concatenate downsampled celltypes and batches - conditioned on return type
@@ -76,9 +74,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     ti_corr_df["Dataset"] = dataset_name
     ti_corr_df["Number of batches downsampled"] = num_batches_ds
     ti_corr_df["Number of celltypes downsampled"] = num_celltypes_ds
-    ti_corr_df["Batches downsampled"] = batches_ds
     ti_corr_df["Proportion downsampled"] = prop_ds
-    ti_corr_df["Downsampled celltypes"] = downsampled_celltypes
     ti_corr_df["Replicate"] = rep
     ti_corr_df["Total batches"] = len(batches)
     
