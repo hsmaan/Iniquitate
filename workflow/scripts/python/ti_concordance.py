@@ -18,22 +18,6 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     prop_ds = adata.uns["downsampling_stats"]["proportion_downsampled"]
     batches = np.unique(adata.obs.batch.__array__())
     
-    # Concatenate downsampled celltypes and batches - conditioned on return type
-    if isinstance(downsampled_celltypes, str):
-        if downsampled_celltypes == "None":  
-            downsampled_celltypes = "None"
-        else:
-            raise ValueError("Downsampled celltypes is a str and not 'None'")
-    elif isinstance(downsampled_celltypes, list):
-        downsampled_celltypes = np.array(downsampled_celltypes)
-    elif isinstance(downsampled_celltypes, np.ndarray):
-        if len(downsampled_celltypes.shape) == 1:
-            downsampled_celltypes = downsampled_celltypes
-        else:
-            downsampled_celltypes = np.concatenate(downsampled_celltypes)
-    else:
-        raise TypeError("Downsampled celltypes is not a str, list, or ndarray")
-    
     # Subset h5ad based on batch-correction method used
     adata_method_sub = []
     methods = ["harmony", "scvi", "bbknn", "scanorama", "seurat", "liger"]
