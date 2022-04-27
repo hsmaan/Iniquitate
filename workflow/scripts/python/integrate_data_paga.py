@@ -23,7 +23,6 @@ def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_celltypes_names, ds
     for f in files_list:
         adata = sc.read_h5ad(os.path.join(h5ad_dir, f), as_sparse = "raw/X")
         adata.layers["raw"] = adata.X # Store raw counts
-        adata.obs = adata.obs[["batch", "celltype"]] # Only store relevant columns
         if "gene" not in adata.var.columns:
             adata.var["gene"] = adata.var_names # Add gene names if not present
         adata.var = adata.var[["gene"]] # Only store relevant columns

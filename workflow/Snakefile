@@ -55,14 +55,17 @@ if config["celltype_list"] == "No":
                     outputs = zip(
                         [
                             "paga_integrated_results",
-                            "paga_imbalance_summaries"
+                            "paga_imbalance_summaries",
+                            "paga_ti_scores"
                         ], 
                         [
                             "paga_integrated",
-                            "paga_imbalance_summary"
+                            "paga_imbalance_summary",
+                            "paga_ti_score"
                         ],
                         [
                             "h5ad",
+                            "tsv",
                             "tsv"
                         ]
                     )
@@ -145,14 +148,17 @@ if config["celltype_list"] == "No":
                     outputs = zip(
                         [
                             "paga_integrated_results",
-                            "paga_imbalance_summaries"
+                            "paga_imbalance_summaries",
+                            "paga_ti_scores"
                         ], 
                         [
                             "paga_integrated",
-                            "paga_imbalance_summary"
+                            "paga_imbalance_summary",
+                            "paga_ti_score"
                         ],
                         [
                             "h5ad",
+                            "tsv",
                             "tsv"
                         ]
                     )
@@ -502,6 +508,33 @@ rule imbalance_summary_paga:
             --rep {wildcards.rep} \
             &> {log}
         """
+
+# Get the scoring results of PAGA-based trajectory inference 
+rule paga_scoring:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/{configname}/paga_integrated_results/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
+        "_{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}_paga_integrated.h5ad"
+    output:
+        "../results/{configname}/paga_ti_scores/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
+        "_{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}_paga_ti_score.tsv"
+    params:
+        script_path = "scripts/python/ti_concordance.py"
+    log:
+        "logs/{configname}/paga_ti_scores/{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes" +
+        "_{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}_paga_ti_score.log"
+    priority: 100
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            &> {log}
+        """
+
 
 # Get KNN classification statistics for each celltype post integration for each method
 rule knn_classification:
