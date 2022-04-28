@@ -18,6 +18,13 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     prop_ds = adata.uns["downsampling_stats"]["proportion_downsampled"]
     batches = np.unique(adata.obs.batch.__array__())
     
+    # Drop any samples/cells that contain NaN or Inf pseudotime estimates
+    pt_drop_indices_1 = np.where(np.isnan(adata.obs.dpt_pseudotime.__array__()))[0]
+    pt_drop_indices_2 = np.where(np.isinf(adata.obs.dpt_pseudotime.__array__()))[0]
+    pt_drop_indices = np.unique(np.concatenate([pt_drop_indices_1, pt_drop_indices_2]))
+    pt_drop_samples = np.unique(adata.obs["sample"].__array__()[pt_drop_indices])
+    adata = adata[~adata.obs["sample"].isin(pt_drop_samples)].copy()
+    
     # Subset h5ad based on batch-correction method used
     adata_method_sub = []
     methods = ["harmony", "scvi", "bbknn", "scanorama", "seurat", "liger"]
