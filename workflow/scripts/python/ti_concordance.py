@@ -27,22 +27,26 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
             adata_sub
         )
         
-    # Determine pearson, spearman, and kendall correlations between post-integration PAGA estimated pseudotime and 
-    # pre-integration pseudotime for each batch-correction method
+    # Subset the data for unintegrated results and extract the dpt_pseudotime values
+    unintegrated_adata = adata[
+        adata.obs["integration_method"] == "unintegrated"
+    ]
+    unintegrated_pt = unintegrated_adata.obs["dpt_pseudotime"].__array__()
+    
+    # Determine pearson, spearman, and kendall correlations between post-integration 
+    # PAGA estimated pseudotime and pre-integration pseudotime for each batch-correction 
+    # method
     spearman_corrs = []
     pearson_corrs = []
     kendall_corrs = []
     for adata_sub in adata_method_sub:
-        # Get pre-integration pseudotime
-        preint_pt = adata_sub.obs["Sub_trajectory_Pseudotime"].__array__()
-        
         # Get DPT pseudotime estimates
         dpt_pt = adata_sub.obs["dpt_pseudotime"].__array__()
         
-        # Get correlations between pre-integration pseudotime and DPT pseudotime
-        spearman_corr = sp.spearmanr(preint_pt, dpt_pt)[0]
-        pearson_corr = sp.pearsonr(preint_pt, dpt_pt)[0]
-        kendall_corr = sp.kendalltau(preint_pt, dpt_pt)[0]
+        # Get correlations between pre-integration/unintegrated pseudotime and DPT pseudotime
+        spearman_corr = sp.spearmanr(unintegrated_pt, dpt_pt)[0]
+        pearson_corr = sp.pearsonr(unintegrated_pt, dpt_pt)[0]
+        kendall_corr = sp.kendalltau(unintegrated_pt, dpt_pt)[0]
         
         spearman_corrs.append(spearman_corr)
         pearson_corrs.append(pearson_corr)
