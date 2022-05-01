@@ -1,3 +1,6 @@
+import numpy as np
+import scipy.sparse as sp
+
 from .utils import entropy, mutual_info_score, contingency_matrix, check_clusterings
 
 
@@ -55,14 +58,28 @@ def balanced_homogeneity_completeness_v_measure(
 
     if len(labels_true) == 0:
         return 1.0, 1.0, 1.0
-
-    entropy_C = entropy(labels_true)
-    entropy_K = entropy(labels_pred)
-
+    
     contingency = contingency_matrix(
         labels_true, labels_pred, reweigh=reweigh, sparse=True
     )
     MI = mutual_info_score(None, None, contingency=contingency)
+
+    # Recalculate labels_true and labels_pred if reweigh is True to
+    # factor in the reweighting based on the true class frequencies.
+    # These won't preserve order but this is fine since entropy is 
+    # invariant to order
+    if reweigh is True:
+        true_sums = np.squeeze(np.asarray(sp.csc_matrix.sum(contingency, axis = 1)))
+        pred_sums = np.squeeze(np.asarray(sp.csc_matrix.sum(contingency, axis = 0)))
+        labels_true = np.repeat(
+            np.arange(len(true_sums)), true_sums
+        )
+        labels_pred = np.repeat(
+            np.arange(len(pred_sums)), pred_sums
+        )
+
+    entropy_C = entropy(labels_true)
+    entropy_K = entropy(labels_pred)
 
     homogeneity = MI / (entropy_C) if entropy_C else 1.0
     completeness = MI / (entropy_K) if entropy_K else 1.0

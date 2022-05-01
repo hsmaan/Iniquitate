@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.sparse as sp
 
 from .utils import (
     check_clusterings,
@@ -81,6 +82,19 @@ def balanced_adjusted_mutual_info(
     contingency = contingency_matrix(
         labels_true, labels_pred, reweigh=reweigh, sparse=True
     )
+    # Recalculate labels_true and labels_pred if reweigh is True to
+    # factor in the reweighting based on the true class frequencies.
+    # These won't preserve order but this is fine since entropy is 
+    # invariant to order
+    if reweigh is True:
+        true_sums = np.squeeze(np.asarray(sp.csc_matrix.sum(contingency, axis = 1)))
+        pred_sums = np.squeeze(np.asarray(sp.csc_matrix.sum(contingency, axis = 0)))
+        labels_true = np.repeat(
+            np.arange(len(true_sums)), true_sums
+        )
+        labels_pred = np.repeat(
+            np.arange(len(pred_sums)), pred_sums
+        )
     contingency = contingency.astype(np.float64)
     # Calculate the MI for the two clusterings
     mi = mutual_info_score(labels_true, labels_pred, contingency=contingency)
