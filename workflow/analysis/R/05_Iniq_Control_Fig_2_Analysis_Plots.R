@@ -578,6 +578,11 @@ imba_knn_merged_celltype$Celltype <- plyr::mapvalues(
   )
 )
 
+# Create function to format facet labels (downsampled celltypes)
+ds_celltype_labelled <- function(variable,value){
+  return(paste0("Celltype affected = ", value))
+}
+
 ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   geom_boxplot(
     aes(
@@ -586,7 +591,12 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
     notch = FALSE,
     alpha = 0.8 
   ) +
-  facet_wrap(.~Celltype, scales = "free_x") +
+  facet_wrap(
+    .~Celltype, 
+    scales = "free_x", 
+    labeller = ds_celltype_labelled,
+    ncol = 2
+  ) +
   labs(
     fill = "Type",
     x = "Method",
@@ -601,14 +611,14 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   theme(axis.title.y = element_text(size = 16)) +
   theme(strip.text.x = element_text(size = 16)) +
   theme(plot.title = element_text(size = 14)) +
-  theme(axis.text.x = element_text(size = 14)) +
-  theme(axis.text.y = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
   theme(legend.title = element_text(size = 16)) +
-  theme(legend.text = element_text(size = 14))
+  theme(legend.text = element_text(size = 16))
 ggsave(
   "outs/control/figures/05_pbmc_ds_ablate_allmethod_knn_f1_score.pdf",
-  width = 14,
-  height = 8,
+  width = 12,
+  height = 14,
   device = cairo_pdf
 )
 
@@ -1044,6 +1054,11 @@ imba_knn_merged_celltype$type <- ifelse(
   )
 )
 
+# Create function to format facet labels (downsampled celltypes)
+ds_celltype_labelled <- function(variable,value){
+  return(paste0("Celltype affected = ", value))
+}
+
 ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   geom_boxplot(
     aes(
@@ -1052,7 +1067,12 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
     notch = FALSE,
     alpha = 0.8 
   ) +
-  facet_wrap(.~Celltype, scales = "free_x") +
+  facet_wrap(
+    .~Celltype, 
+    scales = "free_x", 
+    labeller = ds_celltype_labelled,
+    ncol = 1
+  ) +
   labs(
     fill = "Type",
     x = "Method",
@@ -1067,14 +1087,14 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   theme(axis.title.y = element_text(size = 16)) +
   theme(strip.text.x = element_text(size = 16)) +
   theme(plot.title = element_text(size = 14)) +
-  theme(axis.text.x = element_text(size = 14)) +
-  theme(axis.text.y = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
   theme(legend.title = element_text(size = 16)) +
-  theme(legend.text = element_text(size = 14))
+  theme(legend.text = element_text(size = 16))
 ggsave(
   "outs/control/figures/05_pbmc_hierarchical_ds_ablate_allmethod_knn_f1_score.pdf",
-  width = 14,
-  height = 4,
+  width = 8,
+  height = 14,
   device = cairo_pdf
 )
 
