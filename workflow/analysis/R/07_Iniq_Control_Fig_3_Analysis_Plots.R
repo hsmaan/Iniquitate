@@ -219,10 +219,10 @@ ggplot(data = imba_clus_merged, aes(
   theme(axis.title.y = element_text(size = 16)) +
   theme(strip.text.x = element_text(size = 16)) +
   theme(plot.title = element_text(size = 14)) +
-  theme(axis.text.x = element_text(size = 14)) +
-  theme(axis.text.y = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
   theme(legend.title = element_text(size = 16)) +
-  theme(legend.text = element_text(size = 14))
+  theme(legend.text = element_text(size = 16))
 ggsave(
   "outs/control/figures/07_pbmc_ds_ablate_allmethod_cluster_number.pdf",
   width = 14,
@@ -555,10 +555,11 @@ rownames(gene_rank_var_method_type_abla_long_mat) <-
   gene_rank_var_method_type_abla_long[, 1]
 
 # Create three separate heatmaps for each of the types
+# (use max 10 here as this indicates significant enough changes)
 col_pert = circlize::colorRamp2(
   c(
     0,
-    40
+    10
   ),
   c("white", "firebrick1")
 )
