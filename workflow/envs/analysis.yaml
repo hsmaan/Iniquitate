@@ -20,6 +20,7 @@ dependencies:
   - jupyterlab>=3.2.9
   - notebook>=6.4.2
   - scvi-tools=0.14.4
+  - torchmetrics<=0.6.0 # Issue with torch loading
   - bbknn=1.5.1
   - harmonypy=0.0.5
   - scanorama=1.7.1
@@ -47,3 +48,4 @@ dependencies:
   - r-lemon>=0.4.5
   - r-networkd3>=0.4
   - r-emt>=1.2
+  - cython>=0.29.25
