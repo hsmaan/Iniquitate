@@ -1,5 +1,6 @@
 name: iniq_analysis
 channels:
+  - pytorch
   - bioconda
   - r
   - conda-forge
