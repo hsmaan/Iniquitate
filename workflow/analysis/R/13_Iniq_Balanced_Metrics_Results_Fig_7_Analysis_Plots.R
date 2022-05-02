@@ -72,7 +72,6 @@ ggplot(data = bal_7A_cluster_df, aes(x = x, y = y)) +
     y = "x2"
   ) +
   scale_color_brewer(palette = "Set1") +
-  theme_few() +
   theme_classic() +
   theme(axis.title.x = element_text(size = 16)) +
   theme(axis.title.y = element_text(size = 16)) +
@@ -99,7 +98,7 @@ ggplot(data = bal_7A_cluster_df, aes(x = x, y = y)) +
     y = "x2"
   ) +
   scale_color_brewer(palette = "Dark2") +
-  theme_few() +
+  theme_classic() +
   theme_classic() +
   theme(axis.title.x = element_text(size = 16)) +
   theme(axis.title.y = element_text(size = 16)) +
@@ -144,7 +143,7 @@ ggplot(
     position = position_dodge2()
   ) +
   scale_fill_brewer(palette = "Set2") +
-  theme_few() +
+  theme_classic() +
   labs(
     fill = "Metric type",
     x = "Metric",
@@ -180,7 +179,7 @@ ggplot(data = bal_7B_cluster_df, aes(x = x, y = y)) +
     y = "x2"
   ) +
   scale_color_brewer(palette = "Set1") +
-  theme_few() +
+  theme_classic() +
   theme_classic() +
   theme(axis.title.x = element_text(size = 16)) +
   theme(axis.title.y = element_text(size = 16)) +
@@ -207,7 +206,7 @@ ggplot(data = bal_7B_cluster_df, aes(x = x, y = y)) +
     y = "x2"
   ) +
   scale_color_brewer(palette = "Dark2") +
-  theme_few() +
+  theme_classic() +
   theme_classic() +
   theme(axis.title.x = element_text(size = 16)) +
   theme(axis.title.y = element_text(size = 16)) +
@@ -252,7 +251,7 @@ ggplot(
     position = position_dodge2()
   ) +
   scale_fill_brewer(palette = "Set2") +
-  theme_few() +
+  theme_classic() +
   labs(
     fill = "Metric type",
     x = "Metric",
@@ -290,7 +289,7 @@ ggplot(data = bal_7C_cluster_df, aes(x = x, y = y)) +
     y = "UMAP 2"
   ) +
   scale_color_manual(values = palette_7C_celltype) +
-  theme_few() +
+  theme_classic() +
   theme_classic() +
   theme(axis.title.x = element_text(size = 16)) +
   theme(axis.title.y = element_text(size = 16)) +
@@ -317,7 +316,7 @@ ggplot(data = bal_7C_cluster_df, aes(x = x, y = y)) +
     y = "x2"
   ) +
   scale_color_manual(values = palette_7C_cluster) +
-  theme_few() +
+  theme_classic() +
   theme_classic() +
   theme(axis.title.x = element_text(size = 16)) +
   theme(axis.title.y = element_text(size = 16)) +
@@ -336,17 +335,21 @@ ggsave(
 )
 
 # Plot the comparisons of the balanced and imbalanced metrics for 7C
+# Focus on just the ARI and AMI results 
 bal_7C_metrics_df$Metric_bare <- str_split_fixed(
   bal_7C_metrics_df$Metric,
   pattern = " ",
   n = 2
 )[, 1]
+bal_7C_metrics_df_sub <- bal_7C_metrics_df[
+  bal_7C_metrics_df$Metric_bar %in% c("ARI", "AMI")
+]
 ggplot(
-  data = bal_7C_metrics_df, 
+  data = bal_7C_metrics_df_sub, 
   aes(
     x = factor(
-      bal_7C_metrics_df$Metric_bare,
-      levels = rev(unique(bal_7C_metrics_df$Metric_bare))
+      bal_7C_metrics_df_sub$Metric_bare,
+      levels = unique(bal_7C_metrics_df_sub$Metric_bare)
     ), 
     y = Value
   )
@@ -355,14 +358,14 @@ ggplot(
     stat = "identity", 
     aes(
       fill = factor(
-        bal_7C_metrics_df$Type, 
-        levels = c("balanced", "imbalanced")
+        bal_7C_metrics_df_sub$Type, 
+        levels = c("imbalanced", "balanced")
       )
     ), 
     position = position_dodge2()
   ) +
   scale_fill_brewer(palette = "Set2") +
-  theme_few() +
+  theme_classic() +
   labs(
     fill = "Metric type",
     x = "Metric",
@@ -378,13 +381,119 @@ ggplot(
   theme(axis.text.y = element_text(size = 16)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16)) +
-  theme(aspect.ratio = 1) +
-  coord_flip() 
+  theme(aspect.ratio = 1) 
 ggsave(
   "outs/balanced_metrics/figures/13_7C_metrics_barplot.pdf",
-  width = 8,
-  height = 8,
+  width = 6,
+  height = 6,
   device = cairo_pdf
 )
 
+### Fig 7D Analysis - Second use case on single-cell data 
 
+# Plot the celltype coordinate results 
+ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
+  geom_point(aes(color = celltype)) +
+  labs(
+    color = "Celltype",
+    x = "UMAP 1",
+    y = "UMAP 2"
+  ) +
+  scale_color_brewer(palette = "Set1") +
+  theme_classic() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16)) +
+  theme(aspect.ratio = 1) + 
+  guides(colour = guide_legend(override.aes = list(size=3)))
+ggsave(
+  "outs/balanced_metrics/figures/13_7D_trial_celltype_coordinates.pdf",
+  width = 7,
+  height = 7
+)
+
+# Plot the cluster coordinate results 
+ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
+  geom_point(aes(color = factor(cluster))) +
+  labs(
+    color = "Cluster",
+    x = "x1",
+    y = "x2"
+  ) +
+  scale_color_brewer(palette = "Set2") +
+  theme_classic() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16)) +
+  theme(aspect.ratio = 1) + 
+  guides(colour = guide_legend(override.aes = list(size=3)))
+ggsave(
+  "outs/balanced_metrics/figures/13_7D_trial_cluster_coordinates.pdf",
+  width = 7,
+  height = 7
+)
+
+# Plot the comparisons of the balanced and imbalanced metrics for 7D
+# Focus on just the ARI and Homogeneity results 
+bal_7D_metrics_df$Metric_bare <- str_split_fixed(
+  bal_7D_metrics_df$Metric,
+  pattern = " ",
+  n = 2
+)[, 1]
+bal_7D_metrics_df_sub <- bal_7D_metrics_df[
+  bal_7D_metrics_df$Metric_bar %in% c("ARI", "Homogeneity")
+]
+ggplot(
+  data = bal_7D_metrics_df_sub, 
+  aes(
+    x = factor(
+      bal_7D_metrics_df_sub$Metric_bare,
+      levels = unique(bal_7D_metrics_df_sub$Metric_bare)
+    ), 
+    y = Value
+  )
+) +
+  geom_bar(
+    stat = "identity", 
+    aes(
+      fill = factor(
+        bal_7D_metrics_df_sub$Type, 
+        levels = c("imbalanced", "balanced")
+      )
+    ), 
+    position = position_dodge2()
+  ) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_classic() +
+  labs(
+    fill = "Metric type",
+    x = "Metric",
+    y = "Value"
+  ) +
+  ylim(c(0, 1)) +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16)) +
+  theme(aspect.ratio = 1) 
+ggsave(
+  "outs/balanced_metrics/figures/13_7D_metrics_barplot.pdf",
+  width = 6,
+  height = 6,
+  device = cairo_pdf
+)
