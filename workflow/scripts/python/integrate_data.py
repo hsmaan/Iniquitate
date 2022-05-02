@@ -37,17 +37,14 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
         )
         adata_selected = [adata_loaded[i] for i in selected_indices]
         adata_unselected = [adata_loaded[i] for i in range(len(adata_loaded)) if i not in selected_indices]
-        adata_downsampled = []
-        selected_celltypes_downsampled = []
-        for adata in adata_selected:
-            adata_ds, selected_celltypes_ds = downsample(
-                adata = adata, 
-                num_celltypes = ds_celltypes,
-                celltype_names = None,
-                proportion = ds_proportions
-            )
-            adata_downsampled.append(adata_ds)
-            selected_celltypes_downsampled.append(selected_celltypes_ds)
+        # Downsample the same selected celltypes across all of the batches - this change will not affect
+        # previous runs, as they all downsampled either 0 or only 1 celltype, in either 0 or 1 batches 
+        adata_downsampled, selected_celltypes_downsampled = downsample(
+            adata = adata_selected, 
+            num_celltypes = ds_celltypes,
+            celltype_names = None,
+            proportion = ds_proportions
+        )
         adata_loaded = adata_unselected + adata_downsampled
 
     # Store batch name separately for each anndata object
@@ -154,6 +151,14 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
         "kmeans_final_k": k
     }
 
+    # If downsampled celltypes and batches are of array length greater than one, combine them 
+    batches_ds = np.concatenate([np.unique(adata.obs["batch"].__array__()) for adata in adata_downsampled])
+    selected_celltypes_downsampled = np.array(selected_celltypes_downsampled)
+    if len(batches_ds) > 1:
+        batches_ds = np.array(",".join(batches_ds))
+    if len(selected_celltypes_downsampled) > 1:
+        selected_celltypes_downsampled = np.array(",".join(selected_celltypes_downsampled))
+
     # Add data about downsampling to .uns of adata_concat
     if num_batches == 0:
         integrated_concat.uns["downsampling_stats"] = {
@@ -167,9 +172,9 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
         integrated_concat.uns["downsampling_stats"] = {
             "num_batches": num_batches,
             "num_celltypes_downsampled": ds_celltypes,
-            "ds_batch_names": np.concatenate([np.unique(adata.obs["batch"].__array__()) for adata in adata_downsampled]),
+            "ds_batch_names": batches_ds,
             "proportion_downsampled": ds_proportions,
-            "downsampled_celltypes": np.array(selected_celltypes_downsampled)
+            "downsampled_celltypes": selected_celltypes_downsampled
         }
         
     # Save integrated h5ad object
