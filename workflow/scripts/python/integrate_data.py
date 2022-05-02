@@ -30,7 +30,8 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     
     # Downsample loaded h5ad files based on params 
     if num_batches == 0:
-        pass
+        selected_celltypes_downsampled = "None" # Placeholder - not used
+        batches_ds = "None" # Placeholder - not used
     else:
         selected_indices = np.random.choice(
             len(adata_loaded), num_batches, replace = False
@@ -46,6 +47,8 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
             proportion = ds_proportions
         )
         adata_loaded = adata_unselected + adata_downsampled
+        batches_ds = np.concatenate([np.unique(adata.obs["batch"].__array__()) for adata in adata_downsampled])
+        selected_celltypes_downsampled = np.array(selected_celltypes_downsampled)
 
     # Store batch name separately for each anndata object
     for adata in adata_loaded:
@@ -152,8 +155,6 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     }
 
     # If downsampled celltypes and batches are of array length greater than one, combine them 
-    batches_ds = np.concatenate([np.unique(adata.obs["batch"].__array__()) for adata in adata_downsampled])
-    selected_celltypes_downsampled = np.array(selected_celltypes_downsampled)
     if len(batches_ds) > 1:
         batches_ds = np.array(",".join(batches_ds))
     if len(selected_celltypes_downsampled) > 1:
