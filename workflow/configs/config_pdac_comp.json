@@ -3,9 +3,9 @@
     "int_datasets": {
         "peng_pdac_tumor_annot_8_batch": {
             "data_folder": "peng_pdac_tumor_annot_8_batch",
-            "ds_celltypes": [1, 2],
+            "ds_celltypes": [1],
             "ds_proportions": [0.1, 0],
-            "num_batches": [4],
+            "num_batches": [0, 4],
             "repetitions": 50
         }
     },
