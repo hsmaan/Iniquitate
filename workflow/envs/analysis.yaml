@@ -43,6 +43,7 @@ dependencies:
   - r-cowplot>=1.1.1
   - r-ggrepel>=0.9.1
   - r-rcolorbrewer>=1.1
+  - r-ggbump>=0.1.0
   - bioconductor-complexheatmap<=2.9.0
   - r-venndiagram>=1.7.1
   - r-multipanelfigure>=2.1.2

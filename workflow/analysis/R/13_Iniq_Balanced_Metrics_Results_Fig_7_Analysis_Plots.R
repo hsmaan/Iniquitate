@@ -312,8 +312,8 @@ ggplot(data = bal_7C_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = factor(cluster))) +
   labs(
     color = "Cluster",
-    x = "x1",
-    y = "x2"
+    x = "UMAP 1",
+    y = "UMAP 2"
   ) +
   scale_color_manual(values = palette_7C_cluster) +
   theme_classic() +
@@ -422,8 +422,8 @@ ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = factor(cluster))) +
   labs(
     color = "Cluster",
-    x = "x1",
-    y = "x2"
+    x = "UMAP 1",
+    y = "UMAP 2"
   ) +
   scale_color_brewer(palette = "Set2") +
   theme_classic() +
@@ -497,3 +497,100 @@ ggsave(
   height = 6,
   device = cairo_pdf
 )
+
+### Fig 7E Analysis - Third use case on single-cell data - integration based
+
+# Plot the celltype coordinate results per method 
+ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
+  geom_point(aes(color = celltype)) +
+  facet_wrap(.~Subset, scales = "free") + 
+  labs(
+    color = "Celltype",
+    x = "UMAP 1",
+    y = "UMAP 2"
+  ) +
+  scale_color_brewer(palette = "Set1") +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16)) +
+  theme(aspect.ratio = 1) + 
+  guides(colour = guide_legend(override.aes = list(size=3)))
+ggsave(
+  "outs/balanced_metrics/figures/13_7E_trial_celltype_coordinates_facet.pdf",
+  width = 10,
+  height = 8
+)
+
+# Plot the cluster coordinate results per method 
+palette_7E_cluster <- kev_palette[1:length(unique(bal_7E_cluster_df$cluster))]
+ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
+  geom_point(aes(color = factor(cluster))) +
+  facet_wrap(.~Subset, scales = "free") + 
+  labs(
+    color = "Cluster",
+    x = "UMAP 1",
+    y = "UMAP 2"
+  ) +
+  scale_color_manual(values = palette_7E_cluster) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16)) +
+  theme(aspect.ratio = 1) + 
+  guides(colour = guide_legend(override.aes = list(size=3)))
+ggsave(
+  "outs/balanced_metrics/figures/13_7E_trial_cluster_coordinates.pdf",
+  width = 10,
+  height = 8
+)
+
+# Aggregate scores for both balanced and imbalanced metrics and rank the methods
+bal_7E_metrics_df_bal_sub <- bal_7E_metrics_df[
+  bal_7E_metrics_df$Type == "balanced"
+]
+bal_7E_metrics_df_imbal_sub <- bal_7E_metrics_df[
+  bal_7E_metrics_df$Type == "imbalanced"
+]
+
+bal_7E_score_agg_imbal <- bal_7E_metrics_df_imbal_sub %>% 
+  group_by(Subset) %>%
+  summarise("Metric_avg" = mean(Value)) %>%
+  arrange(desc(Metric_avg)) %>%
+  as.data.frame()
+
+bal_7E_score_agg_bal <- bal_7E_metrics_df_bal_sub %>% 
+  group_by(Subset) %>%
+  summarise("Metric_avg" = mean(Value)) %>%
+  arrange(desc(Metric_avg)) %>%
+  as.data.frame()
+
+# Format and plot comparison of the mean results and rankings 
+bal_7E_score_agg_imbal$Type <- "imbalanced"
+bal_7E_score_agg_bal$Type <- "balanced"
+bal_7E_score_agg_concat <- rbind(
+  bal_7E_score_agg_imbal,
+  bal_7E_score_agg_bal
+)
+
+ggplot(
+  data = bal_7E_score_agg_concat,
+  aes(
+    x = Subset,
+    y = Metric_avg
+  )
+) +
+  geom_bar(stat = "identity") +
+  facet_wrap(.~Type)
+
+  
