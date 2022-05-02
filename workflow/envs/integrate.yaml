@@ -17,6 +17,7 @@ dependencies:
   - anndata>=0.7.5
   - faiss-cpu>=1.7.0
   - pytorch=1.10.1
+  - torchmetrics<=0.6.0 # Issue with torch loading
   - cudatoolkit=10.2
   - scvi-tools=0.14.4
   - bbknn=1.5.1
