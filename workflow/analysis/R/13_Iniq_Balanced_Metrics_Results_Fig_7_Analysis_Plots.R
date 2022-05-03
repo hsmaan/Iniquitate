@@ -5,6 +5,7 @@ library(ggplot2)
 library(ggthemes)
 library(ggExtra)
 library(ggpubr)
+library(ggbump)
 library(dotwhisker)
 library(Seurat)
 library(SeuratDisk)
@@ -578,19 +579,96 @@ bal_7E_score_agg_bal <- bal_7E_metrics_df_bal_sub %>%
 # Format and plot comparison of the mean results and rankings 
 bal_7E_score_agg_imbal$Type <- "imbalanced"
 bal_7E_score_agg_bal$Type <- "balanced"
+
+bal_7E_score_agg_imbal$Rank <- seq(1, 5, 1)
+bal_7E_score_agg_bal$Rank <- seq(1, 5, 1)
+
 bal_7E_score_agg_concat <- rbind(
   bal_7E_score_agg_imbal,
   bal_7E_score_agg_bal
 )
 
 ggplot(
-  data = bal_7E_score_agg_concat,
+  data = bal_7E_score_agg_imbal, 
   aes(
-    x = Subset,
+    x = factor(
+      bal_7E_score_agg_imbal$Subset,
+      levels = rev(bal_7E_score_agg_imbal$Subset)
+    ), 
     y = Metric_avg
   )
 ) +
-  geom_bar(stat = "identity") +
-  facet_wrap(.~Type)
+  geom_bar(
+    stat = "identity", 
+    aes(
+      fill = Rank
+    )
+  ) +
+  scale_fill_viridis_c() +
+  guides(fill = guide_legend(reverse = FALSE)) +
+  theme_classic() +
+  labs(
+    fill = "Rank",
+    x = "Method",
+    y = "Average metric score"
+  ) +
+  ylim(c(0, 1)) +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16)) +
+  theme(aspect.ratio = 1) +
+  coord_flip() 
+ggsave(
+  "outs/balanced_metrics/figures/13_7E_trial_avg_metric_score_imbal.pdf",
+  width = 7,
+  height = 7
+)
 
-  
+ggplot(
+  data = bal_7E_score_agg_bal, 
+  aes(
+    x = factor(
+      bal_7E_score_agg_bal$Subset,
+      levels = rev(bal_7E_score_agg_bal$Subset)
+    ), 
+    y = Metric_avg
+  )
+) +
+  geom_bar(
+    stat = "identity", 
+    aes(
+      fill = Rank
+    )
+  ) +
+  scale_fill_viridis_c() + 
+  guides(fill = guide_legend(reverse = FALSE)) +
+  theme_classic() +
+  labs(
+    fill = "Rank",
+    x = "Method",
+    y = "Average metric score"
+  ) +
+  ylim(c(0, 1)) +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16)) +
+  theme(aspect.ratio = 1) +
+  coord_flip() 
+ggsave(
+  "outs/balanced_metrics/figures/13_7E_trial_avg_metric_score_bal.pdf",
+  width = 7,
+  height = 7
+)
+
