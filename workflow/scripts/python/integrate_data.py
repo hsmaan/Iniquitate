@@ -33,22 +33,34 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
         selected_celltypes_downsampled = "None" # Placeholder - not used
         batches_ds = "None" # Placeholder - not used
     else:
+        # Initialize random number generator
+        rng = np.random.default_rng()
+        
+        # Select indices for downsampling
         selected_indices = np.random.choice(
             len(adata_loaded), num_batches, replace = False
         )
         adata_selected = [adata_loaded[i] for i in selected_indices]
         adata_unselected = [adata_loaded[i] for i in range(len(adata_loaded)) if i not in selected_indices]
+        
         # Downsample the same selected celltypes across all of the batches - this change will not affect
         # previous runs, as they all downsampled either 0 or only 1 celltype, in either 0 or 1 batches 
-        adata_downsampled, selected_celltypes_downsampled = downsample(
-            adata = adata_selected, 
-            num_celltypes = ds_celltypes,
-            celltype_names = None,
-            proportion = ds_proportions
-        )
+        # #NOTE - this setup operates on the assumption that the celltypes are the same across all batches
+        celltypes_all = np.unique(np.concatenate([adata.obs["celltype"].__array__() for adata in adata_selected]))
+        rng.shuffle(celltypes_all)
+        celltypes_selected = rng.choice(celltypes_all, ds_celltypes, replace = False)
+        selected_celltypes_downsampled = celltypes_selected
+        adata_downsampled = []
+        for adata in adata_selected:
+            adata_ds, selected_celltypes_ds = downsample(
+                adata = adata, 
+                num_celltypes = None,
+                celltype_names = celltypes_selected,
+                proportion = ds_proportions
+            )
+            adata_downsampled.append(adata_ds)
         adata_loaded = adata_unselected + adata_downsampled
         batches_ds = np.concatenate([np.unique(adata.obs["batch"].__array__()) for adata in adata_downsampled])
-        selected_celltypes_downsampled = np.array(selected_celltypes_downsampled)
 
     # Store batch name separately for each anndata object
     for adata in adata_loaded:
