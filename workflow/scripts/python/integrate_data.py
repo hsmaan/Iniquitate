@@ -45,7 +45,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
         
         # Downsample the same selected celltypes across all of the batches - this change will not affect
         # previous runs, as they all downsampled either 0 or only 1 celltype, in either 0 or 1 batches 
-        # #NOTE - this setup operates on the assumption that the celltypes are the same across all batches
+        # NOTE - this setup operates on the assumption that the celltypes are the same across all batches
         celltypes_all = np.unique(np.concatenate([adata.obs["celltype"].__array__() for adata in adata_selected]))
         rng.shuffle(celltypes_all)
         celltypes_selected = rng.choice(celltypes_all, ds_celltypes, replace = False)
@@ -60,7 +60,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
             )
             adata_downsampled.append(adata_ds)
         adata_loaded = adata_unselected + adata_downsampled
-        batches_ds = np.concatenate([np.unique(adata.obs["batch"].__array__()) for adata in adata_downsampled])
+        batches_ds = np.unique(np.concatenate([adata.obs["batch"].__array__() for adata in adata_downsampled]))
 
     # Store batch name separately for each anndata object
     for adata in adata_loaded:
@@ -185,7 +185,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
         integrated_concat.uns["downsampling_stats"] = {
             "num_batches": num_batches,
             "num_celltypes_downsampled": ds_celltypes,
-            "ds_batch_names": batches_ds,
+            "ds_batch_names": "Placeholder due to h5py bug",
             "proportion_downsampled": ds_proportions,
             "downsampled_celltypes": selected_celltypes_downsampled
         }

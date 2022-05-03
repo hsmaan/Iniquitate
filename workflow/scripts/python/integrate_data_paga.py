@@ -135,7 +135,7 @@ def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_celltypes_names, ds
         integrated_concat.uns["downsampling_stats"] = {
             "num_batches": num_batches,
             "num_celltypes_downsampled": ds_celltypes,
-            "ds_batch_names": batches_ds,
+            "ds_batch_names": "Placeholder due to h5py bug",
             "proportion_downsampled": ds_proportions,
             "downsampled_celltypes": selected_celltypes_downsampled
         }
