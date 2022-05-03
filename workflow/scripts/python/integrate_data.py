@@ -49,7 +49,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
         celltypes_all = np.unique(np.concatenate([adata.obs["celltype"].__array__() for adata in adata_selected]))
         rng.shuffle(celltypes_all)
         celltypes_selected = rng.choice(celltypes_all, ds_celltypes, replace = False)
-        selected_celltypes_downsampled = celltypes_selected
+        selected_celltypes_downsampled = np.array(celltypes_selected)
         adata_downsampled = []
         for adata in adata_selected:
             adata_ds, selected_celltypes_ds = downsample(
