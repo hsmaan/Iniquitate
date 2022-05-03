@@ -1,5 +1,6 @@
 name: iniq_analysis
 channels:
+  - pytorch
   - bioconda
   - r
   - conda-forge
@@ -20,7 +21,9 @@ dependencies:
   - jupyterlab>=3.2.9
   - notebook>=6.4.2
   - scvi-tools=0.14.4
+  - pytorch=1.10.1
   - torchmetrics<=0.6.0 # Issue with torch loading
+  - cudatoolkit=10.2
   - bbknn=1.5.1
   - harmonypy=0.0.5
   - scanorama=1.7.1
@@ -40,6 +43,7 @@ dependencies:
   - r-cowplot>=1.1.1
   - r-ggrepel>=0.9.1
   - r-rcolorbrewer>=1.1
+  - r-ggbump>=0.1.0
   - bioconductor-complexheatmap<=2.9.0
   - r-venndiagram>=1.7.1
   - r-multipanelfigure>=2.1.2
