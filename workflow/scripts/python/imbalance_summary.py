@@ -16,36 +16,21 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     prop_ds = adata_full.uns["downsampling_stats"]["proportion_downsampled"]
     downsampled_celltypes = adata_full.uns["downsampling_stats"]["downsampled_celltypes"]
     
-    # Format downsampled celltypes and batches to correspond to a single item
+    # Concatenate downsampled celltypes and batches - conditioned on return type
     if isinstance(downsampled_celltypes, str):
         if downsampled_celltypes == "None":  
             downsampled_celltypes = "None"
         else:
             raise ValueError("Downsampled celltypes is a str and not 'None'")
+    elif isinstance(downsampled_celltypes, list):
+        downsampled_celltypes = np.array(downsampled_celltypes)
     elif isinstance(downsampled_celltypes, np.ndarray):
-        if downsampled_celltypes.shape == (1,):
-            downsampled_celltypes = downsampled_celltypes[0]
+        if len(downsampled_celltypes.shape) == 1:
+            downsampled_celltypes = downsampled_celltypes
         else:
-            downsampled_celltypes = np.concatenate(downsampled_celltypes).flatten()
-            downsampled_celltypes = ", ".join(downsampled_celltypes)
+            downsampled_celltypes = np.concatenate(downsampled_celltypes)
     else:
-        raise TypeError("Downsampled celltypes is not a str or ndarray")
-    
-    if isinstance(batches_ds, str):
-        if batches_ds == "None":
-            batches_ds = "None"
-        elif batches_ds == "Placeholder due to h5py bug":
-            batches_ds = "Placeholder due to h5py bug"
-        else:
-            raise ValueError("Downsampled batches is a str and not 'None'")
-    elif isinstance(batches_ds, np.ndarray):
-        if batches_ds.shape == (1,):
-            batches_ds = batches_ds[0]
-        else:
-            batches_ds = np.concatenate(batches_ds).flatten()
-            batches_ds = ", ".join(batches_ds)
-    else:
-        raise TypeError("Downsampled batches is not a str or ndarray")
+        raise TypeError("Downsampled celltypes is not a str, list, or ndarray")
 
     # Extract data from just one integration method subset 
     int_method_select = np.random.choice(
