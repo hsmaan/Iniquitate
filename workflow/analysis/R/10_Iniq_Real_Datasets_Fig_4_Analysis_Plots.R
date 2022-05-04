@@ -426,7 +426,7 @@ ggsave(
 ##### KNN clasification results for each dataset analyzed #####
 
 # Define datasets and keywords to grep
-datasets <- c(
+datasets <- c( 
   "pbmc_2_batch",
   "pbmc_4_batch",
   "mouse_hindbrain_6_batch",
@@ -660,4 +660,57 @@ mapply(
   plot_height = heights,
   plot_width = widths
 )
-  
+
+##### Plotting of relatedness metric for both PBMC 4 batch imbalanced dataset
+#####
+pbmc_4_batch_bal_relate_formatted <- relatedness_loaded$pbmc_4_batch %>%
+  group_by(`Celltype 1`, `Celltype 2`) %>%
+  summarize(`Average PCA cosine dist` = mean(`PCA cosine dist`)) %>%
+  as.data.frame() 
+
+ggplot(
+  data = pbmc_4_batch_bal_relate_formatted,
+  aes(
+    x = `Celltype 1`,
+    y = `Celltype 2`
+  ) 
+) + 
+  geom_tile(
+    aes(fill = `Average PCA cosine dist`)
+  ) +
+  scale_fill_gradient(
+    low = "firebrick2",
+    high = "white"
+  ) +
+  scale_x_discrete(
+    limits = rev(levels(factor(pbmc_4_batch_bal_relate_formatted$`Celltype 1`)))
+  ) + 
+  scale_y_discrete(
+    limits = rev(levels(factor(pbmc_4_batch_bal_relate_formatted$`Celltype 2`)))
+  ) + 
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(
+    size = 12, 
+    angle = 90, 
+    vjust = 1, 
+    hjust = 1)
+  ) +
+  theme(aspect.ratio = 1) + 
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) +
+  labs(
+    fill = "Average PCA distance \n across batches",
+    x = "Celltype 1",
+    y = "Celltype 2"
+  )
+ggsave(
+  "outs/lowcap_modified/figures/10_pbmc_4_batch_bal_celltype_relatedness.pdf",
+  width = 7,
+  height = 7,
+  device = cairo_pdf
+)
