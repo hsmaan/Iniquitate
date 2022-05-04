@@ -527,6 +527,18 @@ draw(
 )
 dev.off()
 
+# Alternative approach - test plotting all of the points, instead of the median
+# values in a heatmap 
+ggplot(
+  data = imba_clus_merged, 
+  aes(
+    x = type,
+    y = `Celltype ARI Imbalanced`,
+    fill = `Downsampled celltypes`
+)) + 
+  geom_boxplot() +
+  facet_wrap(.~Method)
+
 ### Fig 2C) - results of celltype downsampling and ablation on  
 ### KNN classification scores 
 
@@ -600,7 +612,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   labs(
     fill = "Type",
     x = "Method",
-    y = "F1-classification score post-integration"
+    y = "Affected celltype F1-classification score post-integration"
   ) +
   scale_fill_manual( 
     breaks = c("Control", "Downsampled", "Ablated"),
@@ -1076,7 +1088,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   labs(
     fill = "Type",
     x = "Method",
-    y = "F1-classification score post-integration"
+    y = "Affected celltype F1-classification score post-integration"
   ) +
   scale_fill_manual( 
     breaks = c("Control", "Downsampled", "Ablated"),
