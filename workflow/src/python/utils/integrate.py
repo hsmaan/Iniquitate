@@ -206,8 +206,7 @@ class Integration:
             aliger,
             target_sum = 1e4
         )
-        # Don't log-transform for LIGER
-        # sc.pp.log1p(aliger)       
+        sc.pp.log1p(aliger)       
         liger_integrate = LigerIntegrate(
             adata = aliger,
         )

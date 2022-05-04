@@ -9,7 +9,5 @@
             "repetitions": 2
         }
     },
-    "int_ti_datasets": {},
-    "query_to_reference": "No",
-    "celltype_list": "No"
+    "int_ti_datasets": {}
 }
