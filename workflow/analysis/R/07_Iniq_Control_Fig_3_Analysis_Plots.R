@@ -1130,6 +1130,14 @@ gene_rank_variance_grouped_celltype_specific_marker_mean_ds <-
       "Downsampled"
   ]
 
+# Clip values to 10, as this is considered a fair "maximum acceptable" 
+# perturbation
+gene_rank_variance_grouped_celltype_specific_marker_mean_ds$
+  `Mean max rank stdev clipped` <- pmin(
+    10,
+    gene_rank_variance_grouped_celltype_specific_marker_mean_ds$`Mean max rank stdev`
+  )
+  
 ggplot(
   data = gene_rank_variance_grouped_celltype_specific_marker_mean_ds,
   aes(
@@ -1138,7 +1146,7 @@ ggplot(
   ) 
 ) + 
   geom_tile(
-    aes(fill = `Mean max rank stdev`)
+    aes(fill = `Mean max rank stdev clipped`)
   ) +
   scale_fill_gradient(
     low = "white",
@@ -1182,6 +1190,15 @@ gene_rank_variance_grouped_celltype_specific_marker_mean_ablated <-
     gene_rank_variance_grouped_celltype_specific_marker_mean$type %in% 
       "Ablated"
   ]
+
+# Clip values to 10, as this is considered a fair "maximum acceptable" 
+# perturbation
+gene_rank_variance_grouped_celltype_specific_marker_mean_ablated$
+  `Mean max rank stdev clipped` <- pmin(
+    10,
+    gene_rank_variance_grouped_celltype_specific_marker_mean_ablated$`Mean max rank stdev`
+  )
+
 ggplot(
   data = gene_rank_variance_grouped_celltype_specific_marker_mean_ablated,
   aes(
@@ -1190,7 +1207,7 @@ ggplot(
   ) 
 ) + 
   geom_tile(
-    aes(fill = `Mean max rank stdev`)
+    aes(fill = `Mean max rank stdev clipped`)
   ) +
   scale_fill_gradient(
     low = "white",

@@ -527,18 +527,6 @@ draw(
 )
 dev.off()
 
-# Alternative approach - test plotting all of the points, instead of the median
-# values in a heatmap 
-ggplot(
-  data = imba_clus_merged, 
-  aes(
-    x = type,
-    y = `Celltype ARI Imbalanced`,
-    fill = `Downsampled celltypes`
-)) + 
-  geom_boxplot() +
-  facet_wrap(.~Method)
-
 ### Fig 2C) - results of celltype downsampling and ablation on  
 ### KNN classification scores 
 
