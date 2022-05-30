@@ -402,7 +402,7 @@ ggplot(data = imba_dge_merged, aes(
     alpha = 0.8 
   ) + 
   facet_grid(
-    Method ~ .~factor(type, levels = c("Control", "Downsampled", "Ablated")), 
+    Method ~ .,
     scales = "fixed"
   ) +
   scale_fill_manual( 
@@ -1608,7 +1608,7 @@ ggplot(data = imba_anno_merged_all_tcell, aes(
   fill = `Predicted L1`
 )) +
   geom_bar(position = "fill") +
-  scale_fill_brewer(palette = "Set1") +
+  scale_fill_brewer(palette = "Set3") +
   facet_wrap(.~`Real celltype`) +
   labs(
     fill = "Predicted L1 \ncelltype",
