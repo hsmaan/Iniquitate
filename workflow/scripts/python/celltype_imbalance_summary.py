@@ -39,6 +39,8 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     if isinstance(batches_ds, str):
         if batches_ds == "None":
             batches_ds = "None"
+        elif batches_ds == "Placeholder due to h5py bug":
+            batches_ds = "Placeholder due to h5py bug"
         else:
             raise ValueError("Downsampled batches is a str and not 'None'")
     elif isinstance(batches_ds, np.ndarray):
