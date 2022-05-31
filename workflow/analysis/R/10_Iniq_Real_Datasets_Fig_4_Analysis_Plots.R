@@ -661,6 +661,37 @@ mapply(
   plot_width = widths
 )
 
+#### Testing function to plot both relatedness and celltype number on same
+#### plot 
+relatedness_df <- relatedness_loaded[[1]]
+knn_class_df <- knn_class_files_loaded[[1]]
+relatedness_df_sub <- relatedness_df[
+  relatedness_df$`Celltype 1` != relatedness_df$`Celltype 2`
+]
+relatedness_df_min <- relatedness_df_sub %>%
+  group_by(`Celltype 1`) %>% 
+  summarize(var = min(`PCA cosine dist`)) %>%
+  as.data.frame()
+colnames(relatedness_df_min) <- c("Celltype", "Min PCA cosine dist")
+
+# Merge together relatedness and knn class df
+relatedness_knn_class_merged <- merge(
+  relatedness_df_min,
+  knn_class_df,
+  by = c(
+    "Celltype"
+  )
+)
+relatedness_knn_class_merged$Log_support <- log2(
+  relatedness_knn_class_merged$Support
+)
+
+ggplot(
+  data = relatedness_knn_class_merged, 
+  aes(x = Log_support, y = `Min PCA cosine dist`)
+) +
+  geom_boxplot(aes(color = `Mean KNN F1-score`))
+
 ##### Plotting of relatedness metric for both PBMC 4 batch imbalanced dataset
 #####
 pbmc_4_batch_bal_relate_formatted <- relatedness_loaded$pbmc_4_batch %>%
