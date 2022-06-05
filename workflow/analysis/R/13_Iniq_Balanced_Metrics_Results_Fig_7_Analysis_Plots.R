@@ -13,6 +13,7 @@ library(ComplexHeatmap)
 library(circlize)
 library(RColorBrewer)
 library(Cairo)
+library(cowplot)
 
 # Helper functions
 `%ni%` <- Negate(`%in%`)
@@ -64,7 +65,7 @@ if (!dir.exists("outs/balanced_metrics/figures")) {
 ### Fig 7A Analysis - First use case on simulated data 
 
 # Plot the class coordinate results 
-ggplot(data = bal_7A_cluster_df, aes(x = x, y = y)) +
+p_7a_1 <- ggplot(data = bal_7A_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = class)) +
   labs(
     color = "Class",
@@ -83,6 +84,7 @@ ggplot(data = bal_7A_cluster_df, aes(x = x, y = y)) +
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) + 
   guides(colour = guide_legend(override.aes = list(size=3)))
+p_7a_1
 ggsave(
   "outs/balanced_metrics/figures/13_7A_trial_class_coordinates.pdf",
   width = 6,
@@ -90,7 +92,7 @@ ggsave(
 )
 
 # Plot the cluster coordinate results 
-ggplot(data = bal_7A_cluster_df, aes(x = x, y = y)) +
+p_7a_2 <- ggplot(data = bal_7A_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = factor(kmeans))) +
   labs(
     color = "Cluster",
@@ -110,6 +112,7 @@ ggplot(data = bal_7A_cluster_df, aes(x = x, y = y)) +
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) + 
   guides(colour = guide_legend(override.aes = list(size=3)))
+p_7a_2
 ggsave(
   "outs/balanced_metrics/figures/13_7A_trial_cluster_coordinates.pdf",
   width = 6,
@@ -122,7 +125,7 @@ bal_7A_metrics_df$Metric_bare <- str_split_fixed(
   pattern = " ",
   n = 2
 )[, 1]
-ggplot(
+p_7a_3 <- ggplot(
   data = bal_7A_metrics_df, 
   aes(
     x = factor(
@@ -161,6 +164,7 @@ ggplot(
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) +
   coord_flip() 
+p_7a_3
 ggsave(
   "outs/balanced_metrics/figures/13_7A_metrics_barplot.pdf",
   width = 8,
@@ -168,10 +172,28 @@ ggsave(
   device = cairo_pdf
 )
 
+# Plot them together using cowplot 
+all_7a_plots <- plot_grid(
+  p_7a_1,
+  p_7a_2,
+  p_7a_3,
+  labels = "A",
+  label_size = 12,
+  rel_widths = c(1, 1, 3),
+  ncol = 1
+)
+save_plot(
+  "outs/balanced_metrics/figures/13_7A_all_plots.pdf",
+  all_7a_plots,
+  base_asp = 1,
+  base_height = 8,
+  base_width = 12
+)
+
 ### Fig 7B Analysis - Second use case on simulated data  
 
 # Plot the class coordinate results 
-ggplot(data = bal_7B_cluster_df, aes(x = x, y = y)) +
+p_7b_1 <- ggplot(data = bal_7B_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = class)) +
   labs(
     color = "Class",
@@ -191,6 +213,7 @@ ggplot(data = bal_7B_cluster_df, aes(x = x, y = y)) +
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) + 
   guides(colour = guide_legend(override.aes = list(size=3)))
+p_7b_1
 ggsave(
   "outs/balanced_metrics/figures/13_7B_trial_class_coordinates.pdf",
   width = 6,
@@ -198,7 +221,7 @@ ggsave(
 )
 
 # Plot the cluster coordinate results 
-ggplot(data = bal_7B_cluster_df, aes(x = x, y = y)) +
+p_7b_2 <- ggplot(data = bal_7B_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = factor(kmeans))) +
   labs(
     color = "Cluster",
@@ -218,6 +241,7 @@ ggplot(data = bal_7B_cluster_df, aes(x = x, y = y)) +
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) + 
   guides(colour = guide_legend(override.aes = list(size=3)))
+p_7b_2
 ggsave(
   "outs/balanced_metrics/figures/13_7B_trial_cluster_coordinates.pdf",
   width = 6,
@@ -230,7 +254,7 @@ bal_7B_metrics_df$Metric_bare <- str_split_fixed(
   pattern = " ",
   n = 2
 )[, 1]
-ggplot(
+p_7b_3 <- ggplot(
   data = bal_7B_metrics_df, 
   aes(
     x = factor(
@@ -269,6 +293,7 @@ ggplot(
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) +
   coord_flip() 
+p_7b_3
 ggsave(
   "outs/balanced_metrics/figures/13_7B_metrics_barplot.pdf",
   width = 8,
@@ -276,13 +301,33 @@ ggsave(
   device = cairo_pdf
 )
 
+# Plot all 7B plots together 
+all_7b_plots <- plot_grid(
+  p_7b_1,
+  p_7b_2,
+  p_7b_3,
+  labels = "B",
+  label_size = 12,
+  rel_widths = c(1, 1, 3),
+  ncol = 1
+)
+save_plot(
+  "outs/balanced_metrics/figures/13_7B_all_plots.pdf",
+  all_7b_plots,
+  base_asp = 1,
+  base_height = 8,
+  base_width = 12
+)
+
+
+
 ### Fig 7C Analysis - First use case on single-cell data 
 palette_7C_celltype <- kev_palette[1:length(unique(bal_7C_cluster_df$celltype))]
 palette_7C_cluster <- kev_palette[1:length(unique(bal_7C_cluster_df$cluster))]
 
 # Plot the celltype coordinate results 
 ggplot(data = bal_7C_cluster_df, aes(x = x, y = y)) +
-  geom_point(aes(color = celltype)) +
+  geom_point(aes(color = celltype), size = 1) +
   labs(
     color = "Celltype",
     x = "UMAP 1",
@@ -309,7 +354,7 @@ ggsave(
 
 # Plot the cluster coordinate results 
 ggplot(data = bal_7C_cluster_df, aes(x = x, y = y)) +
-  geom_point(aes(color = factor(cluster))) +
+  geom_point(aes(color = factor(cluster)), size = 1) +
   labs(
     color = "Cluster",
     x = "UMAP 1",
@@ -392,8 +437,8 @@ ggsave(
 ### Fig 7D Analysis - Second use case on single-cell data 
 
 # Plot the celltype coordinate results 
-ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
-  geom_point(aes(color = celltype)) +
+p_7d_1 <- ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
+  geom_point(aes(color = celltype), size = 1) +
   labs(
     color = "Celltype",
     x = "UMAP 1",
@@ -411,6 +456,7 @@ ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) + 
   guides(colour = guide_legend(override.aes = list(size=3)))
+p_7d_1
 ggsave(
   "outs/balanced_metrics/figures/13_7D_trial_celltype_coordinates.pdf",
   width = 7,
@@ -418,8 +464,8 @@ ggsave(
 )
 
 # Plot the cluster coordinate results 
-ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
-  geom_point(aes(color = factor(cluster))) +
+p_7d_2 <- ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
+  geom_point(aes(color = factor(cluster)), size = 1) +
   labs(
     color = "Cluster",
     x = "UMAP 1",
@@ -437,6 +483,7 @@ ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) + 
   guides(colour = guide_legend(override.aes = list(size=3)))
+p_7d_2
 ggsave(
   "outs/balanced_metrics/figures/13_7D_trial_cluster_coordinates.pdf",
   width = 7,
@@ -453,7 +500,7 @@ bal_7D_metrics_df$Metric_bare <- str_split_fixed(
 bal_7D_metrics_df_sub <- bal_7D_metrics_df[
   bal_7D_metrics_df$Metric_bar %in% c("ARI", "Homogeneity")
 ]
-ggplot(
+p_7d_3 <- ggplot(
   data = bal_7D_metrics_df_sub, 
   aes(
     x = factor(
@@ -490,7 +537,9 @@ ggplot(
   theme(axis.text.y = element_text(size = 16)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16)) +
+  coord_fixed() +
   theme(aspect.ratio = 1) 
+p_7d_3
 ggsave(
   "outs/balanced_metrics/figures/13_7D_metrics_barplot.pdf",
   width = 6,
@@ -498,11 +547,29 @@ ggsave(
   device = cairo_pdf
 )
 
+# Plot all fig 7d results together 
+all_7d_plots <- plot_grid(
+  p_7d_1,
+  p_7d_2,
+  p_7d_3,
+  labels = "D",
+  label_size = 12,
+  rel_widths = c(2.2, 1.5, 2),
+  ncol = 3
+)
+save_plot(
+  "outs/balanced_metrics/figures/13_7D_all_plots.pdf",
+  all_7d_plots,
+  base_asp = 1,
+  base_height = 4,
+  base_width = 14
+)
+
 ### Fig 7E Analysis - Third use case on single-cell data - integration based
 
 # Plot the celltype coordinate results per method 
-ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
-  geom_point(aes(color = celltype)) +
+p_7e_1 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
+  geom_point(aes(color = celltype), size = 1) +
   facet_wrap(.~Subset, scales = "free") + 
   labs(
     color = "Celltype",
@@ -520,7 +587,8 @@ ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) + 
-  guides(colour = guide_legend(override.aes = list(size=3)))
+  guides(colour = guide_legend(override.aes = list(size=3))) 
+p_7e_1
 ggsave(
   "outs/balanced_metrics/figures/13_7E_trial_celltype_coordinates_facet.pdf",
   width = 10,
@@ -529,8 +597,8 @@ ggsave(
 
 # Plot the cluster coordinate results per method 
 palette_7E_cluster <- kev_palette[1:length(unique(bal_7E_cluster_df$cluster))]
-ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
-  geom_point(aes(color = factor(cluster))) +
+p_7e_2 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
+  geom_point(aes(color = factor(cluster)), size = 1) +
   facet_wrap(.~Subset, scales = "free") + 
   labs(
     color = "Cluster",
@@ -548,7 +616,8 @@ ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) + 
-  guides(colour = guide_legend(override.aes = list(size=3)))
+  guides(colour = guide_legend(override.aes = list(size=3))) 
+p_7e_2
 ggsave(
   "outs/balanced_metrics/figures/13_7E_trial_cluster_coordinates.pdf",
   width = 10,
@@ -587,7 +656,7 @@ bal_7E_score_agg_concat <- rbind(
   bal_7E_score_agg_bal
 )
 
-ggplot(
+p_7e_3 <- ggplot(
   data = bal_7E_score_agg_imbal, 
   aes(
     x = factor(
@@ -623,13 +692,14 @@ ggplot(
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) +
   coord_flip() 
+p_7e_3
 ggsave(
   "outs/balanced_metrics/figures/13_7E_trial_avg_metric_score_imbal.pdf",
   width = 7,
   height = 7
 )
 
-ggplot(
+p_7e_4 <- ggplot(
   data = bal_7E_score_agg_bal, 
   aes(
     x = factor(
@@ -665,9 +735,30 @@ ggplot(
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) +
   coord_flip() 
+p_7e_4
 ggsave(
   "outs/balanced_metrics/figures/13_7E_trial_avg_metric_score_bal.pdf",
   width = 7,
   height = 7
 )
 
+# Plot all the figure 7E plots together 
+p_7e_all <- plot_grid(
+  p_7e_1,
+  p_7e_3,
+  p_7e_2,
+  p_7e_4,
+  labels = "E",
+  label_size = 12,
+  rel_widths = c(1, 0.5, 1, 0.5),
+  ncol = 2,
+  nrow = 2
+)
+p_7e_all
+save_plot(
+  "outs/balanced_metrics/figures/13_7E_all_plots.pdf",
+  p_7e_all,
+  base_asp = 1,
+  base_height = 12,
+  base_width = 16
+)
