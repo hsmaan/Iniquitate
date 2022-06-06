@@ -690,7 +690,33 @@ ggplot(
   data = relatedness_knn_class_merged, 
   aes(x = Log_support, y = `Min PCA cosine dist`)
 ) +
-  geom_boxplot(aes(color = `Mean KNN F1-score`))
+  facet_wrap(.~Method) +
+  geom_point(aes(color = `F1-score`))
+ggsave(
+  paste0(
+    "outs/lowcap_modified/figures/10_",
+    "min_pca_dist_support_plotting_test.pdf"
+  ),
+  width = 12,
+  height = 8,
+  device = cairo_pdf
+)
+
+ggplot(
+  data = relatedness_knn_class_merged, 
+  aes(x = Log_support, y = `F1-score`)
+) +
+  facet_wrap(.~Method) +
+  geom_point(aes(color = `Min PCA cosine dist`))
+ggsave(
+  paste0(
+    "outs/lowcap_modified/figures/10_",
+    "min_pca_dist_support_plotting_test_2.pdf"
+  ),
+  width = 12,
+  height = 8,
+  device = cairo_pdf
+)
 
 ##### Plotting of relatedness metric for both PBMC 4 batch imbalanced dataset
 #####
@@ -745,3 +771,4 @@ ggsave(
   height = 7,
   device = cairo_pdf
 )
+
