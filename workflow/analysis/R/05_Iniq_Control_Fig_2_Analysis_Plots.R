@@ -1104,6 +1104,7 @@ ggsave(
 
 gc()
 rm(list =ls())
+`%ni%` <- Negate(`%in%`)
 setwd("results/control/")
 
 ##### Analysis of PBMC 2 batch balanced data - baseline #####
