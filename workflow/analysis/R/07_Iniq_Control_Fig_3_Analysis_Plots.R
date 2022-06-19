@@ -1907,7 +1907,7 @@ ggsave(
 )  
 
 #############################################################################
-### REDO ALL STATISTICAL TESTS ABOVE BUT WITHOUT LIGER ###
+### REDO ALL FIGURES ABOVE WITHOUT LIGER ###
 #############################################################################
 
 rm(list = ls())
