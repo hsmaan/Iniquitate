@@ -591,6 +591,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
     notch = FALSE,
     alpha = 0.8 
   ) +
+  ylim(0, 1) +
   facet_wrap(
     .~Celltype, 
     scales = "free_x", 
@@ -1073,6 +1074,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
     labeller = ds_celltype_labelled,
     ncol = 1
   ) +
+  ylim(0, 1) + 
   labs(
     fill = "Type",
     x = "Method",
@@ -1693,6 +1695,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
     notch = FALSE,
     alpha = 0.8 
   ) +
+  ylim(0, 1) + 
   facet_wrap(
     .~Celltype, 
     scales = "free_x", 
@@ -2179,6 +2182,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
     notch = FALSE,
     alpha = 0.8 
   ) +
+  ylim(0, 1) +
   facet_wrap(
     .~Celltype, 
     scales = "free_x", 
@@ -2209,3 +2213,4 @@ ggsave(
   height = 14,
   device = cairo_pdf
 )
+
