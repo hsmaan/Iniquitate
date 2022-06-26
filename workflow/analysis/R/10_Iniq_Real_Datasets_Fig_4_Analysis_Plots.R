@@ -534,7 +534,7 @@ knn_relatedness_plot <- function(
     scale_fill_gradient(low = "blue", high = "red", na.value = NA) +
     scale_color_gradient(low = "blue", high = "red", na.value = NA) +
     labs(
-      fill = "Minimum \nPCA \ncelltype \ndistance",
+      fill = "Minimum \ncelltype \ncenter \ndistance",
       x = "Celltype",
       y = "F1-classification score post-integration"
     ) +
@@ -1304,7 +1304,7 @@ knn_relatedness_plot <- function(
     scale_fill_gradient(low = "blue", high = "red", na.value = NA) +
     scale_color_gradient(low = "blue", high = "red", na.value = NA) +
     labs(
-      fill = "Minimum \nPCA \ncelltype \ndistance",
+      fill = "Minimum \ncelltype \ncenter \ndistance",
       x = "Celltype",
       y = "F1-classification score post-integration"
     ) +
@@ -1385,7 +1385,7 @@ knn_support_plot <- function(dataset, knn_class_df, plot_height, plot_width) {
     geom_jitter(aes(color = Log_support)) +
     geom_boxplot(aes(fill = Log_support)) +
     labs(
-      fill = "Log2 \ncelltype \nnumber",
+      fill = "Relative \ncelltype \nsupport",
       x = "Celltype",
       y = "F1-classification score post-integration"
     ) +
