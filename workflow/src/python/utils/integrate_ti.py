@@ -273,11 +273,13 @@ class IntegrationPAGA:
     def liger_integrate(self, n_neighbors = 15, n_pcs = 20):
         print("Performing LIGER integration.." + "\n")
         aliger = self.adata.copy()
-        sc.pp.normalize_total(
-            aliger,
-            target_sum = 1e4
-        )
-        sc.pp.log1p(aliger)       
+        # Don't normalize for LIGER (R script normalizes)
+        # sc.pp.normalize_total(
+        #     aliger,
+        #     target_sum = 1e4
+        # )
+        # Don't log-transform for LIGER
+        # sc.pp.log1p(aliger)       
         liger_integrate = LigerIntegrate(
             adata = aliger,
         )

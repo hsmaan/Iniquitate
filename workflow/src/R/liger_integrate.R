@@ -44,10 +44,9 @@ names(seur_counts_list) <- seur_counts_list_names
 # Create Liger object from seurat list of matrices
 liger_obj <- createLiger(seur_counts_list, remove.missing = FALSE)
 
-# Add norm information and HVG information (same as raw 
-# object information)
-liger_obj@norm.data <- liger_obj@raw.data
-liger_obj@var.genes <- rownames(liger_obj@raw.data[[1]])
+# Normalize and select highly variable genes using LIGER's functions
+liger_obj <- normalize(liger_obj)
+liger_obj <- selectGenes(liger_obj)
 
 # Scale data, perform iNFM and quantile normalization
 liger_obj <- scaleNotCenter(liger_obj)
