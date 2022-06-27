@@ -678,7 +678,7 @@ p_7e_3 <- ggplot(
   labs(
     fill = "Rank",
     x = "Method",
-    y = "Average metric score"
+    y = "Average metric score - imbalanced metrics"
   ) +
   ylim(c(0, 1)) +
   theme(axis.title.x = element_text(size = 16)) +
@@ -721,7 +721,7 @@ p_7e_4 <- ggplot(
   labs(
     fill = "Rank",
     x = "Method",
-    y = "Average metric score"
+    y = "Average metric score - balanced metrics"
   ) +
   ylim(c(0, 1)) +
   theme(axis.title.x = element_text(size = 16)) +
