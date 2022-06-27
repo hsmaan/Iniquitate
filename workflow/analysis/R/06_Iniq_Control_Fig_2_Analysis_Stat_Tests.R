@@ -723,7 +723,7 @@ global_celltype_knn_results_type_concat <- Reduce(
   global_celltype_knn_results_type
 )
 
-# Get global KNN classification wilcoxon result across type_pooled subsets
+# Get global KNN classification Wilcoxin result across type_pooled subsets
 # and concatenate 
 global_celltype_knn_results_type_pooled <- wilcox_knn_test(
   dataset = imba_knn_merged_celltype,
@@ -795,7 +795,7 @@ gc()
 
 
 `%ni%` <- Negate(`%in%`)
-setwd("../../../results/control/")
+setwd("results/control/")
 
 # Set seed for any sampling done 
 set.seed(42)
@@ -1585,3 +1585,4 @@ fwrite(
   row.names = FALSE,
   col.names = TRUE
 )
+
