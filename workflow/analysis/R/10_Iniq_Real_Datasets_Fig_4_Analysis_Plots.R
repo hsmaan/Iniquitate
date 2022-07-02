@@ -364,7 +364,7 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Average PCA distance \n across batches",
+    fill = "Average celltype \ncenter distance \nacross batches",
     x = "Celltype 1",
     y = "Celltype 2"
   )
@@ -411,7 +411,7 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Average PCA distance \n across batches",
+    fill = "Average celltype \ncenter distance \nacross batches",
     x = "Celltype 1",
     y = "Celltype 2"
   )
@@ -761,7 +761,7 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Average PCA distance \n across batches",
+    fill = "Average celltype \ncenter distance \nacross batches",
     x = "Celltype 1",
     y = "Celltype 2"
   )
@@ -1131,7 +1131,7 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Average PCA distance \n across batches",
+    fill = "Average celltype \ncenter distance \nacross batches",
     x = "Celltype 1",
     y = "Celltype 2"
   )
@@ -1178,7 +1178,7 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Average PCA distance \n across batches",
+    fill = "Average celltype \ncenter distance \nacross batches",
     x = "Celltype 1",
     y = "Celltype 2"
   )
@@ -1531,7 +1531,7 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Average PCA distance \n across batches",
+    fill = "Average celltype \ncenter distance \nacross batches",
     x = "Celltype 1",
     y = "Celltype 2"
   )
