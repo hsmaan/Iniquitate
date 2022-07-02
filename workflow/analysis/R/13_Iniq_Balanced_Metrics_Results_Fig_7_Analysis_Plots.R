@@ -463,8 +463,36 @@ ggsave(
   height = 7
 )
 
-# Plot the cluster coordinate results 
+# Plot the batch coordinate results 
 p_7d_2 <- ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
+  geom_point(aes(color = factor(batch)), size = 1) +
+  labs(
+    color = "Batch",
+    x = "UMAP 1",
+    y = "UMAP 2"
+  ) +
+  scale_color_manual(values = c("dodgerblue3", "firebrick2")) +
+  theme_classic() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16)) +
+  theme(aspect.ratio = 1) + 
+  guides(colour = guide_legend(override.aes = list(size=3)))
+p_7d_2
+ggsave(
+  "outs/balanced_metrics/figures/13_7D_trial_batch_coordinates.pdf",
+  width = 7,
+  height = 7
+)
+
+
+# Plot the cluster coordinate results 
+p_7d_3 <- ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = factor(cluster)), size = 1) +
   labs(
     color = "Cluster",
@@ -483,7 +511,7 @@ p_7d_2 <- ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) + 
   guides(colour = guide_legend(override.aes = list(size=3)))
-p_7d_2
+p_7d_3
 ggsave(
   "outs/balanced_metrics/figures/13_7D_trial_cluster_coordinates.pdf",
   width = 7,
@@ -500,7 +528,7 @@ bal_7D_metrics_df$Metric_bare <- str_split_fixed(
 bal_7D_metrics_df_sub <- bal_7D_metrics_df[
   bal_7D_metrics_df$Metric_bar %in% c("ARI", "Homogeneity")
 ]
-p_7d_3 <- ggplot(
+p_7d_4 <- ggplot(
   data = bal_7D_metrics_df_sub, 
   aes(
     x = factor(
@@ -539,7 +567,7 @@ p_7d_3 <- ggplot(
   theme(legend.text = element_text(size = 16)) +
   coord_fixed() +
   theme(aspect.ratio = 1) 
-p_7d_3
+p_7d_4
 ggsave(
   "outs/balanced_metrics/figures/13_7D_metrics_barplot.pdf",
   width = 6,
@@ -552,6 +580,7 @@ all_7d_plots <- plot_grid(
   p_7d_1,
   p_7d_2,
   p_7d_3,
+  p_7d_4,
   labels = "D",
   label_size = 12,
   rel_widths = c(2.2, 1.5, 2),
@@ -595,38 +624,38 @@ ggsave(
   height = 8
 )
 
-# # Plot the batch coordinate results per method 
-# p_7e_1 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
-#   geom_point(aes(color = celltype), size = 1) +
-#   facet_wrap(.~Subset, scales = "free") + 
-#   labs(
-#     color = "Celltype",
-#     x = "UMAP 1",
-#     y = "UMAP 2"
-#   ) +
-#   scale_color_brewer(palette = "Set1") +
-#   theme_few() +
-#   theme(axis.title.x = element_text(size = 16)) +
-#   theme(axis.title.y = element_text(size = 16)) +
-#   theme(strip.text.x = element_text(size = 16)) +
-#   theme(plot.title = element_text(size = 14)) +
-#   theme(axis.text.x = element_text(size = 16)) +
-#   theme(axis.text.y = element_text(size = 16)) +
-#   theme(legend.title = element_text(size = 16)) +
-#   theme(legend.text = element_text(size = 16)) +
-#   theme(aspect.ratio = 1) + 
-#   guides(colour = guide_legend(override.aes = list(size=3))) 
-# p_7e_1
-# ggsave(
-#   "outs/balanced_metrics/figures/13_7E_trial_celltype_coordinates_facet.pdf",
-#   width = 10,
-#   height = 8
-# )
+# Plot the batch coordinate results per method 
+p_7e_2 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
+  geom_point(aes(color = factor(batch)), size = 1) +
+  facet_wrap(.~Subset, scales = "free") +
+  labs(
+    color = "Batch",
+    x = "umap 1",
+    y = "umap 2"
+  ) +
+  scale_color_manual(values = c("dodgerblue3", "firebrick2")) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16)) +
+  theme(aspect.ratio = 1) +
+  guides(colour = guide_legend(override.aes = list(size=3)))
+p_7e_2
+ggsave(
+  "outs/balanced_metrics/figures/13_7e_trial_batch_coordinates_facet.pdf",
+  width = 10,
+  height = 8
+)
 
 
 # Plot the cluster coordinate results per method 
 palette_7E_cluster <- kev_palette[1:length(unique(bal_7E_cluster_df$cluster))]
-p_7e_2 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
+p_7e_3 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = factor(cluster)), size = 1) +
   facet_wrap(.~Subset, scales = "free") + 
   labs(
@@ -646,7 +675,7 @@ p_7e_2 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) + 
   guides(colour = guide_legend(override.aes = list(size=3))) 
-p_7e_2
+p_7e_3
 ggsave(
   "outs/balanced_metrics/figures/13_7E_trial_cluster_coordinates.pdf",
   width = 10,
@@ -685,7 +714,7 @@ bal_7E_score_agg_concat <- rbind(
   bal_7E_score_agg_bal
 )
 
-p_7e_3 <- ggplot(
+p_7e_4 <- ggplot(
   data = bal_7E_score_agg_imbal, 
   aes(
     x = factor(
@@ -721,14 +750,14 @@ p_7e_3 <- ggplot(
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) +
   coord_flip() 
-p_7e_3
+p_7e_4
 ggsave(
   "outs/balanced_metrics/figures/13_7E_trial_avg_metric_score_imbal.pdf",
   width = 7,
   height = 7
 )
 
-p_7e_4 <- ggplot(
+p_7e_5 <- ggplot(
   data = bal_7E_score_agg_bal, 
   aes(
     x = factor(
@@ -764,7 +793,7 @@ p_7e_4 <- ggplot(
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) +
   coord_flip() 
-p_7e_4
+p_7e_5
 ggsave(
   "outs/balanced_metrics/figures/13_7E_trial_avg_metric_score_bal.pdf",
   width = 7,
@@ -777,6 +806,7 @@ p_7e_all <- plot_grid(
   p_7e_3,
   p_7e_2,
   p_7e_4,
+  p_7e_5,
   labels = "E",
   label_size = 12,
   rel_widths = c(1, 0.5, 1, 0.5),
