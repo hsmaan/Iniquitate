@@ -583,15 +583,15 @@ all_7d_plots <- plot_grid(
   p_7d_4,
   labels = "D",
   label_size = 12,
-  rel_widths = c(2.2, 1.5, 2),
-  ncol = 3
+  rel_widths = c(2.2, 1.5, 1.5, 2),
+  ncol = 4
 )
 save_plot(
   "outs/balanced_metrics/figures/13_7D_all_plots.pdf",
   all_7d_plots,
   base_asp = 1,
   base_height = 4,
-  base_width = 14
+  base_width = 18
 )
 
 ### Fig 7E Analysis - Third use case on single-cell data - integration based
@@ -630,8 +630,8 @@ p_7e_2 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
   facet_wrap(.~Subset, scales = "free") +
   labs(
     color = "Batch",
-    x = "umap 1",
-    y = "umap 2"
+    x = "UMAP 1",
+    y = "UMAP 2"
   ) +
   scale_color_manual(values = c("dodgerblue3", "firebrick2")) +
   theme_few() +
@@ -803,21 +803,21 @@ ggsave(
 # Plot all the figure 7E plots together 
 p_7e_all <- plot_grid(
   p_7e_1,
-  p_7e_3,
-  p_7e_2,
   p_7e_4,
+  p_7e_2,
   p_7e_5,
+  p_7e_3,
   labels = "E",
   label_size = 12,
-  rel_widths = c(1, 0.5, 1, 0.5),
+  rel_widths = c(2, 1),
   ncol = 2,
-  nrow = 2
+  nrow = 3
 )
 p_7e_all
 save_plot(
   "outs/balanced_metrics/figures/13_7E_all_plots.pdf",
   p_7e_all,
   base_asp = 1,
-  base_height = 12,
+  base_height = 18,
   base_width = 16
 )
