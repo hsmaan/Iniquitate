@@ -595,6 +595,35 @@ ggsave(
   height = 8
 )
 
+# # Plot the batch coordinate results per method 
+# p_7e_1 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
+#   geom_point(aes(color = celltype), size = 1) +
+#   facet_wrap(.~Subset, scales = "free") + 
+#   labs(
+#     color = "Celltype",
+#     x = "UMAP 1",
+#     y = "UMAP 2"
+#   ) +
+#   scale_color_brewer(palette = "Set1") +
+#   theme_few() +
+#   theme(axis.title.x = element_text(size = 16)) +
+#   theme(axis.title.y = element_text(size = 16)) +
+#   theme(strip.text.x = element_text(size = 16)) +
+#   theme(plot.title = element_text(size = 14)) +
+#   theme(axis.text.x = element_text(size = 16)) +
+#   theme(axis.text.y = element_text(size = 16)) +
+#   theme(legend.title = element_text(size = 16)) +
+#   theme(legend.text = element_text(size = 16)) +
+#   theme(aspect.ratio = 1) + 
+#   guides(colour = guide_legend(override.aes = list(size=3))) 
+# p_7e_1
+# ggsave(
+#   "outs/balanced_metrics/figures/13_7E_trial_celltype_coordinates_facet.pdf",
+#   width = 10,
+#   height = 8
+# )
+
+
 # Plot the cluster coordinate results per method 
 palette_7E_cluster <- kev_palette[1:length(unique(bal_7E_cluster_df$cluster))]
 p_7e_2 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
