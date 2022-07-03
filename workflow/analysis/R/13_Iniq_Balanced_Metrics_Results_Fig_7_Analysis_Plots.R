@@ -163,6 +163,7 @@ p_7a_3 <- ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 3), limits = c(0, 1)) +
   coord_flip() 
 p_7a_3
 ggsave(
@@ -292,7 +293,8 @@ p_7b_3 <- ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) +
-  coord_flip() 
+  coord_flip()  +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 3), limits = c(0, 1)) 
 p_7b_3
 ggsave(
   "outs/balanced_metrics/figures/13_7B_metrics_barplot.pdf",
@@ -318,8 +320,6 @@ save_plot(
   base_height = 8,
   base_width = 12
 )
-
-
 
 ### Fig 7C Analysis - First use case on single-cell data 
 palette_7C_celltype <- kev_palette[1:length(unique(bal_7C_cluster_df$celltype))]
