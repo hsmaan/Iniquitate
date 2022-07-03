@@ -9,12 +9,12 @@ library(EMT)
 # Set seed for any sampling done 
 set.seed(42)
 
-# Change to results dir for control data 
+# Change to results dir for control data
 setwd("../../../results/control/")
 
 ##### Statistical analysis of PBMC 2 batch balanced data - baseline #####
 
-# Load in and concatenate imbalance summary files 
+# Load in and concatenate imbalance summary files
 setwd("imbalance_summaries/")
 imba_files <- list.files()
 imba_files <- grep(
@@ -36,6 +36,9 @@ clus_files <- grep(
 )
 clus_loaded <- lapply(clus_files, fread)
 clus_concat <- Reduce(rbind, clus_loaded)
+clus_concat <- clus_concat[
+  clus_concat$Method != "liger"
+]
 gc()
 
 # Load in and concatenate clustering concordance summaries 
@@ -48,6 +51,12 @@ clus_concord_files <- grep(
 )
 clus_concord_loaded <- lapply(clus_concord_files, fread)
 clus_concord_concat <- Reduce(rbind, clus_concord_loaded)
+clus_concord_concat <- clus_concord_concat[
+  clus_concord_concat$`Method 1` != "liger"
+]
+clus_concord_concat <- clus_concord_concat[
+  clus_concord_concat$`Method 2` != "liger"
+]
 gc()
 
 # Load in and concatenate dge concordance summaries
@@ -60,6 +69,8 @@ dge_files <- grep(
 )
 dge_loaded <- lapply(dge_files, fread)
 dge_concat <- Reduce(rbind, dge_loaded)
+dge_concat <- dge_concat[dge_concat$`Method 1` != "liger"]
+dge_concat <- dge_concat[dge_concat$`Method 2` != "liger"]
 gc()
 
 # Load in and concatenate dge ranking summaries, subset by marker genes
@@ -72,6 +83,9 @@ dge_rank_files <- grep(
 )
 dge_rank_loaded <- lapply(dge_rank_files, fread)
 dge_rank_concat <- Reduce(rbind, dge_rank_loaded)
+dge_rank_concat <- dge_rank_concat[
+  dge_rank_concat$Method != "liger"
+]
 gc()
 
 # Load in markers and corresponding celltypes 
@@ -90,6 +104,7 @@ knn_files <- grep(
 )
 knn_loaded <- lapply(knn_files, fread)
 knn_concat <- Reduce(rbind, knn_loaded)
+knn_concat <- knn_concat[knn_concat$Method != "liger"]
 gc()
 
 # Change to top level dir 
@@ -195,7 +210,7 @@ fwrite(
   clus_anova_result_dt,
   paste0(
     "outs/control/results/",
-    "09_pbmc_base_clus_num_leiden_aov_results_ctrl_method_celltype_ds.tsv"
+    "09_pbmc_base_clus_num_leiden_aov_results_ctrl_method_celltype_ds_no_liger.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -296,7 +311,7 @@ fwrite(
   dge_anova_result_dt,
   paste0(
     "outs/control/results/",
-    "09_pbmc_base_dge_rank_aov_results_ctrl_gene_method_celltype_ds.tsv"
+    "09_pbmc_base_dge_rank_aov_results_ctrl_gene_method_celltype_ds_no_liger.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -363,7 +378,7 @@ fwrite(
   marker_aov_results_concat,
   paste0(
     "outs/control/results/",
-    "09_pbmc_base_dge_specific_rank_aov_results_ctrl_method_celltype_ds.tsv"
+    "09_pbmc_base_dge_specific_rank_aov_results_ctrl_method_celltype_ds_no_liger.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -476,7 +491,7 @@ fwrite(
   marker_lm_summaries_concat,
   paste0(
     "outs/control/results/",
-    "09_pbmc_base_dge_rank_coeffs_celltype_ds_method_importance_ranks.tsv"
+    "09_pbmc_base_dge_rank_coeffs_celltype_ds_method_importance_ranks_no_liger.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -557,7 +572,7 @@ fwrite(
   paste0(
     "outs/control/results/",
     "09_pbmc_base_ds_dge_marker_celltypes_top_ds_celltype_",
-    "coeff_multinom_tests_low_rep.tsv"
+    "coeff_multinom_tests_low_rep_no_liger.tsv"
   ),
   sep = "\t",
   quote = FALSE,
