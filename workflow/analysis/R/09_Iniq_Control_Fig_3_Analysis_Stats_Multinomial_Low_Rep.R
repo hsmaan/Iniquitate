@@ -535,7 +535,7 @@ marker_celltype_multinomial <- function(
   p_val <- multinomial.test(
     observed, 
     prob, 
-    ntrial = 1e6,
+    ntrial = 1e10,
     MonteCarlo = TRUE
   )$p.value
   print(p_val)
