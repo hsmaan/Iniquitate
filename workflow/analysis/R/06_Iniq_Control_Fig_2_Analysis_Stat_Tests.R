@@ -1586,3 +1586,84 @@ fwrite(
   col.names = TRUE
 )
 
+#### Comparison of ANOVA KNN classification F1 scores for baseline and #### 
+#### hierarchical setups - not including LIGER ####
+
+# Rename hierarchical AOV results and reload in baseline
+knn_aov_results_hierarchical <- knn_aov_results
+knn_aov_results_baseline <- fread(
+  paste0(
+    "outs/control/results/",
+    "06_pbmc_base_knn_cell_ds_cell_aov_results_ctrl_method_celltype_no_liger.tsv"
+  )
+)
+
+# Plot the F-values for the three covariates considered in the ANOVA test 
+f_vals_baseline <- knn_aov_results_baseline$`F value`[1:3]
+f_vals_hierarchical <- knn_aov_results_hierarchical$`F value`[1:3]
+covars_baseline <- knn_aov_results_baseline$Covariate[1:3]
+covars_hierarchical <- knn_aov_results_hierarchical$Covariate[1:3]
+
+knn_aov_comp_df <- data.frame(
+  "Covariates" = c(covars_baseline, covars_hierarchical),
+  "F_values" = c(f_vals_baseline, f_vals_hierarchical),
+  "Subset" = c(
+    "Baseline", 
+    "Baseline", 
+    "Baseline", 
+    "Hierarchical", 
+    "Hierarchical", 
+    "Hierarchical"
+  )
+)
+
+knn_aov_comp_df_melted <- reshape2::melt(
+  knn_aov_comp_df,
+  id.vars = c("Subset", "Covariates"),
+  measure.vars = "F_values"
+)
+knn_aov_comp_df_melted$Covariates <- plyr::mapvalues(
+  knn_aov_comp_df_melted$Covariates,
+  from = c(
+    "type",
+    "method",
+    "downsampled_celltypes"
+  ),
+  to = c(
+    "Balanced vs perturbed",
+    "Integration method",
+    "Celltype downsampled"
+  )
+) 
+
+ggplot(data = knn_aov_comp_df_melted, aes(Covariates, value)) +
+  geom_bar(
+    stat = "identity",
+    position = position_dodge2(),
+    aes(
+      fill = Subset
+    )
+  ) + 
+  scale_fill_brewer(palette = "Set1") +
+  theme_classic() + 
+  coord_flip () +
+  labs(x = "Covariate", y = "ANOVA F-statistic") +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16)) +
+  theme(aspect.ratio = 1)
+ggsave(
+  paste0(
+    "outs/control/figures/",
+    "06_pbmc_base_vs_hierarchical_knn_aov_results_comp_no_liger.pdf"
+  ),
+  width = 12,
+  height = 8,
+  device = cairo_pdf
+)
