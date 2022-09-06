@@ -109,7 +109,6 @@ if (!dir.exists("outs/pdac_comp/results")) {
   dir.create("outs/pdac_comp/results", recursive = TRUE)
 }
 
-
 ### Statistical test -  downsampling results on KNN classification scores
 ### of given subsets/compartments 
 imba_knn_merged <- merge(
@@ -142,3 +141,138 @@ imba_knn_merged_celltype$type <- ifelse(
   )
 ) 
 
+# Indicate the separate compartments
+compartments <- unique(imba_knn_merged_celltype$Celltype)
+
+# Create a function to do an ANOVA test for the F1 score based on each
+# compartment utilized 
+anova_compart_knn <- function(
+    compartment, 
+    dataset
+){
+  # Subset data for the given compartment
+  dataset_sub <- dataset[dataset$Celltype == compartment]
+  
+  # Format the data columns for lm 
+  colnames(dataset_sub) <- plyr::mapvalues(
+    colnames(dataset_sub),
+    from = c(
+      "F1-score",
+      "Method",
+      "type"
+    ),
+    to = c(
+      "f1_score",
+      "method",
+      "type"
+    )
+  )
+  
+  # Fit ANOVA model
+  model_fit <- lm(
+    as.formula(
+      paste0(
+        "f1_score", 
+        "~",
+        "method+",
+        "type"
+      )
+    ),
+    data = dataset_sub
+  )
+  anova_result <- anova(model_fit, test = "F")
+  
+  # Format results and return
+  anova_result_dt <- as.data.table(anova_result, keep.rownames = TRUE)
+  colnames(anova_result_dt)[1] <- "Covariate"
+  anova_result_dt$compartment_name <- compartment
+  anova_result_dt$metric <- "F1 score"
+  anova_result_dt$last_covariate <- "type"
+  return(anova_result_dt)
+}
+
+# Iterate over compartments and get the significance of ds/ablation 
+knn_anova_comp_results <- mapply(
+  anova_compart_knn,
+  compartment = compartments,
+  MoreArgs = list(
+    dataset = imba_knn_merged_celltype
+  ),
+  SIMPLIFY = FALSE
+)
+knn_anova_comp_results
+
+# Save the concatenated results and plot the ANOVA F-values for 
+# a supplementary figure 
+knn_anova_comp_results_concat <- Reduce(rbind, knn_anova_comp_results)
+fwrite(
+  knn_anova_comp_results_concat,
+  "outs/pdac_comp/results/12B_comp_specific_ds_knn_f1_score_anovas.tsv",
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = TRUE
+)
+
+knn_anova_comp_results_concat_nores <- knn_anova_comp_results_concat[
+  knn_anova_comp_results_concat$Covariate != "Residuals"
+]
+
+f_vals <- knn_anova_comp_results_concat_nores$`F value`
+covars <- knn_anova_comp_results_concat_nores$Covariate
+comps <- knn_anova_comp_results_concat_nores$compartment_name
+
+knn_aov_comp_df <- data.frame(
+  "Covariates" = covars,
+  "F_values" = f_vals,
+  "Compartment" = comps
+)
+
+knn_aov_comp_df_melted <- reshape2::melt(
+  knn_aov_comp_df,
+  id.vars = c("Compartment", "Covariates"),
+  measure.vars = "F_values"
+)
+knn_aov_comp_df_melted$Covariates <- plyr::mapvalues(
+  knn_aov_comp_df_melted$Covariates,
+  from = c(
+    "type",
+    "method"
+  ),
+  to = c(
+    "Unperturbed vs perturbed",
+    "Integration method"
+  )
+) 
+
+ggplot(data = knn_aov_comp_df_melted, aes(Covariates, value)) +
+  geom_bar(
+    stat = "identity",
+    position = position_dodge2(),
+    aes(
+      fill = Compartment
+    )
+  ) + 
+  scale_fill_brewer(palette = "Set1") +
+  theme_classic() + 
+  coord_flip () +
+  labs(x = "Covariate", y = "ANOVA F-statistic") +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16)) +
+  theme(aspect.ratio = 1)
+ggsave(
+  paste0(
+    "outs/pdac_comp/figures/",
+    "12B_pdac_knn_aov_comp_ds_f_statistic.pdf"
+  ),
+  width = 12,
+  height = 12,
+  device = cairo_pdf
+)
