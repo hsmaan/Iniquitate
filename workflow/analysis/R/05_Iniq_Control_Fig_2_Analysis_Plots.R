@@ -1695,7 +1695,6 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
     notch = FALSE,
     alpha = 0.8 
   ) +
-  ylim(0, 1) + 
   facet_wrap(
     .~Celltype, 
     scales = "free_x", 
@@ -1722,6 +1721,46 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
   "outs/control/figures/05_pbmc_ds_ablate_allmethod_knn_f1_score_no_liger.pdf",
+  width = 12,
+  height = 14,
+  device = cairo_pdf
+)
+
+ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
+  geom_boxplot(
+    aes(
+      fill = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+    ),
+    notch = FALSE,
+    alpha = 0.8 
+  ) +
+  ylim(0, 1) +
+  facet_wrap(
+    .~Celltype, 
+    scales = "free_x", 
+    labeller = ds_celltype_labelled,
+    ncol = 2
+  ) +
+  labs(
+    fill = "Type",
+    x = "Method",
+    y = "Affected celltype F1-classification score post-integration"
+  ) +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16))
+ggsave(
+  "outs/control/figures/05_pbmc_ds_ablate_allmethod_knn_f1_score_no_liger_0_1_y.pdf",
   width = 12,
   height = 14,
   device = cairo_pdf
@@ -2182,6 +2221,46 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
     notch = FALSE,
     alpha = 0.8 
   ) +
+  ylim(0.5, 1) + 
+  facet_wrap(
+    .~Celltype, 
+    scales = "free_x", 
+    labeller = ds_celltype_labelled,
+    ncol = 1
+  ) +
+  labs(
+    fill = "Type",
+    x = "Method",
+    y = "Affected celltype F1-classification score post-integration"
+  ) +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16))
+ggsave(
+  "outs/control/figures/05_pbmc_hierarchical_ds_ablate_allmethod_knn_f1_score_no_liger_ylim_0.5_1.pdf",
+  width = 8,
+  height = 14,
+  device = cairo_pdf
+)
+
+ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
+  geom_boxplot(
+    aes(
+      fill = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+    ),
+    notch = FALSE,
+    alpha = 0.8 
+  ) +
   ylim(0, 1) +
   facet_wrap(
     .~Celltype, 
@@ -2208,7 +2287,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/control/figures/05_pbmc_hierarchical_ds_ablate_allmethod_knn_f1_score_no_liger.pdf",
+  "outs/control/figures/05_pbmc_hierarchical_ds_ablate_allmethod_knn_f1_score_no_liger_y_0_1.pdf",
   width = 8,
   height = 14,
   device = cairo_pdf
