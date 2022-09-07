@@ -3546,7 +3546,11 @@ ggplot(data = imba_anno_merged_all_tcell, aes(
   fill = `Predicted L2`
 )) +
   geom_bar(position = "fill") +
-  scale_fill_brewer(palette = "Set3") +
+  scale_fill_manual(
+    values = kev_palette[
+      1:length(unique(imba_anno_merged_all_tcell$`Predicted L2`))
+    ]
+  ) +
   facet_wrap(.~`Real celltype`) +
   labs(
     fill = "Predicted L2 \ncelltype",
