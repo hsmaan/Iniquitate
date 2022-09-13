@@ -27,14 +27,14 @@ def main(h5ad_dir, save_loc, top_n = 10):
     # for each celltype and get and return the union
     adata_dge_top_n_dfs = []
     for adata in adata_loaded:
-        # Removing human genes (won't affect mouse data)
+        # Removing human mito and ribo genes (won't affect mouse data)
         adata = adata[:, adata.var.gene.str.startswith("MT-") == False]
         adata = adata[:, adata.var.gene.str.contains("RPS") == False]
         adata = adata[:, adata.var.gene.str.contains("RPL") == False]
         adata = adata[:, adata.var.gene.str.contains("MRPL") == False]
         adata = adata[:, adata.var.gene.str.contains("MRPS") == False]
         
-        # Removing mouse genes (won't affect human data)
+        # Removing mouse mito and ribo genes (won't affect human data)
         adata = adata[:, adata.var.gene.str.startswith("Mt-") == False]
         adata = adata[:, adata.var.gene.str.startswith("mt-") == False]
         adata = adata[:, adata.var.gene.str.contains("Rpl") == False]
