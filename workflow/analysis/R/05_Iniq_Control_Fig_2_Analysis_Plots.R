@@ -1766,6 +1766,40 @@ ggsave(
   device = cairo_pdf
 )
 
+# Get and save the standard deviation of the median values of F1, based on
+# method utilized, celltype downsampled, and subset utilized
+imba_knn_merged_celltype_medians  <- imba_knn_merged_celltype %>% 
+  group_by(Method, Celltype, type) %>% 
+  summarize(
+    `Median F1-score per subset` = median(`F1-score`, na.rm = FALSE),
+    .groups = "keep"
+  ) %>%
+  as.data.frame()
+
+imba_knn_merged_celltype_medians_stdev  <- imba_knn_merged_celltype_medians %>% 
+  group_by(Celltype) %>% 
+  summarize(
+    `Stdev Method Median F1-score per subset` = sd(
+      `Median F1-score per subset`, 
+      na.rm = FALSE
+    ),
+    .groups = "keep"
+  ) %>%
+  as.data.frame()
+
+colnames(imba_knn_merged_celltype_medians_stdev) <- c(
+  "Celltype", 
+  "Standard deviation of medians for F1-score, across methods, replicates, and experiment types"
+)
+fwrite(
+  imba_knn_merged_celltype_medians_stdev,
+  "outs/control/results/05_baseline_pbmc_f1_score_stdevs_per_celltype.tsv",
+  sep = "\t", 
+  row.names = FALSE,
+  col.names = TRUE
+)
+
+
 ### Fig 2D) - correlation of batch and celltype ARI values with KNN 
 ### classification scores to show discordance of these results 
 
