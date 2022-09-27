@@ -1059,6 +1059,68 @@ ggsave(
   device = cairo_pdf
 )
 
+# Plot the same result as above, but without subsetting for the same 
+# compartment affected and downsampled 
+
+# Indicate which panels are control and which ones are ablations or downsampling
+imba_knn_merged$type <- ifelse(
+  imba_knn_merged$`Number of batches downsampled` == 0,
+  "Control",
+  ifelse(
+    imba_knn_merged$`Proportion downsampled` == 0,
+    "Ablated",
+    "Downsampled"
+  )
+)
+
+imba_knn_merged$Celltype <- paste0(
+  "Compartment assessed = ",
+  imba_knn_merged$Celltype
+)
+imba_knn_merged$`Downsampled celltypes` <- paste0(
+  "Compartment downsampled = ", 
+  imba_knn_merged$`Downsampled celltypes`
+)
+
+
+ggplot(data = imba_knn_merged, aes(x = `Method`, y = `F1-score`)) +
+  geom_boxplot(
+    aes(
+      fill = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+    ),
+    notch = FALSE,
+    alpha = 0.8 
+  ) +
+  facet_wrap(
+    .~Celltype + `Downsampled celltypes`, 
+    scales = "free_x", 
+    ncol = 4
+  ) +
+  labs(
+    fill = "Type",
+    x = "Method",
+    y = "Compartment F1-classification score post-integration"
+  ) +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16))
+ggsave(
+  "outs/pdac_comp/figures/12_pdac_non_compart_specific_ds_ablate_methods_knn_f1_score_no_liger.pdf",
+  width = 24,
+  height = 12,
+  device = cairo_pdf
+)
+
 ### Supplementary figure - plot the total number of cells across all batches
 ### and celltypes for the control data
 
@@ -1153,3 +1215,4 @@ ggsave(
   height = 5,
   device = cairo_pdf
 )
+
