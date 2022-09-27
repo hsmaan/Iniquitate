@@ -2116,7 +2116,7 @@ ggplot(data = imba_clus_merged, aes(
   ) +
   labs(
     fill = "Type",
-    x = "Celltype downsampled",
+    x = "Cell-type downsampled",
     y = "Number of Leiden clusters post-integration"
   ) +
   coord_flip() +
@@ -2144,7 +2144,7 @@ ggscatter(imba_clus_merged,
           y = "Cluster number", 
           size = 0.4,
           combine = TRUE,
-          xlab = "Celltype ARI post-integration",
+          xlab = "Cell-type ARI post-integration",
           ylab = "Number of Leiden clusters post-integration",
           palette = "jco",
           add = "reg.line", 
@@ -2537,7 +2537,7 @@ names(col_celltype) <- unique_dup_celltypes_sorted
 # Celltype heatmap 
 ht4 <- Heatmap(
   base_marker_gene_dup_added_mat, 
-  name = "Celltype associated \nwith marker gene", 
+  name = "Cell-type associated \nwith marker gene", 
   width = unit(1, "cm"),
   row_title = "Marker gene",
   row_names_gp = gpar(fontsize = 4),
@@ -3075,8 +3075,8 @@ ggplot(
   theme(legend.text = element_text(size = 14)) +
   labs(
     fill = "Average marker gene \nperturbation score",
-    x = "Downsampled celltype",
-    y = "Celltype associated with marker genes"
+    x = "Downsampled cell-type",
+    y = "Cell-type associated with marker genes"
   )
 ggsave(
   paste0(
@@ -3136,8 +3136,8 @@ ggplot(
   theme(legend.text = element_text(size = 14)) +
   labs(
     fill = "Average marker gene \nperturbation score",
-    x = "Ablated celltype",
-    y = "Celltype associated with marker genes"
+    x = "Ablated cell-type",
+    y = "Cell-type associated with marker genes"
   )
 ggsave(
   paste0(
@@ -3277,7 +3277,7 @@ ggplot(data = imba_anno_merged_score_format_l1, aes(
   ) +
   labs(
     fill = "Type",
-    x = "Celltype downsampled",
+    x = "Cell-type downsampled",
     y = "L1 annotation accuracy (F1-score)"
   ) +
   coord_flip() +
@@ -3319,7 +3319,7 @@ ggplot(data = imba_anno_merged_score_format_l2, aes(
   ) +
   labs(
     fill = "Type",
-    x = "Celltype downsampled",
+    x = "Cell-type downsampled",
     y = "L2 annotation accuracy (F1-score)"
   ) +
   coord_flip() +
@@ -3372,7 +3372,7 @@ ggplot(data = imba_anno_merged_score_format_l1_sd, aes(
   ) +
   labs(
     fill = "Type",
-    x = "Celltype",
+    x = "Cell-type",
     y = "Standard deviation of L1 F1-scores"
   ) +
   theme_few() +
@@ -3416,7 +3416,7 @@ ggplot(data = imba_anno_merged_score_format_l2_sd, aes(
   ) +
   labs(
     fill = "Type",
-    x = "Celltype",
+    x = "Cell-type",
     y = "Standard deviation of L2 F1-scores"
   ) +
   theme_few() +
@@ -3517,7 +3517,7 @@ ggplot(data = imba_anno_merged_all_tcell, aes(
   scale_fill_brewer(palette = "Set3") +
   facet_wrap(.~`Real celltype`) +
   labs(
-    fill = "Predicted L1 \ncelltype",
+    fill = "Predicted L1 \ncell-type",
     x = "Type",
     y = "Proportion of L1 predictions"
   ) +
@@ -3553,7 +3553,7 @@ ggplot(data = imba_anno_merged_all_tcell, aes(
   ) +
   facet_wrap(.~`Real celltype`) +
   labs(
-    fill = "Predicted L2 \ncelltype",
+    fill = "Predicted L2 \ncell-type",
     x = "Type",
     y = "Proportion of L2 predictions"
   ) +
@@ -3597,7 +3597,7 @@ ggplot(data = imba_anno_merged_all_cd4_tcell, aes(
   scale_fill_brewer(palette = "Set1") +
   facet_wrap(.~`Downsampled celltypes`, scales = "free_x") +
   labs(
-    fill = "Predicted L1 \ncelltype",
+    fill = "Predicted L1 \ncell-type",
     x = "",
     y = "Proportion of L1 predictions for CD4+ T cells"
   ) +
@@ -3630,7 +3630,7 @@ ggplot(data = imba_anno_merged_all_cd4_tcell, aes(
   scale_fill_brewer(palette = "Set3") +
   facet_wrap(.~`Downsampled celltypes`, scales = "free_x") +
   labs(
-    fill = "Predicted L2 \ncelltype",
+    fill = "Predicted L2 \ncell-type",
     x = "",
     y = "Proportion of L2 predictions for CD4+ T cells"
   ) +
@@ -3663,7 +3663,7 @@ ggplot(data = imba_anno_merged_all_cd8_tcell, aes(
   scale_fill_brewer(palette = "Set1") +
   facet_wrap(.~`Downsampled celltypes`, scales = "free_x") +
   labs(
-    fill = "Predicted L1 \ncelltype",
+    fill = "Predicted L1 \ncell-type",
     x = "",
     y = "Proportion of L1 predictions for CD8+ T cells"
   ) +
@@ -3696,7 +3696,7 @@ ggplot(data = imba_anno_merged_all_cd8_tcell, aes(
   scale_fill_brewer(palette = "Set3") +
   facet_wrap(.~`Downsampled celltypes`, scales = "free_x") +
   labs(
-    fill = "Predicted L2 \ncelltype",
+    fill = "Predicted L2 \ncell-type",
     x = "",
     y = "Proportion of L2 predictions for CD8+ T cells"
   ) +
@@ -3751,7 +3751,7 @@ ggplot(data = imba_anno_merged_score_format_l1_baseline, aes(
   ) +
   labs(
     fill = "Type",
-    x = "Celltype downsampled",
+    x = "Cell-type downsampled",
     y = "L1 baseline annotation accuracy (F1-score)"
   ) +
   coord_flip() +
@@ -3793,7 +3793,7 @@ ggplot(data = imba_anno_merged_score_format_l2_baseline, aes(
   ) +
   labs(
     fill = "Type",
-    x = "Celltype downsampled",
+    x = "Cell-type downsampled",
     y = "L2 baseline annotation accuracy (F1-score)"
   ) +
   coord_flip() +
