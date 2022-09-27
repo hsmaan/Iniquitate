@@ -580,7 +580,7 @@ imba_knn_merged_celltype$Celltype <- plyr::mapvalues(
 
 # Create function to format facet labels (downsampled celltypes)
 ds_celltype_labelled <- function(variable,value){
-  return(paste0("Celltype affected = ", value))
+  return(paste0("Cell-type affected = ", value))
 }
 
 ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
@@ -1057,7 +1057,7 @@ imba_knn_merged_celltype$type <- ifelse(
 
 # Create function to format facet labels (downsampled celltypes)
 ds_celltype_labelled <- function(variable,value){
-  return(paste0("Celltype affected = ", value))
+  return(paste0("Cell-type affected = ", value))
 }
 
 ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
@@ -1684,7 +1684,7 @@ imba_knn_merged_celltype$Celltype <- plyr::mapvalues(
 
 # Create function to format facet labels (downsampled celltypes)
 ds_celltype_labelled <- function(variable,value){
-  return(paste0("Celltype affected = ", value))
+  return(paste0("Cell-type affected = ", value))
 }
 
 ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
@@ -2243,7 +2243,7 @@ imba_knn_merged_celltype$type <- ifelse(
 
 # Create function to format facet labels (downsampled celltypes)
 ds_celltype_labelled <- function(variable,value){
-  return(paste0("Celltype affected = ", value))
+  return(paste0("Cell-type affected = ", value))
 }
 
 ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
