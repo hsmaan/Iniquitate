@@ -329,7 +329,7 @@ palette_7C_cluster <- kev_palette[1:length(unique(bal_7C_cluster_df$cluster))]
 ggplot(data = bal_7C_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = celltype), size = 1) +
   labs(
-    color = "Celltype",
+    color = "Cell-type",
     x = "UMAP 1",
     y = "UMAP 2"
   ) +
@@ -440,7 +440,7 @@ ggsave(
 p_7d_1 <- ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = celltype), size = 1) +
   labs(
-    color = "Celltype",
+    color = "Cell-type",
     x = "UMAP 1",
     y = "UMAP 2"
   ) +
@@ -601,7 +601,7 @@ p_7e_1 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = celltype), size = 0.25) +
   facet_wrap(.~Subset, scales = "free") + 
   labs(
-    color = "Celltype",
+    color = "Cell-type",
     x = "UMAP 1",
     y = "UMAP 2"
   ) +
