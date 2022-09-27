@@ -1030,7 +1030,7 @@ ggplot(
   ylim(c(0, 1)) +
   labs(
     x = "Method",
-    y = "Celltype ARI"
+    y = "Cell-type ARI"
   ) +
   scale_fill_brewer(palette = "Set2") +
   scale_color_brewer(palette = "Set2") +
@@ -1131,9 +1131,9 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Average celltype \ncenter distance \nacross batches",
-    x = "Celltype 1",
-    y = "Celltype 2"
+    fill = "Average cell-type \ncenter distance \nacross batches",
+    x = "Cell-type 1",
+    y = "Cell-type 2"
   )
 ggsave(
   "outs/lowcap_modified/figures/10_pbmc_2_batch_bal_celltype_relatedness_no_liger.pdf",
@@ -1178,9 +1178,9 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Average celltype \ncenter distance \nacross batches",
-    x = "Celltype 1",
-    y = "Celltype 2"
+    fill = "Average cell-type \ncenter distance \nacross batches",
+    x = "Cell-type 1",
+    y = "Cell-type 2"
   )
 ggsave(
   "outs/lowcap_modified/figures/10_pbmc_2_batch_imba_celltype_relatedness_no_liger.pdf",
@@ -1304,8 +1304,8 @@ knn_relatedness_plot <- function(
     scale_fill_gradient(low = "blue", high = "red", na.value = NA) +
     scale_color_gradient(low = "blue", high = "red", na.value = NA) +
     labs(
-      fill = "Minimum \ncelltype \ncenter \ndistance",
-      x = "Celltype",
+      fill = "Minimum \ncell-type \ncenter \ndistance",
+      x = "Cell-type",
       y = "F1-classification score post-integration"
     ) +
     guides(
@@ -1385,8 +1385,8 @@ knn_support_plot <- function(dataset, knn_class_df, plot_height, plot_width) {
     geom_jitter(aes(color = Log_support)) +
     geom_boxplot(aes(fill = Log_support)) +
     labs(
-      fill = "Relative \ncelltype \nsupport",
-      x = "Celltype",
+      fill = "Relative \ncell-type \nsupport",
+      x = "Cell-type",
       y = "F1-classification score post-integration"
     ) +
     guides(
@@ -1531,9 +1531,9 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) +
   labs(
-    fill = "Average celltype \ncenter distance \nacross batches",
-    x = "Celltype 1",
-    y = "Celltype 2"
+    fill = "Average cell-type \ncenter distance \nacross batches",
+    x = "Cell-type 1",
+    y = "Cell-type 2"
   )
 ggsave(
   "outs/lowcap_modified/figures/10_pbmc_4_batch_bal_celltype_relatedness_no_liger.pdf",
