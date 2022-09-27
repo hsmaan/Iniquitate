@@ -1483,7 +1483,7 @@ col_celltype = c(
 
 ht1 = Heatmap(
   as.matrix(median_celltype_ari_long_vals_only_scaled), 
-  name = "Scaled median \ncelltype ARI", 
+  name = "Scaled median \ncell-type ARI", 
   width = unit(5, "cm"),
   cluster_rows = FALSE,
   cluster_columns = FALSE,
@@ -1501,7 +1501,7 @@ ht2 = Heatmap(
 )
 ht3 = Heatmap(
   as.matrix(median_celltype_ari_long_celltype), 
-  name = "Affected celltype",
+  name = "Affected cell-type",
   col = col_celltype,
   width = unit(0.5, "cm"),  
   cluster_rows = FALSE,
@@ -1609,7 +1609,7 @@ ht2 = Heatmap(
 )
 ht3 = Heatmap(
   as.matrix(median_batch_ari_long_celltype), 
-  name = "Affected celltype",
+  name = "Affected cell-type",
   col = col_celltype,
   width = unit(0.5, "cm"),  
   cluster_rows = FALSE,
@@ -1704,7 +1704,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   labs(
     fill = "Type",
     x = "Method",
-    y = "Affected celltype F1-classification score post-integration"
+    y = "Affected cell-type F1-classification score post-integration"
   ) +
   scale_fill_manual( 
     breaks = c("Control", "Downsampled", "Ablated"),
@@ -1744,7 +1744,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   labs(
     fill = "Type",
     x = "Method",
-    y = "Affected celltype F1-classification score post-integration"
+    y = "Affected cell-type F1-classification score post-integration"
   ) +
   scale_fill_manual( 
     breaks = c("Control", "Downsampled", "Ablated"),
@@ -1788,7 +1788,7 @@ imba_knn_merged_celltype_medians_stdev  <- imba_knn_merged_celltype_medians %>%
   as.data.frame()
 
 colnames(imba_knn_merged_celltype_medians_stdev) <- c(
-  "Celltype", 
+  "Cell-type", 
   "Standard deviation of medians for F1-score, across methods, replicates, and experiment types"
 )
 fwrite(
@@ -1798,7 +1798,6 @@ fwrite(
   row.names = FALSE,
   col.names = TRUE
 )
-
 
 ### Fig 2D) - correlation of batch and celltype ARI values with KNN 
 ### classification scores to show discordance of these results 
@@ -1862,8 +1861,8 @@ ggscatter(median_imba_knn_cluster_results_cari,
           y = "Median F1-score", 
           size = 0.4,
           combine = TRUE,
-          xlab = "Celltype ARI post-integration",
-          ylab = "Celltype F1-classification score post-integration",
+          xlab = "Cell-type ARI post-integration",
+          ylab = "Cell-type F1-classification score post-integration",
           palette = "jco",
           add = "reg.line", 
           add.params = list(color = "blue", fill = "lightgray"),
@@ -1911,7 +1910,7 @@ ggscatter(median_imba_knn_cluster_results_bari,
           size = 0.4,
           combine = TRUE,
           xlab = "Batch ARI post-integration",
-          ylab = "Celltype F1-classification score post-integration",
+          ylab = "Cell-type F1-classification score post-integration",
           palette = "jco",
           add = "reg.line", 
           add.params = list(color = "blue", fill = "lightgray"),
@@ -2265,7 +2264,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   labs(
     fill = "Type",
     x = "Method",
-    y = "Affected celltype F1-classification score post-integration"
+    y = "Affected cell-type F1-classification score post-integration"
   ) +
   scale_fill_manual( 
     breaks = c("Control", "Downsampled", "Ablated"),
@@ -2305,7 +2304,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   labs(
     fill = "Type",
     x = "Method",
-    y = "Affected celltype F1-classification score post-integration"
+    y = "Affected cell-type F1-classification score post-integration"
   ) +
   scale_fill_manual( 
     breaks = c("Control", "Downsampled", "Ablated"),
