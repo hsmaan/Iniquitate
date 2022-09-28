@@ -53,7 +53,6 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     
     # For each method, compute the ranking metrics for all genes in the dataset
     # based on each cluster   
-    all_genes = np.sort(adata.var.index.values)
     method_adata_result_dfs = []
     for method_adata, method_dge_df in zip(method_adatas, method_dge_dfs):
         method_clusters = np.unique(method_dge_df["Cluster"].__array__())
