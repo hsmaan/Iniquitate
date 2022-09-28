@@ -580,7 +580,7 @@ imba_knn_merged_celltype$Celltype <- plyr::mapvalues(
 
 # Create function to format facet labels (downsampled celltypes)
 ds_celltype_labelled <- function(variable,value){
-  return(paste0("Celltype affected = ", value))
+  return(paste0("Cell-type affected = ", value))
 }
 
 ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
@@ -1057,7 +1057,7 @@ imba_knn_merged_celltype$type <- ifelse(
 
 # Create function to format facet labels (downsampled celltypes)
 ds_celltype_labelled <- function(variable,value){
-  return(paste0("Celltype affected = ", value))
+  return(paste0("Cell-type affected = ", value))
 }
 
 ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
@@ -1483,7 +1483,7 @@ col_celltype = c(
 
 ht1 = Heatmap(
   as.matrix(median_celltype_ari_long_vals_only_scaled), 
-  name = "Scaled median \ncelltype ARI", 
+  name = "Scaled median \ncell-type ARI", 
   width = unit(5, "cm"),
   cluster_rows = FALSE,
   cluster_columns = FALSE,
@@ -1501,7 +1501,7 @@ ht2 = Heatmap(
 )
 ht3 = Heatmap(
   as.matrix(median_celltype_ari_long_celltype), 
-  name = "Affected celltype",
+  name = "Affected cell-type",
   col = col_celltype,
   width = unit(0.5, "cm"),  
   cluster_rows = FALSE,
@@ -1522,6 +1522,120 @@ draw(
   column_title_gp = gpar(fontsize = 14, fontface = "bold")
 )
 dev.off()
+
+# Perform the exact same analysis/heatmap as above, but for the balanced 
+# celltype ARI 
+
+# Get median celltype ARI based on each method and whether or not
+# it's a control, downsampling, or ablation, and by celltype 
+median_balanced_celltype_ari_results <- imba_clus_merged %>% 
+  group_by(Method, type, `Downsampled celltypes`) %>% 
+  summarize(
+    `Median balanced celltype ARI` = median(`Celltype ARI Balanced`, na.rm = FALSE),
+    .groups = "keep"
+  ) %>%
+  as.data.frame()
+
+# Melt and format for ComplexHeatMap plotting 
+median_balanced_celltype_ari_results_vals_long <- reshape2::dcast(
+  median_balanced_celltype_ari_results,
+  formula = type + `Downsampled celltypes` ~ `Method`,
+  value.var = "Median balanced celltype ARI"
+)
+median_balanced_celltype_ari_results_vals_long$type <- factor(
+  median_balanced_celltype_ari_results_vals_long$type,
+  levels = c("Control", "Downsampled", "Ablated")
+)
+median_balanced_celltype_ari_results_vals_long <- 
+  median_balanced_celltype_ari_results_vals_long[
+    order(
+      median_balanced_celltype_ari_results_vals_long$type,
+      median_balanced_celltype_ari_results_vals_long$`Downsampled celltypes`
+    ),
+  ]
+rownames(median_balanced_celltype_ari_results_vals_long) <- c(
+    paste0("R_", seq(1, nrow(median_balanced_celltype_ari_results_vals_long)))
+  )
+colnames(median_balanced_celltype_ari_results_vals_long)[1] <- c(
+    "Type"
+)
+median_balanced_celltype_ari_long_vals_only <- 
+  median_balanced_celltype_ari_results_vals_long[
+    ,-c(1,2)
+  ]
+median_balanced_celltype_ari_long_vals_only_scaled <- scale(
+  median_balanced_celltype_ari_long_vals_only,
+  center = TRUE,
+  scale = TRUE
+)
+median_balanced_celltype_ari_long_type <- 
+  median_balanced_celltype_ari_results_vals_long[
+    ,1, drop = FALSE
+  ]
+median_balanced_celltype_ari_long_celltype <- 
+  median_balanced_celltype_ari_results_vals_long[
+    ,2, drop = FALSE
+  ]
+
+# Plot the three heatmaps together for median celltype ARI post integration
+dark_2_cols = palette.colors(n = 8, "Dark2")
+col_type = c(
+  "Control" = "forestgreen",
+  "Downsampled" = "darkorchid3",
+  "Ablated" = "firebrick2"
+)
+col_celltype = c(
+  "B cell" = dark_2_cols[1], 
+  "CD14+ Monocyte" = dark_2_cols[2], 
+  "CD4+ T cell" = dark_2_cols[3],
+  "CD8+ T cell" = dark_2_cols[4],
+  "FCGR3A+ Monocyte" = dark_2_cols[5],
+  "NK cell" = dark_2_cols[6],
+  "None" = "black"
+)
+
+ht1 = Heatmap(
+  as.matrix(median_balanced_celltype_ari_long_vals_only_scaled), 
+  name = "Scaled median \ncell-type balanced ARI", 
+  width = unit(5, "cm"),
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_row_names = FALSE
+)
+ht2 = Heatmap(
+  as.matrix(median_balanced_celltype_ari_long_type), 
+  name = "Type",
+  col = col_type,
+  width = unit(0.5, "cm"),
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_row_names = FALSE,
+  show_column_names = FALSE
+)
+ht3 = Heatmap(
+  as.matrix(median_balanced_celltype_ari_long_celltype), 
+  name = "Affected cell-type",
+  col = col_celltype,
+  width = unit(0.5, "cm"),  
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_row_names = FALSE,
+  show_column_names = FALSE
+)
+celltype_ari_hm <- ht1 + ht2 + ht3
+CairoPDF(
+  "outs/control/figures/05_celltype_balanced_ari_ds_effects_heatmap_no_liger.pdf",
+  width = 8, 
+  height = 6
+)
+draw(
+  celltype_ari_hm,
+  column_title = "Integration method",
+  column_title_side = "bottom",
+  column_title_gp = gpar(fontsize = 14, fontface = "bold")
+)
+dev.off()
+
 
 # Perform the exact same analysis/heatmap as above, but now for Batch ARI
 
@@ -1609,7 +1723,7 @@ ht2 = Heatmap(
 )
 ht3 = Heatmap(
   as.matrix(median_batch_ari_long_celltype), 
-  name = "Affected celltype",
+  name = "Affected cell-type",
   col = col_celltype,
   width = unit(0.5, "cm"),  
   cluster_rows = FALSE,
@@ -1684,7 +1798,7 @@ imba_knn_merged_celltype$Celltype <- plyr::mapvalues(
 
 # Create function to format facet labels (downsampled celltypes)
 ds_celltype_labelled <- function(variable,value){
-  return(paste0("Celltype affected = ", value))
+  return(paste0("Cell-type affected = ", value))
 }
 
 ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
@@ -1695,7 +1809,6 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
     notch = FALSE,
     alpha = 0.8 
   ) +
-  ylim(0, 1) + 
   facet_wrap(
     .~Celltype, 
     scales = "free_x", 
@@ -1705,7 +1818,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   labs(
     fill = "Type",
     x = "Method",
-    y = "Affected celltype F1-classification score post-integration"
+    y = "Affected cell-type F1-classification score post-integration"
   ) +
   scale_fill_manual( 
     breaks = c("Control", "Downsampled", "Ablated"),
@@ -1725,6 +1838,79 @@ ggsave(
   width = 12,
   height = 14,
   device = cairo_pdf
+)
+
+ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
+  geom_boxplot(
+    aes(
+      fill = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+    ),
+    notch = FALSE,
+    alpha = 0.8 
+  ) +
+  ylim(0, 1) +
+  facet_wrap(
+    .~Celltype, 
+    scales = "free_x", 
+    labeller = ds_celltype_labelled,
+    ncol = 2
+  ) +
+  labs(
+    fill = "Type",
+    x = "Method",
+    y = "Affected cell-type F1-classification score post-integration"
+  ) +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16))
+ggsave(
+  "outs/control/figures/05_pbmc_ds_ablate_allmethod_knn_f1_score_no_liger_0_1_y.pdf",
+  width = 12,
+  height = 14,
+  device = cairo_pdf
+)
+
+# Get and save the standard deviation of the median values of F1, based on
+# method utilized, celltype downsampled, and subset utilized
+imba_knn_merged_celltype_medians  <- imba_knn_merged_celltype %>% 
+  group_by(Method, Celltype, type) %>% 
+  summarize(
+    `Median F1-score per subset` = median(`F1-score`, na.rm = FALSE),
+    .groups = "keep"
+  ) %>%
+  as.data.frame()
+
+imba_knn_merged_celltype_medians_stdev  <- imba_knn_merged_celltype_medians %>% 
+  group_by(Celltype) %>% 
+  summarize(
+    `Stdev Method Median F1-score per subset` = sd(
+      `Median F1-score per subset`, 
+      na.rm = FALSE
+    ),
+    .groups = "keep"
+  ) %>%
+  as.data.frame()
+
+colnames(imba_knn_merged_celltype_medians_stdev) <- c(
+  "Cell-type", 
+  "Standard deviation of medians for F1-score, across methods, replicates, and experiment types"
+)
+fwrite(
+  imba_knn_merged_celltype_medians_stdev,
+  "outs/control/results/05_baseline_pbmc_f1_score_stdevs_per_celltype.tsv",
+  sep = "\t", 
+  row.names = FALSE,
+  col.names = TRUE
 )
 
 ### Fig 2D) - correlation of batch and celltype ARI values with KNN 
@@ -1789,8 +1975,8 @@ ggscatter(median_imba_knn_cluster_results_cari,
           y = "Median F1-score", 
           size = 0.4,
           combine = TRUE,
-          xlab = "Celltype ARI post-integration",
-          ylab = "Celltype F1-classification score post-integration",
+          xlab = "Cell-type ARI post-integration",
+          ylab = "Cell-type F1-classification score post-integration",
           palette = "jco",
           add = "reg.line", 
           add.params = list(color = "blue", fill = "lightgray"),
@@ -1838,7 +2024,7 @@ ggscatter(median_imba_knn_cluster_results_bari,
           size = 0.4,
           combine = TRUE,
           xlab = "Batch ARI post-integration",
-          ylab = "Celltype F1-classification score post-integration",
+          ylab = "Cell-type F1-classification score post-integration",
           palette = "jco",
           add = "reg.line", 
           add.params = list(color = "blue", fill = "lightgray"),
@@ -2171,8 +2357,48 @@ imba_knn_merged_celltype$type <- ifelse(
 
 # Create function to format facet labels (downsampled celltypes)
 ds_celltype_labelled <- function(variable,value){
-  return(paste0("Celltype affected = ", value))
+  return(paste0("Cell-type affected = ", value))
 }
+
+ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
+  geom_boxplot(
+    aes(
+      fill = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+    ),
+    notch = FALSE,
+    alpha = 0.8 
+  ) +
+  ylim(0.5, 1) + 
+  facet_wrap(
+    .~Celltype, 
+    scales = "free_x", 
+    labeller = ds_celltype_labelled,
+    ncol = 1
+  ) +
+  labs(
+    fill = "Type",
+    x = "Method",
+    y = "Affected cell-type F1-classification score post-integration"
+  ) +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16))
+ggsave(
+  "outs/control/figures/05_pbmc_hierarchical_ds_ablate_allmethod_knn_f1_score_no_liger_ylim_0.5_1.pdf",
+  width = 8,
+  height = 14,
+  device = cairo_pdf
+)
 
 ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   geom_boxplot(
@@ -2192,7 +2418,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   labs(
     fill = "Type",
     x = "Method",
-    y = "Affected celltype F1-classification score post-integration"
+    y = "Affected cell-type F1-classification score post-integration"
   ) +
   scale_fill_manual( 
     breaks = c("Control", "Downsampled", "Ablated"),
@@ -2208,7 +2434,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/control/figures/05_pbmc_hierarchical_ds_ablate_allmethod_knn_f1_score_no_liger.pdf",
+  "outs/control/figures/05_pbmc_hierarchical_ds_ablate_allmethod_knn_f1_score_no_liger_y_0_1.pdf",
   width = 8,
   height = 14,
   device = cairo_pdf

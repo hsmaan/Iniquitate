@@ -329,7 +329,7 @@ palette_7C_cluster <- kev_palette[1:length(unique(bal_7C_cluster_df$cluster))]
 ggplot(data = bal_7C_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = celltype), size = 1) +
   labs(
-    color = "Celltype",
+    color = "Cell-type",
     x = "UMAP 1",
     y = "UMAP 2"
   ) +
@@ -440,7 +440,7 @@ ggsave(
 p_7d_1 <- ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = celltype), size = 1) +
   labs(
-    color = "Celltype",
+    color = "Cell-type",
     x = "UMAP 1",
     y = "UMAP 2"
   ) +
@@ -598,10 +598,10 @@ save_plot(
 
 # Plot the celltype coordinate results per method 
 p_7e_1 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
-  geom_point(aes(color = celltype), size = 1) +
+  geom_point(aes(color = celltype), size = 0.25) +
   facet_wrap(.~Subset, scales = "free") + 
   labs(
-    color = "Celltype",
+    color = "Cell-type",
     x = "UMAP 1",
     y = "UMAP 2"
   ) +
@@ -626,7 +626,7 @@ ggsave(
 
 # Plot the batch coordinate results per method 
 p_7e_2 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
-  geom_point(aes(color = factor(batch)), size = 1) +
+  geom_point(aes(color = factor(batch)), size = 0.25) +
   facet_wrap(.~Subset, scales = "free") +
   labs(
     color = "Batch",
@@ -656,7 +656,7 @@ ggsave(
 # Plot the cluster coordinate results per method 
 palette_7E_cluster <- kev_palette[1:length(unique(bal_7E_cluster_df$cluster))]
 p_7e_3 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
-  geom_point(aes(color = factor(cluster)), size = 1) +
+  geom_point(aes(color = factor(cluster)), size = 0.25) +
   facet_wrap(.~Subset, scales = "free") + 
   labs(
     color = "Cluster",
@@ -821,3 +821,4 @@ save_plot(
   base_height = 18,
   base_width = 16
 )
+
