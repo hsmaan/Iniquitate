@@ -1684,7 +1684,6 @@ draw(
 )
 dev.off()
 
-
 # Perform the exact same analysis/heatmap as above, but now for Batch ARI
 
 # Get median batch ARI based on each method and whether or not
@@ -1888,6 +1887,8 @@ ggsave(
   device = cairo_pdf
 )
 
+# Redo above plot upscaled and re-oriented for poster 
+
 ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   geom_boxplot(
     aes(
@@ -1951,18 +1952,18 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
     values = c("forestgreen", "darkorchid3", "firebrick2")
   ) +
   theme_few() +
-  theme(axis.title.x = element_text(size = 16)) +
-  theme(axis.title.y = element_text(size = 16)) +
-  theme(strip.text.x = element_text(size = 16)) +
-  theme(plot.title = element_text(size = 14)) +
-  theme(axis.text.x = element_text(size = 16)) +
-  theme(axis.text.y = element_text(size = 16)) +
-  theme(legend.title = element_text(size = 16)) +
-  theme(legend.text = element_text(size = 16))
+  theme(axis.title.x = element_text(size = 20, face = "bold")) +
+  theme(axis.title.y = element_text(size = 20, face = "bold")) +
+  theme(strip.text.x = element_text(size = 20, face = "bold")) +
+  theme(plot.title = element_text(size = 14, face = "bold")) +
+  theme(axis.text.x = element_text(size = 18, face = "bold")) +
+  theme(axis.text.y = element_text(size = 18, face = "bold")) +
+  theme(legend.title = element_text(size = 20, face = "bold")) +
+  theme(legend.text = element_text(size = 18, face = "bold"))
 ggsave(
   "outs/control/figures/05_pbmc_ds_ablate_allmethod_knn_f1_score_no_liger_2_rows.pdf",
-  width = 18,
-  height = 6,
+  width = 20,
+  height = 8,
   device = cairo_pdf
 )
 
