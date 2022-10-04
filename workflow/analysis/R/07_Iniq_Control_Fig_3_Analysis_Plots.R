@@ -3721,7 +3721,6 @@ ggsave(
   device = cairo_pdf
 ) 
 
-
 # Plot the celltype specific downsampling results, for the L1 and L2 baseline
 # annotations (using just HVG KNN) - F1 scores as a function of type, and 
 # celltype downsampled, for each annotation
@@ -3815,4 +3814,5 @@ ggsave(
   height = 7,
   device = cairo_pdf
 )  
+
 
