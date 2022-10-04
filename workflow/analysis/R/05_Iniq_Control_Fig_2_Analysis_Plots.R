@@ -1304,6 +1304,54 @@ ggsave(
   height = 6
 )
 
+# Add upscaled plots for poster 
+DimPlot(
+  pbmc_combined, 
+  reduction = "umap",
+  group.by = "celltype",
+  pt.size = 0.1
+) +
+  theme(
+    plot.title = element_blank(),
+    axis.title.y = element_text(size = 18, face = "bold"),
+    axis.title.x = element_text(size = 18, face = "bold"),
+    axis.text.y = element_text(size = 16, face = "bold"),
+    axis.text.x = element_text(size = 16, face = "bold"),
+    legend.text = element_text(size = 16, face = "bold")
+  ) + 
+  labs(
+    x = "UMAP 1",
+    y = "UMAP 2"
+  ) +
+  scale_color_brewer(palette = "Dark2") +  
+  theme(aspect.ratio = 1)
+ggsave(
+  "outs/control/figures/05_pbmc_balanced_combined_celltypes_upscaled.pdf",
+  width = 6,
+  height = 6
+)
+
+DimPlot(pbmc_combined, reduction = "umap", group.by = "batch") +
+  theme(
+    plot.title = element_blank(),
+    axis.title.y = element_text(size = 18, face = "bold"),
+    axis.title.x = element_text(size = 18, face = "bold"),
+    axis.text.y = element_text(size = 16, face = "bold"),
+    axis.text.x = element_text(size = 16, face = "bold"),
+    legend.text = element_text(size = 16, face = "bold")
+  ) + 
+  labs(
+    x = "UMAP 1",
+    y = "UMAP 2"
+  ) +
+  scale_color_brewer(palette = "Set1") + 
+  theme(aspect.ratio = 1)
+ggsave(
+  "outs/control/figures/05_pbmc_balanced_combined_batch_upscaled.pdf",
+  width = 6,
+  height = 6
+)
+
 # Remove (ablate) CD14+ Monocytes from batch 2 and replot figures 
 pbmc_combined_cd14_ablate <- pbmc_combined[, 
                                            -(which(pbmc_combined@meta.data$celltype %in% ("CD14+ Monocyte") &
@@ -1837,6 +1885,84 @@ ggsave(
   "outs/control/figures/05_pbmc_ds_ablate_allmethod_knn_f1_score_no_liger.pdf",
   width = 12,
   height = 14,
+  device = cairo_pdf
+)
+
+ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
+  geom_boxplot(
+    aes(
+      fill = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+    ),
+    notch = FALSE,
+    alpha = 0.8 
+  ) +
+  facet_wrap(
+    .~Celltype, 
+    scales = "free_x", 
+    labeller = ds_celltype_labelled,
+    ncol = 6
+  ) +
+  labs(
+    fill = "Type",
+    x = "Method",
+    y = "Affected cell-type F1-classification score post-integration"
+  ) +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16))
+ggsave(
+  "outs/control/figures/05_pbmc_ds_ablate_allmethod_knn_f1_score_no_liger_1_row.pdf",
+  width = 30,
+  height = 6,
+  device = cairo_pdf
+)
+
+ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
+  geom_boxplot(
+    aes(
+      fill = factor(`type`, levels = c("Control", "Downsampled", "Ablated")),
+    ),
+    notch = FALSE,
+    alpha = 0.8 
+  ) +
+  facet_wrap(
+    .~Celltype, 
+    scales = "free_x", 
+    labeller = ds_celltype_labelled,
+    ncol = 3
+  ) +
+  labs(
+    fill = "Type",
+    x = "Method",
+    y = "Affected cell-type F1-classification score post-integration"
+  ) +
+  scale_fill_manual( 
+    breaks = c("Control", "Downsampled", "Ablated"),
+    values = c("forestgreen", "darkorchid3", "firebrick2")
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16))
+ggsave(
+  "outs/control/figures/05_pbmc_ds_ablate_allmethod_knn_f1_score_no_liger_2_rows.pdf",
+  width = 18,
+  height = 6,
   device = cairo_pdf
 )
 
