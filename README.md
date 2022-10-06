@@ -15,8 +15,11 @@ git clone https://github.com/hsmaan/Iniquitate.git
 
 2. Download the resources utilized in the study, extract and move to Iniquitate directory:
 
+
+    - Download the data from https://drive.google.com/file/d/102ntQuclUzQILRxMVXo1-yQR43t97Q3r/view?usp=sharing
+    - Alternatively, you can use gdown (https://github.com/wkentaro/gdown) if a command-line download is needed/desired
+
 ```
-wget [ ]
 tar -xzvf resources.tar.gz 
 mv resources Iniquitate
 ```
