@@ -51,7 +51,7 @@ mv resources Iniquitate
     Note that the above Snakemake run utilizes a `workflow/cluster.json` configuration file and HPC parallelization of the various steps in the pipeline. Users will need to create a `cluster.json` file specific to their HPC setup that has resources for all of the rules in `workflow/Snakefile`. Alternatively, users can also choose to employ Snakemake profiles. Details can be found here: https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html.
 
 
-4. Analyze the results using the R scripts:
+4. Analyze the results using the R and python scripts/notebooks:
 
     - Begin by installing the analysis conda environment:
     ```
@@ -59,6 +59,12 @@ mv resources Iniquitate
     mamba env create -f analysis.yaml
     ```
 
+    - First run the python notebook to completion for metric analysis:
+    ```
+    conda activate iniq_analysis
+    jupyter-notebook 01_Fig_7_Imbal_Metric_Analysis.ipynb
+    ```
+ 
     - Run the Rscripts based on their order, through RStudio or the commandline 
     ```
     conda activate iniq_analysis
@@ -68,6 +74,8 @@ mv resources Iniquitate
     ```
 
 **It is not possible** to re-run all of the perturbation experiments and downstream analyses in a reasonable amount of time without high-performance computing (HPC). It is highly recommended that the workflow is parallelized over HPC.
+
+It is also recommended to **Run the R and python analysis notebooks** in an HPC environment as well, because some of the steps are memory-intensive. Particularly, we don't recommend running Rscripts 08 or 09 without HPC, as they are time-intensive sampling experiments. 
 
 ***
 ### Custom configuration setup 
