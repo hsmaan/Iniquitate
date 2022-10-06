@@ -19,10 +19,10 @@ git clone https://github.com/hsmaan/Iniquitate.git
     - Download the data from https://drive.google.com/file/d/102ntQuclUzQILRxMVXo1-yQR43t97Q3r/view?usp=sharing
     - Alternatively, you can use gdown (https://github.com/wkentaro/gdown) if a command-line download is needed/desired
 
-```
-tar -xzvf resources.tar.gz 
-mv resources Iniquitate
-```
+    ```
+    tar -xzvf resources.tar.gz 
+    mv resources Iniquitate
+    ```
 
 3. Run the different configurations utilized in the study through the Snakemake pipeline:
 
