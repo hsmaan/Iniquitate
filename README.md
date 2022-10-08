@@ -1,8 +1,7 @@
 # Iniquitate Pipeline
 
-## Downsampling-based perturbation experiments for single-cell RNA sequencing data
+## Downsampling-based perturbation experiments for single-cell RNA sequencing integration
 
-## Please note that this repository is still under construction
 ***
 
 ### Reproducing the paper analysis 
