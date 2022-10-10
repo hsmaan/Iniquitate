@@ -810,7 +810,7 @@ p_7d_4 <- ggplot(
     aes(
       fill = factor(
         bal_7D_metrics_df_sub$Type, 
-        levels = c("imbalanced", "balanced")
+        levels = rev(c("imbalanced", "balanced"))
       )
     ), 
     position = position_dodge2()
