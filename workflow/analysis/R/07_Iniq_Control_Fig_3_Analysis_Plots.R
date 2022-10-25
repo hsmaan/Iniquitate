@@ -3088,6 +3088,51 @@ ggsave(
   device = cairo_pdf
 )
 
+# Redo upscaled version of above plot for SCG 
+ggplot(
+  data = gene_rank_variance_grouped_celltype_specific_marker_mean_ds,
+  aes(
+    x = `Downsampled celltypes`,
+    y = `Associated celltype`
+  ) 
+) + 
+  geom_tile(
+    aes(fill = `Mean max rank stdev clipped`)
+  ) +
+  scale_fill_gradient(
+    low = "white",
+    high = "darkorchid3"
+  ) +
+  facet_wrap(.~Method, scales = "free") +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 18, face = "bold")) +
+  theme(axis.title.y = element_text(size = 18, face = "bold")) +
+  theme(strip.text.x = element_text(size = 18, face = "bold")) +
+  theme(plot.title = element_text(size = 18, face = "bold")) +
+  theme(axis.text.x = element_text(
+    size = 16, 
+    angle = 90, 
+    vjust = 1, 
+    hjust = 1)
+  ) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 18, face = "bold")) +
+  theme(legend.text = element_text(size = 16, face = "bold")) +
+  labs(
+    fill = "Average marker gene \nperturbation score",
+    x = "Downsampled cell-type",
+    y = "Cell-type associated with marker genes"
+  )
+ggsave(
+  paste0(
+    "outs/control/figures/07_pbmc_ds_only_",
+    "_dge_rankings_celltype_marker_celltype_ds_compare_no_liger_upscaled.pdf"
+  ),
+  width = 16,
+  height = 9,
+  device = cairo_pdf
+)
+
 # Plot heatmaps specific to the overall results of each method - now for 
 # the ablated results 
 # MARKER GENE PERTURBATION SCORE HAS TO BE DEFINED IN RESULTS/METHODS
@@ -3145,6 +3190,51 @@ ggsave(
     "_dge_rankings_celltype_marker_celltype_ablated_compare_no_liger.pdf"
   ),
   width = 14,
+  height = 9,
+  device = cairo_pdf
+)
+
+# Redo upscaled version of above plot for SCG 
+ggplot(
+  data = gene_rank_variance_grouped_celltype_specific_marker_mean_ablated,
+  aes(
+    x = `Downsampled celltypes`,
+    y = `Associated celltype`
+  ) 
+) + 
+  geom_tile(
+    aes(fill = `Mean max rank stdev clipped`)
+  ) +
+  scale_fill_gradient(
+    low = "white",
+    high = "firebrick2"
+  ) +
+  facet_wrap(.~Method, scales = "free") +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 18, face = "bold")) +
+  theme(axis.title.y = element_text(size = 18, face = "bold")) +
+  theme(strip.text.x = element_text(size = 18, face = "bold")) +
+  theme(plot.title = element_text(size = 18, face = "bold")) +
+  theme(axis.text.x = element_text(
+    size = 16, 
+    angle = 90, 
+    vjust = 1, 
+    hjust = 1)
+  ) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 18, face = "bold")) +
+  theme(legend.text = element_text(size = 16, face = "bold")) +
+  labs(
+    fill = "Average marker gene \nperturbation score",
+    x = "Ablated cell-type",
+    y = "Cell-type associated with marker genes"
+  )
+ggsave(
+  paste0(
+    "outs/control/figures/07_pbmc_ablated_only_",
+    "_dge_rankings_celltype_marker_celltype_ablated_compare_no_liger_upscaled.pdf"
+  ),
+  width = 16,
   height = 9,
   device = cairo_pdf
 )
