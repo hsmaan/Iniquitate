@@ -191,6 +191,117 @@ save_plot(
   base_width = 12
 )
 
+# Redo upscaled version of above plot for SCG
+
+# Plot the class coordinate results 
+p_7a_1 <- ggplot(data = bal_7A_cluster_df, aes(x = x, y = y)) +
+  geom_point(aes(color = class)) +
+  labs(
+    color = "Class",
+    x = "x1",
+    y = "x2"
+  ) +
+  scale_color_brewer(palette = "Set1") +
+  theme_classic() +
+  theme(axis.title.x = element_text(size = 18, face = "bold")) +
+  theme(axis.title.y = element_text(size = 18, face = "bold")) +
+  theme(strip.text.x = element_text(size = 18, face = "bold")) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 18)) +
+  theme(axis.text.y = element_text(size = 18)) +
+  theme(legend.title = element_text(size = 18, face = "bold")) +
+  theme(legend.text = element_text(size = 18, face = "bold")) +
+  theme(aspect.ratio = 1) + 
+  guides(colour = guide_legend(override.aes = list(size=3)))
+
+# Plot the cluster coordinate results 
+p_7a_2 <- ggplot(data = bal_7A_cluster_df, aes(x = x, y = y)) +
+  geom_point(aes(color = factor(kmeans))) +
+  labs(
+    color = "Cluster",
+    x = "x1",
+    y = "x2"
+  ) +
+  scale_color_brewer(palette = "Dark2") +
+  theme_classic() +
+  theme_classic() +
+  theme(axis.title.x = element_text(size = 18, face = "bold")) +
+  theme(axis.title.y = element_text(size = 18, face = "bold")) +
+  theme(strip.text.x = element_text(size = 18, face = "bold")) +
+  theme(plot.title = element_text(size = 16)) +
+  theme(axis.text.x = element_text(size = 18)) +
+  theme(axis.text.y = element_text(size = 18)) +
+  theme(legend.title = element_text(size = 18, face = "bold")) +
+  theme(legend.text = element_text(size = 18, face = "bold")) +
+  theme(aspect.ratio = 1) + 
+  guides(colour = guide_legend(override.aes = list(size=3)))
+
+# Plot the comparisons of the balanced and imbalanced metrics for 7A
+bal_7A_metrics_df$Metric_bare <- str_split_fixed(
+  bal_7A_metrics_df$Metric,
+  pattern = " ",
+  n = 2
+)[, 1]
+p_7a_3 <- ggplot(
+  data = bal_7A_metrics_df, 
+  aes(
+    x = factor(
+      bal_7A_metrics_df$Metric_bare,
+      levels = rev(unique(bal_7A_metrics_df$Metric_bare))
+    ), 
+    y = Value
+  )
+) +
+  geom_bar(
+    stat = "identity", 
+    aes(
+      fill = factor(
+        bal_7A_metrics_df$Type, 
+        levels = c("balanced", "imbalanced")
+      )
+    ), 
+    position = position_dodge2()
+  ) +
+  scale_fill_brewer(palette = "Set2") +
+  theme_classic() +
+  labs(
+    fill = "Metric type",
+    x = "Metric",
+    y = "Value"
+  ) +
+  ylim(c(0, 1)) +
+  theme(axis.title.x = element_text(size = 18, face = "bold")) +
+  theme(axis.title.y = element_text(size = 18, face = "bold")) +
+  theme(strip.text.x = element_text(size = 18, face = "bold")) +
+  theme(strip.text.y = element_text(size = 18, face = "bold")) +
+  theme(plot.title = element_text(size = 16)) +
+  theme(axis.text.x = element_text(size = 18,)) +
+  theme(axis.text.y = element_text(size = 18)) +
+  theme(legend.title = element_text(size = 18, face = "bold")) +
+  theme(legend.text = element_text(size = 16, face = "bold")) +
+  theme(aspect.ratio = 1) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 3), limits = c(0, 1)) +
+  coord_flip() 
+
+# Plot them together using cowplot 
+all_7a_plots <- plot_grid(
+  p_7a_1,
+  p_7a_2,
+  p_7a_3,
+  labels = "A",
+  label_size = 12,
+  rel_widths = c(1, 1, 3),
+  ncol = 1
+)
+
+save_plot(
+  "outs/balanced_metrics/figures/13_7A_all_plots_upscaled.pdf",
+  all_7a_plots,
+  base_asp = 1,
+  base_height = 8,
+  base_width = 12
+)
+
 ### Fig 7B Analysis - Second use case on simulated data  
 
 # Plot the class coordinate results 
@@ -592,6 +703,157 @@ save_plot(
   base_asp = 1,
   base_height = 4,
   base_width = 18
+)
+
+# Redo above upscaled and in different configuration for SCG
+# Plot the celltype coordinate results 
+bal_7D_cluster_df$celltype <- plyr::mapvalues(
+  bal_7D_cluster_df$celltype,
+  from = c(
+    "CD4 T cell",
+    "CD8 T cell",
+    "Monocyte_CD14",
+    "Monocyte_FCGR3A"
+  ),
+  to = c(
+    "CD4+ T cell",
+    "CD8+ T cell",
+    "Monocyte CD14+",
+    "Monocyte FCGR3A+"
+  )
+)
+
+p_7d_1 <- ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
+  geom_point(aes(color = celltype), size = 1) +
+  labs(
+    color = "Cell-type",
+    x = "UMAP 1",
+    y = "UMAP 2"
+  ) +
+  scale_color_brewer(palette = "Set1") +
+  theme_classic() +
+  theme(axis.title.x = element_text(size = 18, face = "bold")) +
+  theme(axis.title.y = element_text(size = 18, face = "bold")) +
+  theme(strip.text.x = element_text(size = 18, face = "bold")) +
+  theme(plot.title = element_text(size = 16)) +
+  theme(axis.text.x = element_text(size = 18)) +
+  theme(axis.text.y = element_text(size = 18)) +
+  theme(legend.title = element_text(size = 18, face = "bold")) +
+  theme(legend.text = element_text(size = 18, face = "bold")) +
+  theme(aspect.ratio = 1) + 
+  guides(colour = guide_legend(override.aes = list(size=3)))
+
+# Plot the batch coordinate results 
+p_7d_2 <- ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
+  geom_point(aes(color = factor(batch)), size = 1) +
+  labs(
+    color = "Batch",
+    x = "UMAP 1",
+    y = "UMAP 2"
+  ) +
+  scale_color_manual(values = c("dodgerblue3", "firebrick2")) +
+  theme_classic() +
+  theme(axis.title.x = element_text(size = 18, face = "bold")) +
+  theme(axis.title.y = element_text(size = 18, face = "bold")) +
+  theme(strip.text.x = element_text(size = 18, face = "bold")) +
+  theme(plot.title = element_text(size = 16)) +
+  theme(axis.text.x = element_text(size = 18)) +
+  theme(axis.text.y = element_text(size = 18)) +
+  theme(legend.title = element_text(size = 18, face = "bold")) +
+  theme(legend.text = element_text(size = 18, face = "bold")) +
+  theme(aspect.ratio = 1) + 
+  guides(colour = guide_legend(override.aes = list(size=3)))
+
+# Plot the cluster coordinate results 
+p_7d_3 <- ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
+  geom_point(aes(color = factor(cluster)), size = 1) +
+  labs(
+    color = "Cluster",
+    x = "UMAP 1",
+    y = "UMAP 2"
+  ) +
+  scale_color_brewer(palette = "Set2") +
+  theme_classic() +
+  theme(axis.title.x = element_text(size = 18, face = "bold")) +
+  theme(axis.title.y = element_text(size = 18, face = "bold")) +
+  theme(strip.text.x = element_text(size = 18, face = "bold")) +
+  theme(plot.title = element_text(size = 16)) +
+  theme(axis.text.x = element_text(size = 18)) +
+  theme(axis.text.y = element_text(size = 18)) +
+  theme(legend.title = element_text(size = 18, face = "bold")) +
+  theme(legend.text = element_text(size = 18, face = "bold")) +
+  theme(aspect.ratio = 1) + 
+  guides(colour = guide_legend(override.aes = list(size=3)))
+
+# Plot the comparisons of the balanced and imbalanced metrics for 7D
+# Focus on just the ARI and Homogeneity results 
+bal_7D_metrics_df$Metric_bare <- str_split_fixed(
+  bal_7D_metrics_df$Metric,
+  pattern = " ",
+  n = 2
+)[, 1]
+bal_7D_metrics_df_sub <- bal_7D_metrics_df[
+  bal_7D_metrics_df$Metric_bar %in% c("ARI", "Homogeneity")
+]
+set2_colors <- brewer.pal(8, "Set2")[1:8]
+p_7d_4 <- ggplot(
+  data = bal_7D_metrics_df_sub, 
+  aes(
+    x = factor(
+      bal_7D_metrics_df_sub$Metric_bare,
+      levels = unique(bal_7D_metrics_df_sub$Metric_bare)
+    ), 
+    y = Value
+  )
+) +
+  geom_bar(
+    stat = "identity", 
+    aes(
+      fill = factor(
+        bal_7D_metrics_df_sub$Type, 
+        levels = c("imbalanced", "balanced")
+      )
+    ), 
+    position = position_dodge2()
+  ) +
+  scale_fill_manual(values = c(set2_colors[[2]], set2_colors[[1]])) +
+  theme_classic() +
+  labs(
+    fill = "Metric type",
+    x = "Metric",
+    y = "Value"
+  ) +
+  ylim(c(0, 1)) +
+  theme(axis.title.x = element_text(size = 18, face = "bold")) +
+  theme(axis.title.y = element_text(size = 18, face = "bold")) +
+  theme(strip.text.x = element_text(size = 18, face = "bold")) +
+  theme(strip.text.y = element_text(size = 18, face = "bold")) +
+  theme(plot.title = element_text(size = 16)) +
+  theme(axis.text.x = element_text(size = 18)) +
+  theme(axis.text.y = element_text(size = 18)) +
+  theme(legend.title = element_text(size = 18, face = "bold")) +
+  theme(legend.text = element_text(size = 18, face = "bold")) +
+  coord_fixed() +
+  theme(aspect.ratio = 1) 
+
+# Plot all fig 7d results together 
+all_7d_plots <- plot_grid(
+  p_7d_1,
+  p_7d_2,
+  p_7d_3,
+  p_7d_4,
+  labels = "D",
+  label_size = 12,
+  rel_widths = c(2, 1.8, 2, 2.2),
+  ncol = 2
+)
+
+save_plot(
+  "outs/balanced_metrics/figures/13_7D_all_plots_upscaled.pdf",
+  all_7d_plots,
+  base_asp = 1,
+  base_height = 6,
+  base_width = 12
 )
 
 ### Fig 7E Analysis - Third use case on single-cell data - integration based

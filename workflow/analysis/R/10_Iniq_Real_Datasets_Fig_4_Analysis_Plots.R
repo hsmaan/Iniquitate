@@ -1351,6 +1351,109 @@ mapply(
   plot_width = widths
 )
 
+# Redo above plots but upscaled for SCG 
+# Create function to plot concordance of KNN classification performance
+# with respect to relatedness metrics 
+knn_relatedness_plot <- function(
+    dataset, relatedness_df, knn_class_df, plot_height, plot_width
+) {
+  # Format relatedness df to take the minimum (distance) of each celltype 
+  # to another celltype in the dataset, while excluding self-matches 
+  relatedness_df_sub <- relatedness_df[
+    relatedness_df$`Celltype 1` != relatedness_df$`Celltype 2`
+  ]
+  relatedness_df_min <- relatedness_df_sub %>%
+    group_by(`Celltype 1`) %>% 
+    summarize(var = min(`PCA cosine dist`)) %>%
+    as.data.frame()
+  colnames(relatedness_df_min) <- c("Celltype", "Min PCA cosine dist")
+  
+  # Merge together relatedness and knn class df
+  relatedness_knn_class_merged <- merge(
+    relatedness_df_min,
+    knn_class_df,
+    by = c(
+      "Celltype"
+    )
+  )
+  
+  # Plot and save the relationship between the min celltype relatedness and 
+  # f1-scores
+  ggplot(
+    data = relatedness_knn_class_merged, 
+    aes(
+      x = `Celltype`,
+      y = `F1-score`
+    )
+  ) +
+    scale_x_discrete(limits = rev(
+      levels(
+        factor(relatedness_knn_class_merged$Celltype)
+      )
+    )
+    ) +
+    coord_flip() +
+    scale_y_continuous(
+      limits = (
+        c(
+          min(relatedness_knn_class_merged$`F1-score`), 
+          max(relatedness_knn_class_merged$`F1-score`)
+        )
+      ),
+      oob = scales::squish
+    ) +
+    facet_wrap(.~Method, scales = "free_x") +
+    geom_jitter(aes(color = `Min PCA cosine dist`)) +
+    geom_boxplot(aes(fill = `Min PCA cosine dist`)) +
+    scale_fill_gradient(low = "blue", high = "red", na.value = NA) +
+    scale_color_gradient(low = "blue", high = "red", na.value = NA) +
+    labs(
+      fill = "Minimum \ncell-type \ncenter \ndistance",
+      x = "Cell-type",
+      y = "F1-classification score post-integration"
+    ) +
+    guides(
+      color = "none"
+    ) +
+    theme_few() +
+    theme(axis.title.x = element_text(size = 22, face = "bold")) +
+    theme(axis.title.y = element_text(size = 22, face = "bold")) +
+    theme(strip.text.x = element_text(size = 22, face = "bold")) +
+    theme(plot.title = element_text(size = 18, face = "bold")) +
+    theme(axis.text.x = element_text(size = 18)) +
+    theme(axis.text.y = element_text(size = 18)) +
+    theme(legend.title = element_text(size = 22, face = "bold")) +
+    theme(legend.text = element_text(size = 20))
+  ggsave(
+    paste0(
+      "outs/lowcap_modified/figures/10_",
+      dataset,
+      "_knn_results_celltype_relatedness_comp_no_liger_upscaled.pdf"
+    ),
+    width = plot_width,
+    height = plot_height,
+    device = cairo_pdf
+  )
+}
+
+# Create lists of heights and widths to save plots
+heights <- list(
+  6, 7, 20, 7
+)
+widths <- list(
+  14, 16, 16, 16
+)
+
+# Iterate over datasets, relatedness_dfs, knn_class_dfs and plot
+mapply(
+  knn_relatedness_plot,
+  dataset = datasets,
+  relatedness_df = relatedness_loaded,
+  knn_class_df = knn_class_files_loaded,
+  plot_height = heights,
+  plot_width = widths
+)
+
 # Create function to plot concordance of KNN classification performance
 # with respect to support for the given celltypes
 
@@ -1420,6 +1523,88 @@ heights <- list(
 )
 widths <- list(
   16, 16, 16, 16
+)
+
+# Iterate over datasets, knn_class_dfs and plot and save 
+mapply(
+  knn_support_plot,
+  dataset = datasets,
+  knn_class_df = knn_class_files_loaded, 
+  plot_height = heights,
+  plot_width = widths
+)
+
+# Redo upscaled version of above plots for SCG 
+
+# Create function to plot concordance of KNN classification performance
+# with respect to support for the given celltypes
+
+knn_support_plot <- function(dataset, knn_class_df, plot_height, plot_width) {
+  # Add log of support to knn class df
+  knn_class_df$Log_support <- log2(knn_class_df$Support)
+  
+  # Plot the relationship between celltype support and f1-scores and save
+  ggplot(
+    data = knn_class_df, 
+    aes(
+      x = `Celltype`,
+      y = `F1-score`
+    )
+  ) +
+    scale_x_discrete(
+      limits = rev(levels(factor(knn_class_df$Celltype)))
+    ) +
+    coord_flip() +
+    scale_y_continuous(
+      limits = (
+        c(
+          min(knn_class_df$`F1-score`), 
+          max(knn_class_df$`F1-score`)
+        )
+      ),
+      oob = scales::squish
+    ) +
+    facet_wrap(.~Method, scales = "free_x") +
+    scale_fill_gradient(low = "yellow", high = "firebrick2", na.value = NA) +
+    scale_color_gradient(low = "yellow", high = "firebrick2", na.value = NA) +
+    geom_jitter(aes(color = Log_support)) +
+    geom_boxplot(aes(fill = Log_support)) +
+    labs(
+      fill = "Relative \ncell-type \nsupport",
+      x = "Cell-type",
+      y = "F1-classification score post-integration"
+    ) +
+    guides(
+      color = "none"
+    ) +
+    theme_few() +
+    theme(axis.title.x = element_text(size = 22, face = "bold")) +
+    theme(axis.title.y = element_text(size = 22, face = "bold")) +
+    theme(strip.text.x = element_text(size = 22, face = "bold")) +
+    theme(plot.title = element_text(size = 18, face = "bold")) +
+    theme(axis.text.x = element_text(size = 18)) +
+    theme(axis.text.y = element_text(size = 18)) +
+    theme(legend.title = element_text(size = 22, face = "bold")) +
+    theme(legend.text = element_text(size = 18))
+  ggsave(
+    paste0(
+      "outs/lowcap_modified/figures/10_",
+      dataset,
+      "_knn_results_celltype_num_comp_no_liger_upscaled.pdf"
+    ),
+    width = plot_width,
+    height = plot_height,
+    device = cairo_pdf
+  )
+  
+}
+
+# Create lists of heights and widths to save plots
+heights <- list(
+  6, 7, 20, 7
+)
+widths <- list(
+  14, 16, 16, 16
 )
 
 # Iterate over datasets, knn_class_dfs and plot and save 
