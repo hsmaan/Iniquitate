@@ -946,6 +946,23 @@ if (!dir.exists("outs/lowcap_modified/figures")) {
   dir.create("outs/lowcap_modified/figures", recursive = TRUE)
 }
 
+# Correct cell-type names 
+pbmc_2_batch_imba_cimba_concat$celltype <- plyr::mapvalues(
+  pbmc_2_batch_imba_cimba_concat$celltype,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+pbmc_2_batch_imba_relate_loaded$`Celltype 1` <- plyr::mapvalues(
+  pbmc_2_batch_imba_relate_loaded$`Celltype 1`,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+pbmc_2_batch_imba_relate_loaded$`Celltype 2` <- plyr::mapvalues(
+  pbmc_2_batch_imba_relate_loaded$`Celltype 2`,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+
 ### Fig 4A) - Analysis of PBMC 2 batch results with respect to integration
 ### and measures of relatedness 
 
@@ -1248,6 +1265,51 @@ names(celltype_imba_files_loaded) <- datasets
 # Change to top level dir
 setwd("../../..")
 
+# Format cell-type names 
+relatedness_loaded$pbmc_2_batch$`Celltype 1` <- plyr::mapvalues(
+  relatedness_loaded$pbmc_2_batch$`Celltype 1`,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+relatedness_loaded$pbmc_2_batch$`Celltype 2` <- plyr::mapvalues(
+  relatedness_loaded$pbmc_2_batch$`Celltype 2`,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+
+relatedness_loaded$pbmc_4_batch$`Celltype 1` <- plyr::mapvalues(
+  relatedness_loaded$pbmc_4_batch$`Celltype 1`,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+relatedness_loaded$pbmc_4_batch$`Celltype 2` <- plyr::mapvalues(
+  relatedness_loaded$pbmc_4_batch$`Celltype 2`,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+
+knn_class_files_loaded$pbmc_2_batch$Celltype <- plyr::mapvalues(
+  knn_class_files_loaded$pbmc_2_batch$Celltype,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+knn_class_files_loaded$pbmc_4_batch$Celltype <- plyr::mapvalues(
+  knn_class_files_loaded$pbmc_4_batch$Celltype,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+
+celltype_imba_files_loaded$pbmc_2_batch$celltype <- plyr::mapvalues(
+  celltype_imba_files_loaded$pbmc_2_batch$celltype,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+celltype_imba_files_loaded$pbmc_4_batch$celltype <- plyr::mapvalues(
+  celltype_imba_files_loaded$pbmc_4_batch$celltype,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+  
 # Create function to plot concordance of KNN classification performance
 # with respect to relatedness metrics 
 knn_relatedness_plot <- function(
