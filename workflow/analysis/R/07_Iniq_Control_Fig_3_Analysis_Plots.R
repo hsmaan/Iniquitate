@@ -2519,6 +2519,21 @@ ht3 <- Heatmap(
 
 # Create a heatmap indicating which celltype is associated with each
 # marker gene
+base_marker_genes$Celltype <- plyr::mapvalues(
+  base_marker_genes$Celltype,
+  from = c(
+    "Monocyte_CD14",
+    "Monocyte_FCGR3A",
+    "CD4 T cell",
+    "CD8 T cell"
+  ),
+  to = c(
+    "CD14+ Monocyte",
+    "FCGR3A+ Monocyte",
+    "CD4+ T cell",
+    "CD8+ T cell"
+  )
+)
 base_marker_gene_dup_added <- base_marker_genes %>%
   group_by(`Top 10 marker genes (union across batches)`) %>%
   summarize(Celltype = paste0(unique(Celltype), collapse = ', ')) %>%
