@@ -528,6 +528,7 @@ bal_7D_metrics_df$Metric_bare <- str_split_fixed(
 bal_7D_metrics_df_sub <- bal_7D_metrics_df[
   bal_7D_metrics_df$Metric_bar %in% c("ARI", "Homogeneity")
 ]
+set2_colors <- brewer.pal(8, "Set2")[1:8]
 p_7d_4 <- ggplot(
   data = bal_7D_metrics_df_sub, 
   aes(
@@ -548,7 +549,7 @@ p_7d_4 <- ggplot(
     ), 
     position = position_dodge2()
   ) +
-  scale_fill_brewer(palette = "Set2") +
+  scale_fill_manual(values = c(set2_colors[[2]], set2_colors[[1]])) +
   theme_classic() +
   labs(
     fill = "Metric type",
@@ -567,6 +568,7 @@ p_7d_4 <- ggplot(
   theme(legend.text = element_text(size = 16)) +
   coord_fixed() +
   theme(aspect.ratio = 1) 
+
 p_7d_4
 ggsave(
   "outs/balanced_metrics/figures/13_7D_metrics_barplot.pdf",
