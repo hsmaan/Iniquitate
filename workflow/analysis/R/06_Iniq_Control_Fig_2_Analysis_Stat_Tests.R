@@ -1636,6 +1636,15 @@ knn_aov_comp_df_melted$Covariates <- plyr::mapvalues(
   )
 ) 
 
+knn_aov_comp_df_melted$Subset <- plyr::mapvalues(
+  x = knn_aov_comp_df_melted$Subset,
+  from = c("Baseline", "Hierarchical"),
+  to = c(
+    "Baseline balanced \nPBMC data", 
+    "Hierarchically clustered \nPBMC data"
+  )
+)
+
 ggplot(data = knn_aov_comp_df_melted, aes(Covariates, value)) +
   geom_bar(
     stat = "identity",
