@@ -62,6 +62,38 @@ if (!dir.exists("outs/balanced_metrics/figures")) {
   dir.create("outs/balanced_metrics/figures", recursive = TRUE)
 }
 
+# Format cell-type names 
+bal_7D_cluster_df$celltype <- plyr::mapvalues(
+  bal_7D_cluster_df$celltype,
+  from = c(
+    "CD4 T cell",
+    "CD8 T cell",
+    "Monocyte_CD14",
+    "Monocyte_FCGR3A"
+  ),
+  to = c(
+    "CD4+ T cell",
+    "CD8+ T cell",
+    "CD14+ monocyte",
+    "FCGR3A+ monocyte"
+  )
+)
+bal_7E_cluster_df$celltype <- plyr::mapvalues(
+  bal_7E_cluster_df$celltype,
+  from = c(
+    "CD4 T cell",
+    "CD8 T cell",
+    "Monocyte_CD14",
+    "Monocyte_FCGR3A"
+  ),
+  to = c(
+    "CD4+ T cell",
+    "CD8+ T cell",
+    "CD14+ monocyte",
+    "FCGR3A+ monocyte"
+  )
+)
+
 ### Fig 7A Analysis - First use case on simulated data 
 
 # Plot the class coordinate results 
