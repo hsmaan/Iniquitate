@@ -1526,8 +1526,6 @@ dev.off()
 # Perform the exact same analysis/heatmap as above, but for the balanced 
 # celltype ARI 
 
-# Get median celltype ARI based on each method and whether or not
-# it's a control, downsampling, or ablation, and by celltype 
 median_balanced_celltype_ari_results <- imba_clus_merged %>% 
   group_by(Method, type, `Downsampled celltypes`) %>% 
   summarize(
@@ -1635,7 +1633,6 @@ draw(
   column_title_gp = gpar(fontsize = 14, fontface = "bold")
 )
 dev.off()
-
 
 # Perform the exact same analysis/heatmap as above, but now for Batch ARI
 

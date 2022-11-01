@@ -946,6 +946,23 @@ if (!dir.exists("outs/lowcap_modified/figures")) {
   dir.create("outs/lowcap_modified/figures", recursive = TRUE)
 }
 
+# Correct cell-type names 
+pbmc_2_batch_imba_cimba_concat$celltype <- plyr::mapvalues(
+  pbmc_2_batch_imba_cimba_concat$celltype,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+pbmc_2_batch_imba_relate_loaded$`Celltype 1` <- plyr::mapvalues(
+  pbmc_2_batch_imba_relate_loaded$`Celltype 1`,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+pbmc_2_batch_imba_relate_loaded$`Celltype 2` <- plyr::mapvalues(
+  pbmc_2_batch_imba_relate_loaded$`Celltype 2`,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+
 ### Fig 4A) - Analysis of PBMC 2 batch results with respect to integration
 ### and measures of relatedness 
 
@@ -1248,6 +1265,51 @@ names(celltype_imba_files_loaded) <- datasets
 # Change to top level dir
 setwd("../../..")
 
+# Format cell-type names 
+relatedness_loaded$pbmc_2_batch$`Celltype 1` <- plyr::mapvalues(
+  relatedness_loaded$pbmc_2_batch$`Celltype 1`,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+relatedness_loaded$pbmc_2_batch$`Celltype 2` <- plyr::mapvalues(
+  relatedness_loaded$pbmc_2_batch$`Celltype 2`,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+
+relatedness_loaded$pbmc_4_batch$`Celltype 1` <- plyr::mapvalues(
+  relatedness_loaded$pbmc_4_batch$`Celltype 1`,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+relatedness_loaded$pbmc_4_batch$`Celltype 2` <- plyr::mapvalues(
+  relatedness_loaded$pbmc_4_batch$`Celltype 2`,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+
+knn_class_files_loaded$pbmc_2_batch$Celltype <- plyr::mapvalues(
+  knn_class_files_loaded$pbmc_2_batch$Celltype,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+knn_class_files_loaded$pbmc_4_batch$Celltype <- plyr::mapvalues(
+  knn_class_files_loaded$pbmc_4_batch$Celltype,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+
+celltype_imba_files_loaded$pbmc_2_batch$celltype <- plyr::mapvalues(
+  celltype_imba_files_loaded$pbmc_2_batch$celltype,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+celltype_imba_files_loaded$pbmc_4_batch$celltype <- plyr::mapvalues(
+  celltype_imba_files_loaded$pbmc_4_batch$celltype,
+  from = c("CD16+ monocyte"),
+  to = c("FCGR3A+ monocyte")
+)
+  
 # Create function to plot concordance of KNN classification performance
 # with respect to relatedness metrics 
 knn_relatedness_plot <- function(
@@ -1488,7 +1550,8 @@ ggsave(
   device = cairo_pdf
 )
 
-##### Plotting of relatedness metric for both PBMC 4 batch imbalanced dataset
+##### Plotting of relatedness metric for PBMC 4 batch imbalanced dataset, 
+##### mouse hindbrain 6 batch, and PDAC 8 batch data
 #####
 pbmc_4_batch_bal_relate_formatted <- relatedness_loaded$pbmc_4_batch %>%
   group_by(`Celltype 1`, `Celltype 2`) %>%
@@ -1542,3 +1605,106 @@ ggsave(
   device = cairo_pdf
 )
 
+hindbrain_6_batch_relate_formatted <- relatedness_loaded$mouse_hindbrain_6_batch %>%
+  group_by(`Celltype 1`, `Celltype 2`) %>%
+  summarize(`Average PCA cosine dist` = mean(`PCA cosine dist`)) %>%
+  as.data.frame() 
+
+ggplot(
+  data = hindbrain_6_batch_relate_formatted,
+  aes(
+    x = `Celltype 1`,
+    y = `Celltype 2`
+  ) 
+) + 
+  geom_tile(
+    aes(fill = `Average PCA cosine dist`)
+  ) +
+  scale_fill_gradient(
+    low = "firebrick2",
+    high = "white"
+  ) +
+  scale_x_discrete(
+    limits = rev(levels(factor(hindbrain_6_batch_relate_formatted$`Celltype 1`)))
+  ) + 
+  scale_y_discrete(
+    limits = rev(levels(factor(hindbrain_6_batch_relate_formatted$`Celltype 2`)))
+  ) + 
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(
+    size = 12, 
+    angle = 90, 
+    vjust = 1, 
+    hjust = 1)
+  ) +
+  theme(aspect.ratio = 1) + 
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) +
+  labs(
+    fill = "Average cell-type \ncenter distance \nacross batches",
+    x = "Cell-type 1",
+    y = "Cell-type 2"
+  )
+ggsave(
+  "outs/lowcap_modified/figures/10_mouse_hindbrain_6_batch_celltype_relatedness_no_liger.pdf",
+  width = 14,
+  height = 14,
+  device = cairo_pdf
+)
+
+pdac_8_batch_relate_formatted <- relatedness_loaded$peng_pdac_8_batch %>%
+  group_by(`Celltype 1`, `Celltype 2`) %>%
+  summarize(`Average PCA cosine dist` = mean(`PCA cosine dist`)) %>%
+  as.data.frame() 
+
+ggplot(
+  data = pdac_8_batch_relate_formatted,
+  aes(
+    x = `Celltype 1`,
+    y = `Celltype 2`
+  ) 
+) + 
+  geom_tile(
+    aes(fill = `Average PCA cosine dist`)
+  ) +
+  scale_fill_gradient(
+    low = "firebrick2",
+    high = "white"
+  ) +
+  scale_x_discrete(
+    limits = rev(levels(factor(pdac_8_batch_relate_formatted$`Celltype 1`)))
+  ) + 
+  scale_y_discrete(
+    limits = rev(levels(factor(pdac_8_batch_relate_formatted$`Celltype 2`)))
+  ) + 
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(
+    size = 12, 
+    angle = 90, 
+    vjust = 1, 
+    hjust = 1)
+  ) +
+  theme(aspect.ratio = 1) + 
+  theme(axis.text.y = element_text(size = 12)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 14)) +
+  labs(
+    fill = "Average cell-type \ncenter distance \nacross batches",
+    x = "Cell-type 1",
+    y = "Cell-type 2"
+  )
+ggsave(
+  "outs/lowcap_modified/figures/10_pdac_8_batch_celltype_relatedness_no_liger.pdf",
+  width = 8,
+  height = 8,
+  device = cairo_pdf
+)
