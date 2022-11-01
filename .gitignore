@@ -13,6 +13,7 @@
 __pycache__
 *.Rhistory
 *.RData
+*.tar.gz
 cluster.json
 submit.slrm
 submit.sh
