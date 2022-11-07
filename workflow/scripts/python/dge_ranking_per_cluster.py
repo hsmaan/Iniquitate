@@ -62,7 +62,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         cluster_number = []
         for cluster in method_clusters:
             cluster_celltype_unique = np.unique(
-                method_adata["celltype"][method_adata.obs["leiden"] == cluster],
+                method_adata.obs["celltype"][method_adata.obs["leiden"] == cluster],
                 return_counts = True
             )
             celltype_most_prev = cluster_celltype_unique[0][
