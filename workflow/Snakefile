@@ -437,7 +437,8 @@ rule dge_ranking_stats:
             &> {log}
         """
 
-# Get DGE ranking results (from different methods) from downsampling on a per-cluster basis using Leiden clustering
+# Get DGE ranking results (from different methods) from downsampling on a per-cluster basis using Leiden clustering -
+# this rule returns the top 50 DGEs per cluster across all methods and subsets (n_genes can be modified in the script)
 rule dge_ranking_stats_per_cluster:
     conda:
         "envs/integrate.yaml"

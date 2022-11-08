@@ -52,7 +52,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
         method_dge_dfs.append(dge_results)
     
     # For each method, compute the ranking metrics for all genes in the dataset
-    # based on each cluster   
+    # based on each cluster - extract the top 50 dges for each cluster across subsets
     method_adata_result_dfs = []
     for method_adata, method_dge_df in zip(method_adatas, method_dge_dfs):
         method_clusters = np.unique(method_dge_df["Cluster"].__array__())
@@ -69,19 +69,19 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
                 np.argmax(cluster_celltype_unique[1])
             ]    
             cluster_sub = method_dge_df[method_dge_df["Cluster"] == cluster]
-            gene_ranks_sorted_50 = np.argsort(cluster_sub.iloc[:, 1].__array__())[0:50]
-            cluster_ranks.append(gene_ranks_sorted_50)
+            genes_top_50 = cluster_sub.iloc[:, 1].__array__()[0:50]
+            cluster_ranks.append(genes_top_50)
             cluster_celltype.append(np.repeat(celltype_most_prev, 50))
             cluster_number.append(np.repeat(cluster, 50))
         cluster_ranks_full = np.concatenate(cluster_ranks)
         cluster_celltypes_full = np.concatenate(cluster_celltype)
         cluster_numbers_full = np.concatenate(cluster_number)
         method_adata_result = pd.DataFrame({
-            "Cluster markers ranked (top 50)": cluster_ranks_full,
+            "Top 50 cluster markers (ordered)": cluster_ranks_full,
             "Cluster celltype (majority)": cluster_celltypes_full,
-            "Cluster number": cluster_numbers_full,
-            "Method": method_name
+            "Cluster number": cluster_numbers_full
         })
+        method_adata_result["Method"] = method_name[0]
         method_adata_result_dfs.append(method_adata_result)
         
     # Concatenate all results into one dataframe
