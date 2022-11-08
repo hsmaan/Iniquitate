@@ -3830,4 +3830,150 @@ ggsave(
   device = cairo_pdf
 )  
 
+### Supplementary Figure - case study of marker gene perturbation leading
+### to differences in interpretation 
+
+# Load in and concatenate imbalance summary files 
+setwd("results/control/dge_ranking_results_per_cluster/")
+dge_per_cluster_files <- list.files()
+dge_per_cluster_files <- grep(
+  "pbmc_2_batch_base_balanced",
+  dge_per_cluster_files,
+  value = TRUE
+)
+dge_per_cluster_loaded <- lapply(dge_per_cluster_files, fread)
+dge_per_cluster_concat <- Reduce(rbind, dge_per_cluster_loaded)
+gc()
+
+# Change to top level dir 
+setwd("../../..")
+
+# Concatenate this result with the imbalance results
+# Merge together imbalance and cluster number results
+dge_per_cluster_imba_merged <- merge(
+  dge_per_cluster_concat,
+  imba_concat,
+  by = c(
+    "Number of batches downsampled",
+    "Number of celltypes downsampled",
+    "Proportion downsampled",
+    "Replicate"
+  )
+)
+
+# Indicate which samples are controls and which are real runs
+dge_per_cluster_imba_merged$type <- ifelse(
+  dge_per_cluster_imba_merged$`Number of batches downsampled` == 0,
+  "Control",
+  ifelse(
+    dge_per_cluster_imba_merged$`Proportion downsampled` == 0,
+    "Ablated",
+    "Downsampled"
+  )
+)
+
+# Subset only for cases where T-cells are downsampled or ablated (or None)
+dge_per_cluster_imba_merged_t <- dge_per_cluster_imba_merged[
+  dge_per_cluster_imba_merged$`Downsampled celltypes` %in% c(
+    "CD4 T cell",
+    "CD8 T cell",
+    "None"
+  )
+]
+
+# Subset for those clusters that have the majority cell-type as one of the 
+# T cell subsets
+dge_per_cluster_imba_merged_t <- dge_per_cluster_imba_merged_t[
+  dge_per_cluster_imba_merged_t$`Cluster celltype (majority)` %in% c(
+    "CD4 T cell",
+    "CD8 T cell"
+  )
+]
+
+# Subset the data such that the downsampled cell-types are NOT equal to the 
+# cell-types of the majority clusters (ground-truth)
+# This is essentially saying we want to subset the data for the T-cell
+# subsets to be opposite of each other 
+# dge_per_cluster_imba_merged_t <- dge_per_cluster_imba_merged_t[
+#   dge_per_cluster_imba_merged_t$`Cluster celltype (majority)` !=
+#     dge_per_cluster_imba_merged_t$`Downsampled celltypes` |
+#     dge_per_cluster_imba_merged_t$`Downsampled celltypes` %in% c("None")
+# ]
+
+# Subset for only the Seurat method for now 
+dge_per_cluster_imba_merged_t_seurat <- dge_per_cluster_imba_merged_t[
+  dge_per_cluster_imba_merged_t$Method == "seurat"
+]
+
+# Annotate each cluster based on the presence or absence of the canonical 
+# CD8 and CD4 markers (CD8A and IL7R respectively) in the top 50 - if both
+# are present, take the one with the higher ranking 
+
+# First create a function that will extract the relevant information 
+# for a given cluster 
+replicates <- unique(dge_per_cluster_imba_merged_t_seurat$Replicate)
+types <- unique(dge_per_cluster_imba_merged_t_seurat$type)
+
+return_pred_celltype_t_cells <- function(marker_list) {
+  cd8_marker <- "CD8A" %in% marker_list
+  cd4_marker <- "IL7R" %in% marker_list
+  if (cd8_marker & cd4_marker) {
+    cd8_marker_rank <- which(marker_list == "CD8A")
+    cd4_marker_rank <- which(marker_list == "IL7R")
+    if (cd8_marker_rank < cd4_marker_rank) {
+      return("CD8 T cell")
+    } else {
+      return("CD4 T cell")
+    }
+  } else if (cd8_marker) {
+    return("CD8 T cell")
+  } else if (cd4_marker) {
+    return("CD4 T cell")
+  } else {
+    return("Undefined")
+  }
+}
+
+return_pred_dge_df <- function(dge_df, replicate_sub, type_sub) {
+    dge_df_subset <- dge_df[dge_df$type == type_sub]
+    dge_df_subset <- dge_df_subset[dge_df_subset$Replicate == replicate_sub]
+    unique_clusters <- as.list(unique(dge_df_subset$`Cluster number`))
+    results <- lapply(unique_clusters, function(x) {
+      dge_df_cluster_subset <- dge_df_subset[
+        dge_df_subset$`Cluster number` == x 
+      ]
+      dge_df_cluster_subset_markers <- 
+        dge_df_cluster_subset$`Top 50 cluster markers (ordered)`
+      cell_type_class <- return_pred_celltype_t_cells(
+        dge_df_cluster_subset_markers
+      )
+      t_cell_cluster <- unique(
+        dge_df_cluster_subset$`Cluster celltype (majority)`
+      )
+      return_df = data.frame(
+        "Majority celltype" = t_cell_cluster,
+        "Predicted celltype" = cell_type_class,
+        "Type" = type_sub
+      )
+    })
+    results_concat <- Reduce(rbind, results)
+    return(results_concat)
+}
+
+# Now iterate over all of the replicates and determine the calls for the 
+# cell-types in all clusters based on the marker presence and ranking 
+pred_results_seurat_t <- mapply(
+  return_pred_dge_df,
+  replicate_sub = replicates,
+  type_sub = types,
+  MoreArgs = list(
+    dge_df = dge_per_cluster_imba_merged_t_seurat
+  )
+)
+
+pred_results_seurat_t_concat <- Reduce(rbind, pred_results_seurat_t)
+
+ggplot(pred_results_seurat_t_concat,aes(x = Type, fill = Predicted.celltype)) +
+  facet_wrap(.~Majority.celltype) +
+  geom_bar(position = "fill")
 
