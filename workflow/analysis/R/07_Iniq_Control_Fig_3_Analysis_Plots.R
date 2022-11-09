@@ -3943,7 +3943,6 @@ return_pred_dge_df <- function(dge_df, replicate_sub) {
     ]
     dge_df_cluster_subset_markers <- 
       dge_df_cluster_subset$`Top 50 cluster markers (ordered)`
-    print(dge_df_cluster_subset_markers)
     cell_type_class <- return_pred_celltype_t_cells(
       dge_df_cluster_subset_markers
     )
@@ -3977,20 +3976,33 @@ test_abl <- return_pred_dge_df_type(dge_per_cluster_imba_merged_t_seurat, "Ablat
 
 test_concat <- Reduce(rbind, list(test_ctrl, test_ds, test_abl))
 
-# Now iterate over all of the replicates and determine the calls for the 
-# cell-types in all clusters based on the marker presence and ranking 
-pred_results_seurat_t <- mapply(
-  return_pred_dge_df,
-  replicate_sub = replicates,
-  type_sub = types,
-  MoreArgs = list(
-    dge_df = dge_per_cluster_imba_merged_t_seurat
-  )
-)
-
-pred_results_seurat_t_concat <- Reduce(rbind, pred_results_seurat_t)
-
-ggplot(test_concat,aes(x = Type, fill = Predicted.celltype)) +
-  facet_wrap(.~Majority.celltype) +
-  geom_bar(position = "fill")
+ggplot(test_concat, aes(
+    x = factor(
+      Type, 
+      levels = c("Control", "Downsampled", "Ablated")
+    ), 
+    fill = Predicted.celltype)
+  ) +
+  facet_wrap(. ~ Majority.celltype) +
+  geom_bar(position = "fill") +
+  labs(
+    x = "Subset", 
+    y = "Fraction", 
+    fill = "Marker-based \ncell-type prediction"
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16))
+ggsave(
+  "outs/control/figures/07_t_cell_marker_perturbation_supp_analysis.pdf",
+  width = 12,
+  height = 6,
+  device = cairo_pdf
+)  
 
