@@ -3872,7 +3872,8 @@ dge_per_cluster_imba_merged$type <- ifelse(
   )
 )
 
-# Subset only for cases where T-cells are downsampled or ablated (or None)
+# Subset only for cases where T-cells are downsampled or ablated, or none
+# (to retain control experiments)
 dge_per_cluster_imba_merged_t <- dge_per_cluster_imba_merged[
   dge_per_cluster_imba_merged$`Downsampled celltypes` %in% c(
     "CD4 T cell",
@@ -3882,7 +3883,7 @@ dge_per_cluster_imba_merged_t <- dge_per_cluster_imba_merged[
 ]
 
 # Subset for those clusters that have the majority cell-type as one of the 
-# T cell subsets
+# T cell subsets 
 dge_per_cluster_imba_merged_t <- dge_per_cluster_imba_merged_t[
   dge_per_cluster_imba_merged_t$`Cluster celltype (majority)` %in% c(
     "CD4 T cell",
@@ -3890,7 +3891,8 @@ dge_per_cluster_imba_merged_t <- dge_per_cluster_imba_merged_t[
   )
 ]
 
-# Subset for only the Seurat method for now 
+# Subset for only the Seurat method - for simplification of analysis 
+# interpretation
 dge_per_cluster_imba_merged_t_seurat <- dge_per_cluster_imba_merged_t[
   dge_per_cluster_imba_merged_t$Method == "seurat"
 ]
@@ -3907,12 +3909,13 @@ dge_per_cluster_imba_merged_t_seurat$Replicate <-
     dge_per_cluster_imba_merged_t_seurat$`Proportion downsampled`
   )
   
-# Annotate each cluster based on the presence or absence of the canonical 
-# CD8 and CD4 markers (CD8A and IL7R respectively) in the top 50 - if both
-# are present, take the one with the higher ranking 
+## Annotate each cluster based on the presence or absence of the canonical 
+## CD8+ and CD4+ T cell markers (CD8A and IL7R respectively) in the top 50 - if 
+## both are present, take the one with the higher ranking and annotate the 
+## cell-type based on that marker 
 
-# First create a function that will extract the relevant information 
-# for a given cluster 
+# Low-level function that takes a list of markers and extracts a cell-type
+# label given the aforementioned rules
 return_pred_celltype_t_cells <- function(marker_list) {
   cd8_marker <- "CD8A" %in% marker_list
   cd4_marker <- "IL7R" %in% marker_list
@@ -3933,6 +3936,8 @@ return_pred_celltype_t_cells <- function(marker_list) {
   }
 }
 
+# Higher level function that takes a dataframe of dge results and a replicate
+# and returns the cell-type predictions 
 return_pred_dge_df <- function(dge_df, replicate_sub) {
   dge_df_subset <- dge_df[dge_df$Replicate == replicate_sub]
   dge_type <- unique(dge_df_subset$type)
@@ -3960,6 +3965,8 @@ return_pred_dge_df <- function(dge_df, replicate_sub) {
   return(results_concat)
 }
 
+# Higher level function that takes a dataframe of dge results and a `type`
+# subset (e.g. Control) and returns the cell-type predictions across replicates
 return_pred_dge_df_type <- function(dge_df, type_sub) {
   dge_df_subset <- dge_df[dge_df$type == type_sub]
   unique_replicates_type_sub <- unique(dge_df_subset$Replicate)
@@ -3970,12 +3977,15 @@ return_pred_dge_df_type <- function(dge_df, type_sub) {
   return(pred_results_concat)
 }
 
+# Subset data for three experiment types and get the cell-type predictions 
+# based on marker rankings
 test_ctrl <- return_pred_dge_df_type(dge_per_cluster_imba_merged_t_seurat, "Control")
 test_ds <- return_pred_dge_df_type(dge_per_cluster_imba_merged_t_seurat, "Downsampled")
 test_abl <- return_pred_dge_df_type(dge_per_cluster_imba_merged_t_seurat, "Ablated")
 
-test_concat <- Reduce(rbind, list(test_ctrl, test_ds, test_abl))
 
+# Concatenate and plot the results
+test_concat <- Reduce(rbind, list(test_ctrl, test_ds, test_abl))
 ggplot(test_concat, aes(
     x = factor(
       Type, 
