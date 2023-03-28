@@ -81,8 +81,8 @@ rule integrate:
     input:
         "{iniq_dir}/resources/h5ad_files/{data_folder}"
     output:
-        temp("{iniq_dir}/results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
-        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad")
+        "{iniq_dir}/results/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     params:
         script_path = "{script_dir}/python/integrate_data.py".format(
             script_dir = script_dir
