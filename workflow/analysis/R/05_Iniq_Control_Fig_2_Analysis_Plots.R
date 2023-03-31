@@ -1742,6 +1742,241 @@ draw(
 )
 dev.off()
 
+# Do the same analysis above for imbalanced cell-type ARI, but this time don't
+# scale the ARI values - keep the absolute differences between methods 
+imba_clus_merged <- merge(
+  clus_concat,
+  imba_concat,
+  by = c(
+    "Number of batches downsampled",
+    "Number of celltypes downsampled",
+    "Proportion downsampled",
+    "Replicate"
+  )
+)
+
+imba_clus_merged$`Downsampled celltypes` <- plyr::mapvalues(
+  imba_clus_merged$`Downsampled celltypes`,
+  from = c(
+    "Monocyte_CD14",
+    "Monocyte_FCGR3A",
+    "CD4 T cell",
+    "CD8 T cell"
+  ),
+  to = c(
+    "CD14+ Monocyte",
+    "FCGR3A+ Monocyte",
+    "CD4+ T cell",
+    "CD8+ T cell"
+  )
+)
+
+imba_clus_merged$type <- ifelse(
+  imba_clus_merged$`Number of batches downsampled` == 0,
+  "Control",
+  ifelse(
+    imba_clus_merged$`Proportion downsampled` == 0,
+    "Ablated",
+    "Downsampled"
+  )
+)
+
+median_celltype_ari_results <- imba_clus_merged %>% 
+  group_by(Method, type, `Downsampled celltypes`) %>% 
+  summarize(
+    `Median celltype ARI` = median(`Celltype ARI Imbalanced`, na.rm = FALSE),
+    .groups = "keep"
+  ) %>%
+  as.data.frame()
+
+median_celltype_ari_results_vals_long <- reshape2::dcast(
+  median_celltype_ari_results,
+  formula = type + `Downsampled celltypes` ~ `Method`,
+  value.var = "Median celltype ARI"
+)
+median_celltype_ari_results_vals_long$type <- factor(
+  median_celltype_ari_results_vals_long$type,
+  levels = c("Control", "Downsampled", "Ablated")
+)
+median_celltype_ari_results_vals_long <- median_celltype_ari_results_vals_long[
+  order(
+    median_celltype_ari_results_vals_long$type,
+    median_celltype_ari_results_vals_long$`Downsampled celltypes`
+  ),
+]
+rownames(median_celltype_ari_results_vals_long) <- c(
+  paste0("R_", seq(1, nrow(median_celltype_ari_results_vals_long)))
+)
+colnames(median_celltype_ari_results_vals_long)[1] <- c(
+  "Type"
+)
+median_celltype_ari_long_vals_only <- median_celltype_ari_results_vals_long[
+  ,-c(1,2)
+]
+
+median_celltype_ari_long_type <- median_celltype_ari_results_vals_long[
+  ,1, drop = FALSE
+]
+median_celltype_ari_long_celltype <- median_celltype_ari_results_vals_long[
+  ,2, drop = FALSE
+]
+
+dark_2_cols = palette.colors(n = 8, "Dark2")
+col_type = c(
+  "Control" = "forestgreen",
+  "Downsampled" = "darkorchid3",
+  "Ablated" = "firebrick2"
+)
+col_celltype = c(
+  "B cell" = dark_2_cols[1], 
+  "CD14+ Monocyte" = dark_2_cols[2], 
+  "CD4+ T cell" = dark_2_cols[3],
+  "CD8+ T cell" = dark_2_cols[4],
+  "FCGR3A+ Monocyte" = dark_2_cols[5],
+  "NK cell" = dark_2_cols[6],
+  "None" = "black"
+)
+
+ht1 = Heatmap(
+  as.matrix(median_celltype_ari_long_vals_only), 
+  name = "Median \ncell-type ARI", 
+  width = unit(5, "cm"),
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_row_names = FALSE
+)
+ht2 = Heatmap(
+  as.matrix(median_celltype_ari_long_type), 
+  name = "Type",
+  col = col_type,
+  width = unit(0.5, "cm"),
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_row_names = FALSE,
+  show_column_names = FALSE
+)
+ht3 = Heatmap(
+  as.matrix(median_celltype_ari_long_celltype), 
+  name = "Affected cell-type",
+  col = col_celltype,
+  width = unit(0.5, "cm"),  
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_row_names = FALSE,
+  show_column_names = FALSE
+)
+celltype_ari_hm <- ht1 + ht2 + ht3
+CairoPDF(
+  "outs/control/figures/05_celltype_ari_unscaled_ds_effects_heatmap_no_liger.pdf",
+  width = 8, 
+  height = 6
+)
+draw(
+  celltype_ari_hm,
+  column_title = "Integration method",
+  column_title_side = "bottom",
+  column_title_gp = gpar(fontsize = 14, fontface = "bold")
+)
+dev.off()
+
+# Repeat the same analysis above, but now with unscaled median batch ARI
+median_batch_ari_results <- imba_clus_merged %>% 
+  group_by(Method, type, `Downsampled celltypes`) %>% 
+  summarize(
+    `Median batch ARI` = median(`Batch ARI`, na.rm = FALSE),
+    .groups = "keep"
+  ) %>%
+  as.data.frame()
+
+median_batch_ari_results_vals_long <- reshape2::dcast(
+  median_batch_ari_results,
+  formula = type + `Downsampled celltypes` ~ `Method`,
+  value.var = "Median batch ARI"
+)
+median_batch_ari_results_vals_long$type <- factor(
+  median_batch_ari_results_vals_long$type,
+  levels = c("Control", "Downsampled", "Ablated")
+)
+median_batch_ari_results_vals_long <- median_batch_ari_results_vals_long[
+  order(
+    median_batch_ari_results_vals_long$type,
+    median_batch_ari_results_vals_long$`Downsampled celltypes`
+  ),
+]
+rownames(median_batch_ari_results_vals_long) <- c(
+  paste0("R_", seq(1, nrow(median_batch_ari_results_vals_long)))
+)
+colnames(median_batch_ari_results_vals_long)[1] <- c(
+  "Type"
+)
+median_batch_ari_long_vals_only <- median_batch_ari_results_vals_long[
+  ,-c(1,2)
+]
+median_batch_ari_long_type <- median_batch_ari_results_vals_long[
+  ,1, drop = FALSE
+]
+median_batch_ari_long_celltype <- median_batch_ari_results_vals_long[
+  ,2, drop = FALSE
+]
+
+dark_2_cols = palette.colors(n = 8, "Dark2")
+col_type = c(
+  "Control" = "forestgreen",
+  "Downsampled" = "darkorchid3",
+  "Ablated" = "firebrick2"
+)
+col_celltype = c(
+  "B cell" = dark_2_cols[1], 
+  "CD14+ Monocyte" = dark_2_cols[2], 
+  "CD4+ T cell" = dark_2_cols[3],
+  "CD8+ T cell" = dark_2_cols[4],
+  "FCGR3A+ Monocyte" = dark_2_cols[5],
+  "NK cell" = dark_2_cols[6],
+  "None" = "black"
+)
+
+ht1 = Heatmap(
+  as.matrix(median_batch_ari_long_vals_only), 
+  name = "Median \nbatch ARI", 
+  width = unit(5, "cm"),
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_row_names = FALSE
+)
+ht2 = Heatmap(
+  as.matrix(median_batch_ari_long_type), 
+  name = "Type",
+  col = col_type,
+  width = unit(0.5, "cm"),
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_row_names = FALSE,
+  show_column_names = FALSE
+)
+ht3 = Heatmap(
+  as.matrix(median_batch_ari_long_celltype), 
+  name = "Affected cell-type",
+  col = col_celltype,
+  width = unit(0.5, "cm"),  
+  cluster_rows = FALSE,
+  cluster_columns = FALSE,
+  show_row_names = FALSE,
+  show_column_names = FALSE
+)
+batch_ari_hm <- ht1 + ht2 + ht3
+CairoPDF(
+  "outs/control/figures/05_batch_ari_unscaled_ds_effects_heatmap_no_liger.pdf", 
+  width = 8, 
+  height = 6
+)
+draw(
+  batch_ari_hm,
+  column_title = "Integration method",
+  column_title_side = "bottom",
+  column_title_gp = gpar(fontsize = 14, fontface = "bold")
+)
+dev.off()
+
 ### Fig 2C) - results of celltype downsampling and ablation on  
 ### KNN classification scores 
 
