@@ -239,6 +239,7 @@ rule integrate:
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
     params:
         script_path = "scripts/python/integrate_data.py",
+        resolutions_path = "../resources/resolutions/{data_folder}/resolutions.tsv"
     log:
         "logs/{configname}/integrate/integrate_{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}.log"
@@ -247,6 +248,7 @@ rule integrate:
         """
         python {params.script_path} \
             --filedir {input} \
+            --custom_leiden {params.resolutions_path} \
             --ds_celltypes {wildcards.ds_celltype} \
             --ds_proportions {wildcards.ds_proportion} \
             --num_batches {wildcards.num_batches} \

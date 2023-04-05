@@ -7,6 +7,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = "0, 1"
 import scanpy as sc
 import anndata as ann
 import numpy as np
+import pandas as pd
 
 from utils import Integration, downsample, faiss_kmeans
 
@@ -15,7 +16,7 @@ def none_or_str(value):
         return None
     return value
 
-def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
+def main(h5ad_dir, custom_leiden, save_loc, ds_celltypes, ds_proportions, num_batches):
     # Load h5ad files 
     files_list = os.listdir(h5ad_dir)
     adata_loaded = []
@@ -27,6 +28,13 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
             adata.var["gene"] = adata.var_names # Add gene names if not present
         adata.var = adata.var[["gene"]] # Only store relevant columns
         adata_loaded.append(adata)
+    
+    # If custom leiden resolutions are provided, use them
+    if custom_leiden is not None:
+        custom_leiden_resolutions = pd.read_csv(custom_leiden, sep = "\t", index_col = 0)
+        custom_leiden_resolutions = custom_leiden_resolutions["resolution"].values
+    else:
+        custom_leiden_resolutions = None
     
     # Downsample loaded h5ad files based on params 
     if num_batches == 0:
@@ -74,7 +82,7 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
     adata_concat.obs.drop("batch_name", axis = 1, inplace = True)
     
     # Create integration class instance 
-    integration = Integration(adata = adata_concat)
+    integration = Integration(adata = adata_concat, custom_resolutions = custom_leiden_resolutions)
     
     # Integrate across subsets
     harmony_integrated = integration.harmony_integrate()
@@ -206,6 +214,12 @@ if __name__ == "__main__":
         help = "Path of directory containing scRNA-seq h5ad files"
     )
     parser.add_argument(
+        "--custom_leiden",
+        type=str,
+        help="Path of custom leiden clustering file",
+        default=None
+    )
+    parser.add_argument(
         "--ds_celltypes",
         type = int,
         help = "Number of celltypes to randomly downsample in given batch"
@@ -228,6 +242,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(
         h5ad_dir = args.filedir,
+        custom_leiden = args.custom_leiden,
         save_loc = args.outfile,
         ds_celltypes = args.ds_celltypes,
         ds_proportions = args.ds_proportions,

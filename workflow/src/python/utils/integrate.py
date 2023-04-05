@@ -21,7 +21,7 @@ from utils.liger_integrate import LigerIntegrate
 class Integration:
     """Class for integrating scRNA-seq data and returning processed data."""
     
-    def __init__(self, adata, gpu = True):
+    def __init__(self, adata, gpu = True, custom_resolutions = None):
         """
         Args:
             adata (AnnData): AnnData object to be utilized in integration methods.
@@ -29,8 +29,12 @@ class Integration:
                 and that raw counts are stored in "counts" layer, and batch covariate
                 is available.
             gpu (bool): Whether or not to use GPU for scVI.
+            custom_resolutions (list): List of resolutions to use for integration 
+                with the different methods. If None, will use a default resolution of 
+                1 for all methods.
         """
         self.adata = adata
+        self.custom_resolutions = custom_resolutions
         # Check anndata object 
         if not isinstance(adata, ann.AnnData):
             raise Exception("Please input an AnnData object.")
@@ -57,7 +61,10 @@ class Integration:
             n_pcs = n_pcs,
             use_rep = "X_scVI"
         )
-        sc.tl.leiden(ascvi)
+        if self.custom_resolutions is not None:
+            sc.tl.leiden(ascvi, resolution = self.custom_resolutions[0])
+        else:
+            sc.tl.leiden(ascvi)
         sc.tl.umap(ascvi)
         print("Done!" + "\n")
         return ascvi
@@ -88,7 +95,10 @@ class Integration:
             use_rep = "X_pca_harmony"
         )
         aharmony.obsm["X_kmeans"] = aharmony.obsm["X_pca_harmony"][:, 0:n_pcs]
-        sc.tl.leiden(aharmony)
+        if self.custom_resolutions is not None:
+            sc.tl.leiden(aharmony, resolution = self.custom_resolutions[1])
+        else:
+            sc.tl.leiden(aharmony)
         sc.tl.umap(aharmony)
         print("Done!" + "\n")
         return aharmony
@@ -134,7 +144,10 @@ class Integration:
             abbknn.obsm["X_pca"].shape[0],
             abbknn.obsm["X_pca"].shape[1]
         ))
-        sc.tl.leiden(abbknn)
+        if self.custom_resolutions is not None:
+            sc.tl.leiden(abbknn, resolution = self.custom_resolutions[2])
+        else:
+            sc.tl.leiden(abbknn)
         sc.tl.umap(abbknn)
         print("Done!" + "\n")
         return abbknn
@@ -164,7 +177,10 @@ class Integration:
             use_rep = "X_scanorama"
         )
         ascanorama.obsm["X_kmeans"] = ascanorama.obsm["X_scanorama"][:, 0:n_pcs]
-        sc.tl.leiden(ascanorama)
+        if self.custom_resolutions is not None:
+            sc.tl.leiden(ascanorama, resolution = self.custom_resolutions[3])
+        else:
+            sc.tl.leiden(ascanorama)
         sc.tl.umap(ascanorama)
         print("Done!" + "\n")
         return ascanorama
@@ -188,7 +204,10 @@ class Integration:
             n_neighbors = n_neighbors,
             n_pcs = n_pcs
         )
-        sc.tl.leiden(aseurat_int)
+        if self.custom_resolutions is not None:
+            sc.tl.leiden(aseurat_int, resolution = self.custom_resolutions[4])
+        else:
+            sc.tl.leiden(aseurat_int)
         sc.tl.umap(aseurat_int)
         # Append seurat integrated data to original adata object
         aseurat.obs["leiden"] = aseurat_int.obs["leiden"]
@@ -220,7 +239,10 @@ class Integration:
             use_rep = "X_liger"
         )
         aliger.obsm["X_kmeans"] = aliger.obsm["X_liger"][:, 0:n_pcs]
-        sc.tl.leiden(aliger)
+        if self.custom_resolutions is not None:
+            sc.tl.leiden(aliger, resolution = self.custom_resolutions[5])
+        else:
+            sc.tl.leiden(aliger)
         sc.tl.umap(aliger)
         print("Done!" + "\n")
         return aliger
