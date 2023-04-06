@@ -1,7 +1,9 @@
 import os 
 
-configfile: "configs/config_control.json"
+configfile: "configs/test_config_lite_leiden_res.json"
 configname = config["config_name"]
+iterations = [i for i in range(config["leiden_resolutions"]["repetitions"])]
+resolutions = config["leiden_resolutions"]["resolutions"]
 
 # Get all combinations through the config file
 def get_combinations(config, config_key):
@@ -140,6 +142,13 @@ if config["celltype_list"] == "No":
                     "../results/{configname}/relatedness_results/{dataset}_celltype_relatedness.tsv",
                         configname = configname,
                         dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
+                ),
+                expand(
+                    "../resources/{configname}/resolutions/{data_folder}/iters/results_{iteration}_{resolution}.tsv",
+                    configname = configname,
+                    data_folder = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()],
+                    iteration = iterations,
+                    resolution = resolutions
                 )
     else:
         rule all:
@@ -224,6 +233,13 @@ if config["celltype_list"] == "No":
                     "../results/{configname}/relatedness_results/{dataset}_celltype_relatedness.tsv",
                         configname = configname,
                         dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
+                ),
+                expand(
+                    "../resources/{configname}/resolutions/{data_folder}/iters/results_{iteration}_{resolution}.tsv",
+                    configname = configname,
+                    data_folder = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()],
+                    iteration = iterations,
+                    resolution = resolutions
                 )
 else:
     print("No")
@@ -236,17 +252,46 @@ rule leiden_resolution:
     input:
         "../resources/h5ad_files/int_datasets/{data_folder}"
     output:
-        "../resources/resolutions/{data_folder}/resolutions.tsv"
+        "../resources/{configname}/resolutions/{data_folder}/iters/results_{iteration}_{resolution}.tsv"
     params:
         script_path = "scripts/python/leiden_resolution.py"
     log:
-        "logs/{configname}/leiden_resolution/leiden_resolution_{data_folder}.log"
+        "logs/{configname}/resolutions/{data_folder}/iters/results_{iteration}_{resolution}.log"
     priority: 0
     shell:
         """
         python {params.script_path} \
         --filedir {input} \
-        --outfile {output}  
+        --outfile {output} \
+        --resolution {wildcards.resolution} \
+        --iter_number {wildcards.iteration} \
+        &> {log}
+        """
+
+rule leiden_aggregate:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        expand(
+            "../resources/{configname}/resolutions/{data_folder}/iters/results_{iteration}_{resolution}.tsv",
+            configname = configname,
+            data_folder = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()],
+            iteration = iterations,
+            resolution = resolutions
+        )
+    output:
+        "../resources/{configname}/resolutions/{data_folder}/resolutions.tsv"
+    params:
+        script_path = "scripts/python/leiden_aggregate.py"
+    log:
+        "logs/{configname}/resolutions/{data_folder}/leiden_aggregate.log"
+    priority: 0
+    shell:
+        """
+        python {params.script_path} \
+        --filedir {input} \
+        --outfile {output} \
+        &> {log}
         """
 
 # Integrate the indicated h5ad files from config, based on dataset 
@@ -255,7 +300,7 @@ rule integrate:
         "envs/integrate.yaml"
     input:
         ds_folder = "../resources/h5ad_files/int_datasets/{data_folder}",
-        leiden_res = "../resources/resolutions/{data_folder}/resolutions.tsv"
+        leiden_res = "../resources/{configname}/resolutions/{data_folder}/resolutions.tsv"
     output:
         "../results/{configname}/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"

@@ -1,0 +1,19 @@
+{
+    "config_name": "control_leiden_res",
+    "int_datasets": {
+        "pbmc_2_batch_base_balanced" : {
+            "data_folder": "pbmc_2_batch_base_balanced",
+            "ds_celltypes": [1],
+            "ds_proportions": [0.1, 0],
+            "num_batches": [0, 1],
+            "repetitions": 200
+        }
+    },
+    "leiden_resolutions": {
+        "resolutions": [0.1, 0.5, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        "repetitions": 50
+    },
+    "int_ti_datasets": {},
+    "query_to_reference": "Yes",
+    "celltype_list": "No"
+}
