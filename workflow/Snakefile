@@ -775,3 +775,85 @@ rule relatedness_metric:
             --dataset {wildcards.data_folder} \
             &> {log}
         """
+
+# Rule for downsampling within each batch - control experiments. Always selects the first 
+# batch for downsampling.
+rule downsample_control:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../resources/h5ad_files/int_datasets/{data_folder}"
+    output:
+        "../results/{configname}/downsample_control/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_1_batch_ds_c_{rep}_downsample_control.h5ad"
+    params:
+        script_path = "scripts/python/downsample_control.py"
+    log:
+        "logs/{configname}/downsample_control/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_1_batch_ds_c_{rep}_downsample_control.log"
+    priority: 100
+    shell:
+        """
+        python {params.script_path} \
+            --filedir {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            --ds_celltypes {wildcards.ds_celltype} \
+            --ds_proportions {wildcards.ds_proportion} \
+            &> {log}
+        """
+
+# Get DGE ranking concordance results (from different methods) from downsampling using Leiden clustering
+# for the control experiments
+rule dge_ranking_stats_control:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/{configname}/downsample_control/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_1_batch_ds_c_{rep}_downsample_control.h5ad"
+    output:
+        "../results/{configname}/dge_ranking_stats_control/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_1_batch_ds_c_{rep}_dge_ranking_stats_control.tsv"
+    params:
+        script_path = "scripts/python/dge_ranking_concordance_control.py"
+    log:
+        "logs/{configname}/dge_ranking_stats_control/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_1_batch_ds_c_{rep}_dge_ranking_stats_control.log"
+    priority: 100
+    shell:
+        """
+        python {params.script_path} \
+            --filedir {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            &> {log}
+        """
+
+# Subset control dge ranking dfs for marker genes 
+rule dge_rank_control_marker_subset:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        dge_file = "../results/{configname}/downsample_control/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_1_batch_ds_c_{rep}_downsample_control.h5ad",
+        marker_file = "../results/{configname}/marker_results/{data_folder}_preintegration_marker_selection.tsv" +
+    output:
+        "../results/{configname}/dge_ranking_stats_control/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_1_batch_ds_c_{rep}_dge_ranking_stats_control.tsv"
+    params:
+        script_path = "scripts/python/dge_ranking_control_marker_subset.py"
+    log:
+        "logs/{configname}/dge_ranking_stats_control/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_1_batch_ds_c_{rep}_dge_ranking_stats_control.log"
+    priority: 100
+    shell:
+        """
+        python {params.script_path} \
+            --filedir {input} \
+            --outfile {output} \
+            --dataset {wildcards.data_folder} \
+            --rep {wildcards.rep} \
+            &> {log}
+        """
