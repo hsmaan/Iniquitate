@@ -838,7 +838,7 @@ rule dge_rank_control_marker_subset:
     input:
         dge_file = "../results/{configname}/downsample_control/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_1_batch_ds_c_{rep}_downsample_control.h5ad",
-        marker_file = "../results/{configname}/marker_results/{data_folder}_preintegration_marker_selection.tsv" +
+        marker_file = "../results/{configname}/marker_results/{data_folder}_preintegration_marker_selection.tsv"
     output:
         "../results/{configname}/dge_ranking_stats_control/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
         "_downsample_1_batch_ds_c_{rep}_dge_ranking_stats_control.tsv"
