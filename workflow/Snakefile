@@ -832,11 +832,10 @@ rule downsample_control:
         """
         python {params.script_path} \
             --filedir {input} \
-            --outfile {output} \
-            --dataset {wildcards.data_folder} \
-            --rep {wildcards.rep} \
             --ds_celltypes {wildcards.ds_celltype} \
             --ds_proportions {wildcards.ds_proportion} \
+            --num_batches {wildcards.num_batches} \
+            --outfile {output} \
             &> {log}
         """
 
@@ -860,7 +859,7 @@ rule dge_ranking_stats_control:
     shell:
         """
         python {params.script_path} \
-            --filedir {input} \
+            --infile {input} \
             --outfile {output} \
             --dataset {wildcards.data_folder} \
             --rep {wildcards.rep} \
@@ -887,9 +886,8 @@ rule dge_rank_control_marker_subset:
     shell:
         """
         python {params.script_path} \
-            --filedir {input} \
+            --infile_dge_rank {input.dge_file} \
+            --infile_marker {input.marker_file} \
             --outfile {output} \
-            --dataset {wildcards.data_folder} \
-            --rep {wildcards.rep} \
             &> {log}
         """
