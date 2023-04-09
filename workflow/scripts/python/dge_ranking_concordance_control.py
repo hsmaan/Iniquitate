@@ -20,7 +20,13 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     prop_ds = adata.uns["downsampling_stats"]["proportion_downsampled"]
 
     # Store lognorm counts in raw attribute for diffexp testing
-    adata.raw = adata.copy()
+    adata.X = adata.layers["raw"] # Unlogged, unnorm counts
+    sc.pp.normalize_total(
+        adata,
+        target_sum = 1e4
+    )
+    sc.pp.log1p(adata)
+    adata.raw = adata # Freeze for DGE test 
 
     # Extract list of all DGEs for all leiden clusters 
     adata = diffexp(

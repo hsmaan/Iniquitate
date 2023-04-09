@@ -871,8 +871,8 @@ rule dge_rank_control_marker_subset:
     conda:
         "envs/integrate.yaml"
     input:
-        dge_file = "../results/{configname}/downsample_control/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
-        "_downsample_{num_batches}_batch_ds_c_{rep}_downsample_control.h5ad",
+        dge_file = "../results/{configname}/dge_ranking_stats_control/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_dge_ranking_stats_control.tsv",
         marker_file = "../results/{configname}/marker_results/{data_folder}_preintegration_marker_selection.tsv"
     output:
         "../results/{configname}/dge_ranking_stats_marker_sub_control/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +

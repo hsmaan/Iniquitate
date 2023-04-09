@@ -48,10 +48,6 @@ def main(h5ad_dir, save_loc, ds_celltypes, ds_proportions, num_batches):
             celltype_names = celltypes_selected,
             proportion = ds_proportions
         )
-
-    # Format the downsampled batch (assume data is raw counts)
-    adata_ds.obs["batch"] = adata_ds.obs["batch_name"]
-    adata_ds.obs.drop("batch_name", axis = 1, inplace = True)
     
     # Perform downstream steps to get a reduced representation of the data followed by 
     # clustering 
