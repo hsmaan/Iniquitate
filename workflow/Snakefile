@@ -289,7 +289,7 @@ rule leiden_aggregate:
     shell:
         """
         python {params.script_path} \
-        --filedir {input} \
+        --files {input} \
         --outfile {output} \
         &> {log}
         """
