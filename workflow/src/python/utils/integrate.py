@@ -62,7 +62,7 @@ class Integration:
             use_rep = "X_scVI"
         )
         if self.custom_resolutions is not None:
-            sc.tl.leiden(ascvi, resolution = self.custom_resolutions[0])
+            sc.tl.leiden(ascvi, resolution = float(self.custom_resolutions[0]))
         else:
             sc.tl.leiden(ascvi)
         sc.tl.umap(ascvi)
@@ -96,7 +96,7 @@ class Integration:
         )
         aharmony.obsm["X_kmeans"] = aharmony.obsm["X_pca_harmony"][:, 0:n_pcs]
         if self.custom_resolutions is not None:
-            sc.tl.leiden(aharmony, resolution = self.custom_resolutions[1])
+            sc.tl.leiden(aharmony, resolution = float(self.custom_resolutions[1]))
         else:
             sc.tl.leiden(aharmony)
         sc.tl.umap(aharmony)
@@ -145,7 +145,7 @@ class Integration:
             abbknn.obsm["X_pca"].shape[1]
         ))
         if self.custom_resolutions is not None:
-            sc.tl.leiden(abbknn, resolution = self.custom_resolutions[2])
+            sc.tl.leiden(abbknn, resolution = float(self.custom_resolutions[2]))
         else:
             sc.tl.leiden(abbknn)
         sc.tl.umap(abbknn)
@@ -178,7 +178,7 @@ class Integration:
         )
         ascanorama.obsm["X_kmeans"] = ascanorama.obsm["X_scanorama"][:, 0:n_pcs]
         if self.custom_resolutions is not None:
-            sc.tl.leiden(ascanorama, resolution = self.custom_resolutions[3])
+            sc.tl.leiden(ascanorama, resolution = float(self.custom_resolutions[3]))
         else:
             sc.tl.leiden(ascanorama)
         sc.tl.umap(ascanorama)
@@ -205,7 +205,7 @@ class Integration:
             n_pcs = n_pcs
         )
         if self.custom_resolutions is not None:
-            sc.tl.leiden(aseurat_int, resolution = self.custom_resolutions[4])
+            sc.tl.leiden(aseurat_int, resolution = float(self.custom_resolutions[4]))
         else:
             sc.tl.leiden(aseurat_int)
         sc.tl.umap(aseurat_int)
@@ -240,7 +240,7 @@ class Integration:
         )
         aliger.obsm["X_kmeans"] = aliger.obsm["X_liger"][:, 0:n_pcs]
         if self.custom_resolutions is not None:
-            sc.tl.leiden(aliger, resolution = self.custom_resolutions[5])
+            sc.tl.leiden(aliger, resolution = float(self.custom_resolutions[5]))
         else:
             sc.tl.leiden(aliger)
         sc.tl.umap(aliger)
