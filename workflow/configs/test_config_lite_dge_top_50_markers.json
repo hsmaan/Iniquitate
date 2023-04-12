@@ -1,0 +1,15 @@
+{
+    "config_name": "test_config_lite_top_50_dge",
+    "int_datasets": {
+        "pbmc_2_batch_balanced" : {
+            "data_folder": "pbmc_2_batch",
+            "ds_celltypes": [1],
+            "ds_proportions": [0.1, 0.25],
+            "num_batches": [0, 1],
+            "repetitions": 2
+        }
+    },
+    "int_ti_datasets": {},
+    "query_to_reference": "No",
+    "celltype_list": "No"
+}
