@@ -10,7 +10,7 @@ import scanpy as sc
 
 from utils import dge_top_n
 
-def main(h5ad_dir, save_loc, top_n = 10):
+def main(h5ad_dir, save_loc, top_n = 50):
     # Load h5ad files 
     files_list = os.listdir(h5ad_dir)
     adata_loaded = []

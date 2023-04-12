@@ -8,7 +8,7 @@ def main(dge_rank_file_loc, marker_file_loc, save_loc):
     marker_df = pd.read_csv(marker_file_loc, sep = "\t")
     
     # Subset the dge rank df by the markers in the marker df
-    dataset_markers = marker_df["Top 10 marker genes (union across batches)"].__array__()
+    dataset_markers = marker_df["Top 50 marker genes (union across batches)"].__array__()
     dge_rank_df_marker_sub = dge_rank_df[dge_rank_df["Gene"].isin(dataset_markers)]
     
     # Save the marker subset dge rank df
