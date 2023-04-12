@@ -595,7 +595,7 @@ rule knn_classification:
             &> {log}
         """
 
-# Get Marker genes for each celltype before any integration (top 10) across batches for subsetting DGE results
+# Get Marker genes for each celltype before any integration (top 50) across batches for subsetting DGE results
 rule marker_get:
     conda:
         "envs/integrate.yaml"
