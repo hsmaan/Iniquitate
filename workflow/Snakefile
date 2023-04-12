@@ -1,6 +1,6 @@
 import os 
 
-configfile: "configs/test_config_lite_leiden_res.json"
+configfile: "configs/config_control_leiden_res.json"
 configname = config["config_name"]
 iterations = [i for i in range(config["leiden_resolutions"]["repetitions"])]
 resolutions = config["leiden_resolutions"]["resolutions"]
