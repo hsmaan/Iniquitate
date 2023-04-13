@@ -119,6 +119,14 @@ base_marker_genes <- fread(
 # Change to top level dir 
 setwd("../../..")
 
+# Create figures and results directories if they don't exist
+if (!dir.exists("outs/control_dge_50/figures")) {
+  dir.create("outs/control_dge_50/figures", recursive = TRUE)
+}
+if (!dir.exists("outs/control_dge_50/results")) {
+  dir.create("outs/control_dge_50/results", recursive = TRUE)
+}
+
 ### Figures 3B-3D - concordance of DGE for marker genes before and after 
 ### downsampling 
 
@@ -197,11 +205,11 @@ ggplot(data = imba_dge_merged, aes(
   theme(legend.position = "None")
 ggsave(
   paste0(
-    "outs/control/figures/15_pbmc_ds_ablate_",
+    "outs/control_dge_50/figures/15_pbmc_ds_ablate_",
     "marker_gene_max_ranks_no_liger.pdf"
   ),
   width = 14,
-  height = 12,
+  height = 14,
   device = cairo_pdf
 )
 
@@ -252,11 +260,11 @@ ggplot(data = imba_dge_merged, aes(
   theme(legend.position = "None")
 ggsave(
   paste0(
-    "outs/control/figures/15_pbmc_ds_ablate_",
+    "outs/control_dge_50/figures/15_pbmc_ds_ablate_",
     "marker_gene_max_ranks_per_method_no_liger.pdf"
   ),
   width = 14,
-  height = 9,
+  height = 14,
   device = cairo_pdf
 )
 
@@ -307,7 +315,7 @@ lapply(methods, function(x) {
   dge_method_plt(imba_dge_merged, x)
   ggsave(
     paste0(
-      "outs/control/figures/15_pbmc_ds_ablate_",
+      "outs/control_dge_50/figures/15_pbmc_ds_ablate_",
       x,
       "_dge_rankings_no_liger.pdf"
     ),
@@ -479,9 +487,9 @@ ht4 <- Heatmap(
 # Plot and save all of the heatmaps together 
 marker_pert_hm <- ht1 + ht2 + ht3 + ht4
 CairoPDF(
-  "outs/control/figures/15_marker_gene_pert_pbmc_control_heatmap_no_liger.pdf",
+  "outs/control_dge_50/figures/15_marker_gene_pert_pbmc_control_heatmap_no_liger.pdf",
   width = 14, 
-  height = 6
+  height = 14
 )
 draw(
   marker_pert_hm,
@@ -543,9 +551,9 @@ ht3 <- Heatmap(
 )
 marker_per_hm_no_celltype <- ht1 + ht2 + ht3
 CairoPDF(
-  "outs/control/figures/15_marker_gene_pert_pbmc_control_heatmap_no_ctype_no_liger.pdf",
-  width = 14, 
-  height = 6
+  "outs/control_dge_50/figures/15_marker_gene_pert_pbmc_control_heatmap_no_ctype_no_liger.pdf",
+  width = 12, 
+  height = 16
 )
 draw(
   marker_per_hm_no_celltype,
@@ -556,533 +564,6 @@ draw(
   row_title_gp = gpar(fontsize = 10, fontface = "bold"),
 )
 dev.off()
-
-### Fig 3C - Concordance of DGE genes - top 10 most variable marker
-### genes across methods 
-
-# Pick 10 exemplary genes that show the highest variability - take top 10 with 
-# the exclusion of the mitochondrial gene 
-top_10_variable_dge <- gene_rank_variance_sorted$Gene[1:11]
-top_10_variable_dge <- top_10_variable_dge[-6]
-
-# Subset data for top 10 with the exclusion of mitochondrial gene and 
-# plot results for ranking change with ablation and downsampling 
-imba_dge_merged_top_10_var_genes <- imba_dge_merged[
-  imba_dge_merged$Gene %in% top_10_variable_dge
-]
-ggplot(imba_dge_merged_top_10_var_genes, aes(x = Gene, y = `Max rank`)) +
-  geom_boxplot(
-    aes(
-      fill = factor(type, levels = c("Control", "Downsampled", "Ablated")),
-    ),
-    notch = FALSE,
-    alpha = 0.8 
-  ) +
-  facet_wrap(.~Method, scales = "fixed") +
-  scale_fill_manual( 
-    breaks = c("Control", "Downsampled", "Ablated"),
-    values = c("forestgreen", "darkorchid3", "firebrick2")
-  ) +
-  labs(
-    fill = "Type",
-    x = "Marker gene",
-    y = "Maximum rank in differential expression analysis across clusters"
-  ) +
-  coord_flip() +
-  theme_few() +
-  scale_x_discrete(limits = rev(top_10_variable_dge)) +
-  theme(axis.title.x = element_text(size = 16)) +
-  theme(axis.title.y = element_text(size = 16)) +
-  theme(strip.text.x = element_text(size = 16)) +
-  theme(plot.title = element_text(size = 14)) +
-  theme(axis.text.x = element_text(size = 14)) +
-  theme(axis.text.y = element_text(size = 14)) +
-  theme(legend.title = element_text(size = 16)) +
-  theme(legend.text = element_text(size = 14))
-ggsave(
-  paste0(
-    "outs/control/figures/15_pbmc_ds_ablate_dge_rankings_top_10_var_genes_no_liger.pdf"
-  ),
-  width = 14,
-  height = 8,
-  device = cairo_pdf
-)
-
-# Get stdev in rank of each gene, subset by type and method 
-gene_rank_variance_grouped <- imba_dge_merged %>% 
-  group_by(Gene, Method, type) %>%
-  summarize(`Max rank stdev` = sd(`Max rank`)) %>%
-  as.data.table
-
-# Get the plots for each method, and the standard deviations of max
-# rank of the genes
-methods <- sort(unique(imba_dge_merged$Method))
-dge_stdev_method_plt <- function(imba_dge_stdev_df, method) {
-  imba_dge_stdev_df_sub <- imba_dge_stdev_df[
-    which(imba_dge_stdev_df$Method %in% method)
-  ]
-  ggplot(
-    data = imba_dge_stdev_df_sub, 
-    aes(
-      x = `Gene`,
-      y = `Max rank stdev`
-    ) 
-  ) +
-    geom_bar(
-      aes(
-        fill = factor(
-          imba_dge_stdev_df_sub$type, 
-          levels = c("Control", "Downsampled", "Ablated")
-        )
-      ),
-      stat = "identity",
-      alpha = 0.8 
-    ) + 
-    facet_wrap(
-      .~factor(
-        imba_dge_stdev_df_sub$type, 
-        levels = c("Control", "Downsampled", "Ablated")
-      ), 
-      scales = "fixed"
-    ) +
-    scale_fill_manual( 
-      breaks = c("Control", "Downsampled", "Ablated"),
-      values = c("forestgreen", "darkorchid3", "firebrick2")
-    ) +
-    labs(
-      fill = "Type",
-      x = "Marker gene",
-      y = "Standard deviation of maximum rank in differential expression"
-    ) +
-    coord_flip() +
-    scale_x_discrete(limits = rev(levels(factor(imba_dge_stdev_df_sub$Gene)))) + 
-    theme_few() +
-    theme(axis.title.x = element_text(size = 16)) +
-    theme(axis.title.y = element_text(size = 16)) +
-    theme(strip.text.x = element_text(size = 16)) +
-    theme(plot.title = element_text(size = 14)) +
-    theme(axis.text.x = element_text(size = 14)) +
-    theme(axis.text.y = element_text(size = 10)) +
-    theme(legend.title = element_text(size = 16)) +
-    theme(legend.text = element_text(size = 14))
-}
-lapply(methods, function(x) {
-  dge_stdev_method_plt(gene_rank_variance_grouped, x)
-  ggsave(
-    paste0(
-      "outs/control/figures/15_pbmc_ds_ablate_",
-      x,
-      "_dge_rankings_method_type_stdev_no_liger.pdf"
-    ),
-    width = 14,
-    height = 10,
-    device = cairo_pdf
-  )
-})
-
-# Plot the top 10 most variable genes in terms of rank (across all methods)
-# based on type and method 
-gene_rank_variance_grouped_top_10_sub <- gene_rank_variance_grouped[
-  which(gene_rank_variance_grouped$Gene %in% top_10_variable_dge)
-]
-ggplot(
-  data = gene_rank_variance_grouped_top_10_sub, 
-  aes(
-    x = `Gene`,
-    y = `Max rank stdev`
-  ) 
-) +
-  geom_bar(
-    aes(
-      fill = factor(
-        gene_rank_variance_grouped_top_10_sub$type, 
-        levels = c("Control", "Downsampled", "Ablated")
-      )
-    ),
-    stat = "identity",
-    alpha = 0.8,
-    position = "dodge2"
-  ) + 
-  facet_wrap(
-    .~Method,
-    scales = "fixed"
-  ) +
-  scale_fill_manual( 
-    breaks = c("Control", "Downsampled", "Ablated"),
-    values = c("forestgreen", "darkorchid3", "firebrick2")
-  ) +
-  labs(
-    fill = "Type",
-    x = "Marker gene",
-    y = "Standard deviation of maximum rank in differential expression"
-  ) +
-  coord_flip() +
-  theme_few() +
-  scale_x_discrete(limits = rev(top_10_variable_dge)) +
-  theme(axis.title.x = element_text(size = 16)) +
-  theme(axis.title.y = element_text(size = 16)) +
-  theme(strip.text.x = element_text(size = 16)) +
-  theme(plot.title = element_text(size = 14)) +
-  theme(axis.text.x = element_text(size = 14)) +
-  theme(axis.text.y = element_text(size = 14)) +
-  theme(legend.title = element_text(size = 16)) +
-  theme(legend.text = element_text(size = 14))
-ggsave(
-  paste0(
-    "outs/control/figures/15_pbmc_ds_ablate_",
-    "_dge_rankings_method_type_stdev_top_10_no_liger.pdf"
-  ),
-  width = 14,
-  height = 8,
-  device = cairo_pdf
-)
-
-# Get stdev in rank of each gene, subset by type only (no method) 
-gene_rank_variance_grouped_nomethod <- imba_dge_merged %>% 
-  group_by(Gene, type) %>%
-  summarize(`Max rank stdev` = sd(`Max rank`)) %>%
-  as.data.table
-
-# Plot the values of standard deviations of each gene across all methods 
-ggplot(
-  data = gene_rank_variance_grouped_nomethod, 
-  aes(
-    x = `Gene`,
-    y = `Max rank stdev`
-  ) 
-) +
-  geom_bar(
-    aes(
-      fill = factor(
-        gene_rank_variance_grouped_nomethod$type, 
-        levels = c("Control", "Downsampled", "Ablated")
-      )
-    ),
-    stat = "identity",
-    alpha = 0.8 
-  ) + 
-  facet_wrap(
-    .~factor(
-      gene_rank_variance_grouped_nomethod$type, 
-      levels = c("Control", "Downsampled", "Ablated")
-    ), 
-    scales = "fixed"
-  ) +
-  scale_fill_manual( 
-    breaks = c("Control", "Downsampled", "Ablated"),
-    values = c("forestgreen", "darkorchid3", "firebrick2")
-  ) +
-  labs(
-    fill = "Type",
-    x = "Marker gene",
-    y = "Standard deviation of maximum rank in differential expression"
-  ) +
-  coord_flip() +
-  scale_x_discrete(
-    limits = rev(levels(factor(gene_rank_variance_grouped_nomethod$Gene)))
-  ) + 
-  theme_few() +
-  theme(axis.title.x = element_text(size = 16)) +
-  theme(axis.title.y = element_text(size = 16)) +
-  theme(strip.text.x = element_text(size = 16)) +
-  theme(plot.title = element_text(size = 14)) +
-  theme(axis.text.x = element_text(size = 14)) +
-  theme(axis.text.y = element_text(size = 10)) +
-  theme(legend.title = element_text(size = 16)) +
-  theme(legend.text = element_text(size = 14))
-ggsave(
-  paste0(
-    "outs/control/figures/15_pbmc_ds_ablate_",
-    "_dge_rankings_type_stdev_no_liger.pdf"
-  ),
-  width = 14,
-  height = 10,
-  device = cairo_pdf
-)
-
-# Plot the correspondence of the top 10 most highly variable marker genes with
-# their respective celltypes
-top_10_variable_dge_markersub <- base_marker_genes[
-  which(
-    base_marker_genes$`Top 10 marker genes (union across batches)` %in% 
-      top_10_variable_dge
-  )
-]
-
-# Order the results 
-top_10_variable_dge_markersub <- top_10_variable_dge_markersub[
-  match( 
-    top_10_variable_dge,
-    top_10_variable_dge_markersub$`Top 10 marker genes (union across batches)`
-  )
-]
-colnames(top_10_variable_dge_markersub) <- c(
-  "Associated celltype",
-  "Gene"
-)
-
-# Add the standard deviation values across subsets overall 
-top_10_variable_dge_markersub <- merge(
-  top_10_variable_dge_markersub,
-  gene_rank_variance_sorted,
-  join = "left",
-  by = c(
-    "Gene"
-  ),
-  all.y = FALSE
-)
-
-# Order based on the standard deviation
-top_10_variable_dge_markersub <- top_10_variable_dge_markersub[
-  order(top_10_variable_dge_markersub$var, decreasing = )
-]
-
-# Plot the SankeyNetwork diagram, save and then convert saved html to pdf
-nodes <- data.frame(
-  name = c(
-    as.character(top_10_variable_dge_markersub$Gene), 
-    as.character(top_10_variable_dge_markersub$`Associated celltype`) %>% 
-      unique()
-  )
-)
-top_10_variable_dge_markersub$IDsource <- match(
-  top_10_variable_dge_markersub$Gene, nodes$name)-1 
-top_10_variable_dge_markersub$IDtarget <- match(
-  top_10_variable_dge_markersub$`Associated celltype`, nodes$name)-1
-
-top_10_var_marker_genes_sankey <- sankeyNetwork(
-  Links = top_10_variable_dge_markersub,
-  Nodes = nodes,
-  Source = "IDsource",
-  Target = "IDtarget",
-  Value = "var",
-  NodeID = "name",
-  sinksRight = FALSE
-)
-saveNetwork(
-  top_10_var_marker_genes_sankey,
-  file = paste0(
-    "outs/control/figures/15_pbmc_ds_ablate_",
-    "_top_var_dges_with_assoc_celltypes_no_liger.html"
-  ),
-  selfcontained = TRUE
-)
-
-### Fig 3D) - Correlation of marker gene instability and the celltype
-### downsampled - determine if this can impact the instability or 
-### if there is a correlation
-
-# Get stdev in rank of each gene, subset by type, method, downsampled celltype
-# and marker(s) associated with celltype
-gene_rank_variance_grouped_celltype_specific <- imba_dge_merged %>% 
-  group_by(Gene, Method, type, `Downsampled celltypes`) %>%
-  summarize(`Max rank stdev` = sd(`Max rank`)) %>%
-  as.data.table
-
-# Merge the DGE stdev summary stats with the marker data indicating
-# which celltype each marker corresponds to - ALLOW A CARTESIAN PRODUCT
-# HERE AS EACH MARKER MAY BE SPECIFIC TO MORE THAN ONE CELLTYPE. The cartesian
-# product should be valid, as we are considering correlations between celltype-
-# specific markers and change in DGE status
-base_marker_genes_copy <- base_marker_genes
-colnames(base_marker_genes_copy) <- c(
-  "Associated celltype",
-  "Gene"
-)
-gene_rank_variance_grouped_celltype_specific_marker <- merge(
-  gene_rank_variance_grouped_celltype_specific,
-  base_marker_genes_copy,
-  by = c(
-    "Gene"
-  ),
-  allow.cartesian = TRUE
-)
-gene_rank_variance_grouped_celltype_specific_marker <- distinct(
-  gene_rank_variance_grouped_celltype_specific_marker
-)
-
-# Format celltype names for plotting 
-gene_rank_variance_grouped_celltype_specific_marker$`Downsampled celltypes` <-
-  plyr::mapvalues(
-    gene_rank_variance_grouped_celltype_specific_marker$`Downsampled celltypes`,
-    from = c(
-      "Monocyte_CD14",
-      "Monocyte_FCGR3A",
-      "CD4 T cell",
-      "CD8 T cell"
-    ),
-    to = c(
-      "CD14+ Monocyte",
-      "FCGR3A+ Monocyte",
-      "CD4+ T cell",
-      "CD8+ T cell"
-    )
-  )
-
-gene_rank_variance_grouped_celltype_specific_marker$`Associated celltype` <-
-  plyr::mapvalues(
-    gene_rank_variance_grouped_celltype_specific_marker$`Associated celltype`,
-    from = c(
-      "Monocyte_CD14",
-      "Monocyte_FCGR3A",
-      "CD4 T cell",
-      "CD8 T cell"
-    ),
-    to = c(
-      "CD14+ Monocyte",
-      "FCGR3A+ Monocyte",
-      "CD4+ T cell",
-      "CD8+ T cell"
-    )
-  )
-
-# For first plot, collapse/summarize further by averaging across all of the 
-# genes (mean - not median)
-gene_rank_variance_grouped_celltype_specific_marker_mean <-
-  gene_rank_variance_grouped_celltype_specific_marker %>%
-  group_by(Method, type, `Downsampled celltypes`, `Associated celltype`) %>%
-  summarize(`Mean max rank stdev` = mean(`Max rank stdev`)) %>%
-  as.data.table
-
-# Remove 'None' from this - only considering cases where the downsampled 
-# celltype is equivalent to the associated celltype of the given marker 
-gene_rank_variance_grouped_celltype_specific_marker_mean <-
-  gene_rank_variance_grouped_celltype_specific_marker_mean[
-    gene_rank_variance_grouped_celltype_specific_marker_mean$
-      `Downsampled celltypes` %ni% "None"
-  ]
-
-# Plot heatmaps specific to the overall results of each method - first for 
-# the downsampled results 
-# MARKER GENE PERTURBATION SCORE HAS TO BE DEFINED IN RESULTS/METHODS
-gene_rank_variance_grouped_celltype_specific_marker_mean_ds <- 
-  gene_rank_variance_grouped_celltype_specific_marker_mean[
-    gene_rank_variance_grouped_celltype_specific_marker_mean$type %in% 
-      "Downsampled"
-  ]
-
-# Clip values to 50, as this is considered a fair "maximum acceptable" 
-# perturbation (since we're using 50 marker genes per celltype)
-gene_rank_variance_grouped_celltype_specific_marker_mean_ds$
-  `Mean max rank stdev clipped` <- pmin(
-    50,
-    gene_rank_variance_grouped_celltype_specific_marker_mean_ds$`Mean max rank stdev`
-  )
-
-ggplot(
-  data = gene_rank_variance_grouped_celltype_specific_marker_mean_ds,
-  aes(
-    x = `Downsampled celltypes`,
-    y = `Associated celltype`
-  ) 
-) + 
-  geom_tile(
-    aes(fill = `Mean max rank stdev clipped`)
-  ) +
-  scale_fill_gradient(
-    low = "white",
-    high = "darkorchid3"
-  ) +
-  facet_wrap(.~Method, scales = "free") +
-  theme_few() +
-  theme(axis.title.x = element_text(size = 16)) +
-  theme(axis.title.y = element_text(size = 16)) +
-  theme(strip.text.x = element_text(size = 16)) +
-  theme(plot.title = element_text(size = 14)) +
-  theme(axis.text.x = element_text(
-    size = 12, 
-    angle = 90, 
-    vjust = 1, 
-    hjust = 1)
-  ) +
-  theme(axis.text.y = element_text(size = 12)) +
-  theme(legend.title = element_text(size = 16)) +
-  theme(legend.text = element_text(size = 14)) +
-  labs(
-    fill = "Average marker gene \nperturbation score",
-    x = "Downsampled cell-type",
-    y = "Cell-type associated with marker genes"
-  )
-ggsave(
-  paste0(
-    "outs/control/figures/15_pbmc_ds_only_",
-    "_dge_rankings_celltype_marker_celltype_ds_compare_no_liger.pdf"
-  ),
-  width = 14,
-  height = 9,
-  device = cairo_pdf
-)
-
-# Plot heatmaps specific to the overall results of each method - now for 
-# the ablated results 
-# MARKER GENE PERTURBATION SCORE HAS TO BE DEFINED IN RESULTS/METHODS
-gene_rank_variance_grouped_celltype_specific_marker_mean_ablated <- 
-  gene_rank_variance_grouped_celltype_specific_marker_mean[
-    gene_rank_variance_grouped_celltype_specific_marker_mean$type %in% 
-      "Ablated"
-  ]
-
-# Clip values to 50, as this is considered a fair "maximum acceptable" 
-# perturbation (since we're using 50 marker genes per celltype)
-gene_rank_variance_grouped_celltype_specific_marker_mean_ablated$
-  `Mean max rank stdev clipped` <- pmin(
-    50,
-    gene_rank_variance_grouped_celltype_specific_marker_mean_ablated$`Mean max rank stdev`
-  )
-
-ggplot(
-  data = gene_rank_variance_grouped_celltype_specific_marker_mean_ablated,
-  aes(
-    x = `Downsampled celltypes`,
-    y = `Associated celltype`
-  ) 
-) + 
-  geom_tile(
-    aes(fill = `Mean max rank stdev clipped`)
-  ) +
-  scale_fill_gradient(
-    low = "white",
-    high = "firebrick2"
-  ) +
-  facet_wrap(.~Method, scales = "free") +
-  theme_few() +
-  theme(axis.title.x = element_text(size = 16)) +
-  theme(axis.title.y = element_text(size = 16)) +
-  theme(strip.text.x = element_text(size = 16)) +
-  theme(plot.title = element_text(size = 14)) +
-  theme(axis.text.x = element_text(
-    size = 12, 
-    angle = 90, 
-    vjust = 1, 
-    hjust = 1)
-  ) +
-  theme(axis.text.y = element_text(size = 12)) +
-  theme(legend.title = element_text(size = 16)) +
-  theme(legend.text = element_text(size = 14)) +
-  labs(
-    fill = "Average marker gene \nperturbation score",
-    x = "Ablated cell-type",
-    y = "Cell-type associated with marker genes"
-  )
-ggsave(
-  paste0(
-    "outs/control/figures/15_pbmc_ablated_only_",
-    "_dge_rankings_celltype_marker_celltype_ablated_compare_no_liger.pdf"
-  ),
-  width = 14,
-  height = 9,
-  device = cairo_pdf
-)
-
-# Format marker genes to indicate which celltypes they belong to (due to 
-# duplicates)
-base_marker_gene_dup_added <- base_marker_genes %>%
-  group_by(`Top 50 marker genes (union across batches)`) %>%
-  summarize(Celltype = paste0(unique(Celltype), collapse = ', ')) %>%
-  as.data.frame
-colnames(base_marker_gene_dup_added) <- c(
-  "marker_gene", "celltype"
-)
 
 ### Statistical tests II - analysis of marker gene DGE rank change 
 
@@ -1176,7 +657,7 @@ dge_anova_result_dt$last_covariate <- "type"
 fwrite(
   dge_anova_result_dt,
   paste0(
-    "outs/control/results/",
+    "outs/control_dge_50/results/",
     "15_pbmc_base_dge_rank_aov_results_ctrl_gene_method_celltype_ds_no_liger.tsv"
   ),
   sep = "\t",
@@ -1243,7 +724,7 @@ marker_aov_results_concat$`FDR_q` <- p.adjust(
 fwrite(
   marker_aov_results_concat,
   paste0(
-    "outs/control/results/",
+    "outs/control_dge_50/results/",
     "15_pbmc_base_dge_specific_rank_aov_results_ctrl_method_celltype_ds_no_liger.tsv"
   ),
   sep = "\t",
@@ -1356,89 +837,8 @@ marker_lm_summaries_concat$q_val <- p.adjust(
 fwrite(
   marker_lm_summaries_concat,
   paste0(
-    "outs/control/results/",
+    "outs/control_dge_50/results/",
     "15_pbmc_base_dge_rank_coeffs_celltype_ds_method_importance_ranks_no_liger.tsv"
-  ),
-  sep = "\t",
-  quote = FALSE,
-  row.names = FALSE,
-  col.names = TRUE
-)
-
-## Get enrichment of top coefficient for celltype downsampled being the 
-## celltype associated with the marker gene being perturbed - perform
-## multinomial test for each downsampled celltype against all others
-
-# Create function that takes a subset of marker associated celltypes 
-# and returns a multinomial sample test for top associated downsampled
-# celltype coefficient value
-marker_celltype_multinomial <- function(
-    celltype_name,
-    dataset
-) {
-  # Get list of all celltypes (no-mixed) and their length
-  celltypes_all <- unique(base_marker_genes$Celltype)
-  celltypes_all_len <- length(celltypes_all)
-  
-  # Subset data for the given celltype 
-  data_sub <- dataset[dataset$marker_assoc_celltypes %in% celltype_name,]
-  
-  # Get counts vector for all the different celltypes 
-  celltype_counts_vector <- table(data_sub$top_ds_celltype)
-  
-  # Add any missing celltypes to vector
-  missing_celltypes <- celltypes_all[
-    celltypes_all %ni% names(celltype_counts_vector)
-  ]
-  for (celltype in missing_celltypes) {
-    celltype_counts_vector[celltype] <- 0
-  }
-  
-  # Perform multinomial test for observed celltypes in top downsampled
-  # results
-  prob <- rep(1/celltypes_all_len, celltypes_all_len)
-  observed <- as.vector(celltype_counts_vector)
-  p_val <- multinomial.test(
-    observed, 
-    prob, 
-    ntrial = 1e10,
-    MonteCarlo = TRUE
-  )$p.value
-  print(p_val)
-  
-  # Create results dataframe, sort by celltype, and return
-  res_df <- as.data.frame(as.array(celltype_counts_vector))
-  colnames(res_df) <- c(
-    "Top_celltype_downsampled_coefficient",
-    "Observed_value_for_top_celltype_downsampled"
-  )
-  res_df$Marker_associated_celltype <- celltype_name
-  res_df$multinomial_p_val <- p_val
-  res_df$dataset_name <- "PBMC 2 batch base balanced"
-  res_df <- res_df[order(res_df$Top_celltype_downsampled_coefficient), ]
-  print(res_df)
-  return(res_df)
-}
-
-# Iterate over all celltypes (no mixing) and get multinomial test results
-## THIS WILL NOT CONSIDER MARKER GENES THAT ARE MARKERS TO MORE THAN
-## ONE CELLTYPE 
-celltypes_list <- as.list(unique(base_marker_genes$Celltype))
-multinomial_results <- lapply(celltypes_list, function(x) {
-  results <- marker_celltype_multinomial(x, marker_lm_summaries_concat)
-})
-
-# Concatenate, fdr correct, and save the results
-multinomial_results_concat <- Reduce(rbind, multinomial_results)
-multinomial_results_concat$multinomial_q_val <- p.adjust(
-  multinomial_results_concat$multinomial_p_val
-)
-fwrite(
-  multinomial_results_concat,
-  paste0(
-    "outs/control/results/",
-    "15_pbmc_base_ds_dge_marker_celltypes_top_ds_celltype_",
-    "coeff_multinom_tests_no_liger.tsv"
   ),
   sep = "\t",
   quote = FALSE,
