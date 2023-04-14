@@ -14,6 +14,6 @@
         "repetitions": 50
     },
     "int_ti_datasets": {},
-    "query_to_reference": "Yes",
+    "query_to_reference": "No",
     "celltype_list": "No"
 }
