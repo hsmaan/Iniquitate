@@ -1,6 +1,6 @@
 import os 
 
-configfile: "configs/test_config_lite_dge_top_50_markers.json"
+configfile: "configs/config_control_dge_top_50_markers.json"
 configname = config["config_name"]
 
 # Get all combinations through the config file
