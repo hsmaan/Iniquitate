@@ -1,6 +1,6 @@
 import os 
 
-configfile: "configs/config_control_ti_only.json"
+configfile: "configs/test_config_lite.json"
 configname = config["config_name"]
 
 # Get all combinations through the config file
@@ -268,7 +268,7 @@ rule integrate_paga:
     log:
         "logs/{configname}/paga_integrate/integrate_paga_{data_folder}_root_{root_celltype}_{ds_celltype}_celltypes_" + 
         "{ds_proportion}_downsample_{num_batches}_batch_ds_c_{rep}.log"
-    priority: 1000
+    priority: 0
     shell:
         """
         python {params.script_path} \

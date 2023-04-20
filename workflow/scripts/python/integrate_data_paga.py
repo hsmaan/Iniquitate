@@ -15,8 +15,7 @@ def none_or_str(value):
         return None
     return value
 
-def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_celltypes_names, ds_proportions, 
-         num_batches):
+def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_proportions, num_batches):
     # Load h5ad files 
     files_list = os.listdir(h5ad_dir)
     adata_loaded = []
@@ -79,6 +78,9 @@ def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_celltypes_names, ds
     adata_concat.obs_names_make_unique()
     adata_concat.obs["batch"] = adata_concat.obs["batch_name"]
     adata_concat.obs.drop("batch_name", axis = 1, inplace = True)
+    
+    # Remove the underscore from the root celltype name
+    root_celltype = root_celltype.replace("_", " ")
     
     # Create PAGA integration class instance 
     integration_paga = IntegrationPAGA(
@@ -166,13 +168,6 @@ if __name__ == "__main__":
         help = "Number of celltypes to randomly downsample in given batch"
     )
     parser.add_argument(
-        "--ds_celltype_names",
-        type = none_or_str,
-        nargs = "?",
-        default = None,
-        help = "Custom names of celltypes to downsample in given batch"
-    )
-    parser.add_argument(
         "--ds_proportions",
         type = float,
         help = "Proportion of downsampling per celltype in a given batch"
@@ -193,7 +188,6 @@ if __name__ == "__main__":
         root_celltype  = args.root_celltype,
         save_loc = args.outfile,
         ds_celltypes = args.ds_celltypes,
-        ds_celltypes_names = args.ds_celltype_names,
         ds_proportions = args.ds_proportions,
         num_batches = args.num_batches        
     )
