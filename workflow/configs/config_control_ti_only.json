@@ -8,7 +8,7 @@
             "ds_celltypes": [1],
             "ds_proportions": [0.1, 0],
             "num_batches": [0, 1],
-            "repetitions": 1
+            "repetitions": 200
         }
     },
     "query_to_reference": "No",

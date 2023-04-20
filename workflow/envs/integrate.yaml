@@ -33,5 +33,5 @@ dependencies:
   - cython>=0.29.25
   - r-rann=2.6.1
   - natsort>=7.0.0
-# variables:
-#   TMPDIR: -Add a tmpdir here, should be within workflow folder 
+variables:
+  TMPDIR: "TMPDIR=/scratch/gobi2/hmaan/Documents/Iniquitate/workflow/tmp" 

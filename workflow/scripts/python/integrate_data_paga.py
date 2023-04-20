@@ -29,10 +29,6 @@ def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_proportions, num_ba
             c.replace(" ", "_") for c in adata.obs.celltype
         ] # Remove spaces from celltype names - for Snakemake wildcard matching
         adata_loaded.append(adata)
-        
-    # Parse celltypes names if not none 
-    if ds_celltypes_names is not None:
-        ds_celltypes_names = ds_celltypes_names.split(", ")
     
     # Downsample loaded h5ad files based on params 
     if num_batches == 0:
