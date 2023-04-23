@@ -75,9 +75,6 @@ def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_proportions, num_ba
     adata_concat.obs["batch"] = adata_concat.obs["batch_name"]
     adata_concat.obs.drop("batch_name", axis = 1, inplace = True)
     
-    # Remove the underscore from the root celltype name
-    root_celltype = root_celltype.replace("_", " ")
-    
     # Create PAGA integration class instance 
     integration_paga = IntegrationPAGA(
         adata = adata_concat,
