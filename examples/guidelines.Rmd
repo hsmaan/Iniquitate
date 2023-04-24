@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 # Imbalanced integration guidelines tutorial - R 
 
-This tutorial is based on the [Imbalanced integration guidelines](https://www.biorxiv.org/content/10.1101/2022.10.06.511156v3.full) in the Iniquitate manuscript. This example explores integration in the case of a severely imbalanced dataset - namely dataset number 7 from the [Tran et al. scRNA-seq integration benchmarking paper](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1850-9#availability-of-data-and-materials).
+This tutorial is based on the [Imbalanced integration guidelines](https://www.biorxiv.org/content/10.1101/2022.10.06.511156v3.full) in the Iniquitate manuscript. This example explores integration in the case of a severely imbalanced dataset - namely dataset number 7 from the [Tran et al. scRNA-seq integration benchmarking paper](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1850-9#availability-of-data-and-materials). Current scRNA-seq integration techniques perform very poorly on this dataset, as illustrated by the results from Tran et al. when benchmarking on this data. As such, we shouldn't expect a strong integration performance when it comes to conserving biological heterogeneity, but we'll try our best to tune this as we pretend we don't know the ground-truth labels. 
 
 We'll begin by illustrating the properties of this dataset comprised of two batches of mouse retinal cells. 
 
@@ -56,4 +56,73 @@ if (!(file.exists("data/tran_et_al_batch_1.h5ad"))) {
 }
 ```
 
-# Read in both 
+Read in both files using the SeuratDisk library
+```{r}
+library(SeuratDisk)
+# Convert the tran et al files to h5seurat format
+Convert(
+  "data/tran_et_al_batch_1.h5ad", 
+  dest = "h5seurat", 
+  overwrite = TRUE
+)
+Convert(
+  "data/tran_et_al_batch_2.h5ad",
+  dest = "h5seurat",
+  overwrite = TRUE
+)
+
+# Load h5ad files for both batches
+retina_1 <- SeuratDisk::LoadH5Seurat("data/tran_et_al_batch_1.h5seurat")
+retina_2 <- SeuratDisk::LoadH5Seurat("data/tran_et_al_batch_2.h5seurat")
+```
+
+Examine the cell-type distribution for each batch
+```{r, results = "markup", out.width = "100%", fig.align= "center"}
+library(Seurat)
+library(ggplot2)
+library(ggthemes)
+
+# Grab the metadata
+meta_1 <- retina_1@meta.data
+meta_2 <- retina_2@meta.data
+
+# Print and plot the cell-type distribution for each batch
+print(table(meta_1$celltype))
+ggplot(data = meta_1, aes(celltype,fill=as.factor(celltype))) + 
+  geom_histogram(stat="count") +
+  labs(
+    fill = "Cell-type",
+    x = "Cell-type",
+    y = "Count in batch 1"
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16))
+
+print(table(meta_2$celltype))
+ggplot(data = meta_2, aes(celltype,fill=as.factor(celltype))) + 
+  geom_histogram(stat="count") +
+  labs(
+    fill = "Cell-type",
+    x = "Cell-type",
+    y = "Count in batch 2"
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16))
+```
+As we can see, there is an extreme imbalance in terms of the cell-types present in both batches, and this is also a special case of imbalance where quite a few cell-types (astrocytes, fibroblasts, ganglion, horizontal, microglia, pericytes, vascular endothelium) are only present in batch 2 but not batch one.
+
+Now that we've seen the imbalance present in this dataset, we're going to take the role of a single-cell analysis practitioner that **does not know the underlying cell-type distribution of this dataset**. I.e. we don't know what cell-types are present and our goal is to learn a joint representation of these two batches of retinal cells that we've obtained from an experiment.  
