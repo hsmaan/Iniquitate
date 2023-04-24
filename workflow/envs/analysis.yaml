@@ -53,3 +53,4 @@ dependencies:
   - r-networkd3>=0.4
   - r-emt>=1.2
   - cython>=0.29.25
+  - r-rmarkdown>=2.14

@@ -1,0 +1,59 @@
+---
+title: "Imbalanced integration guidelines tutorial - R"
+output: pdf_document
+date: '2023-04-24'
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  out.width = "100%",
+  tidy.opts = list(width.cutoff = 60),
+  tidy = TRUE
+)
+```
+
+
+# Imbalanced integration guidelines tutorial - R 
+
+This tutorial is based on the [Imbalanced integration guidelines](https://www.biorxiv.org/content/10.1101/2022.10.06.511156v3.full) in the Iniquitate manuscript. This example explores integration in the case of a severely imbalanced dataset - namely dataset number 7 from the [Tran et al. scRNA-seq integration benchmarking paper](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1850-9#availability-of-data-and-materials).
+
+We'll begin by illustrating the properties of this dataset comprised of two batches of mouse retinal cells. 
+
+## Dataset exploration 
+
+Start by downloading the data - both batches:
+```{r}
+library(googledrive)
+
+# Create data directory
+if (!dir.exists("data")){
+  dir.create("data")  
+}
+
+# Install files if not already present
+if (!(file.exists("data/tran_et_al_batch_1.h5ad"))) {    
+  # Remove authorization for Google Drive
+  drive_deauth()
+  drive_user()
+  
+  # Download the files
+  file_id_1 <- as_id("17-5w1_Cfepf_AWsFPAjjGEKzKBhuB5Hr")
+  file_id_2 <- as_id("1H-lfDjIKJmRSY-A7cNX-mIevWsn5rm5e")
+  file_1 <- drive_get(file_id_1)
+  file_2 <- drive_get(file_id_2)
+  googledrive::drive_download(
+    file_1, 
+    path = "data/tran_et_al_batch_1.h5ad", 
+    overwrite=TRUE
+  )
+  googledrive::drive_download(
+    file_2,
+    path = "data/tran_et_al_batch_2.h5ad",
+    overwrite=TRUE
+  )
+}
+```
+
+# Read in both 
