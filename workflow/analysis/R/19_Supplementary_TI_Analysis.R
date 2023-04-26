@@ -54,6 +54,9 @@ setwd("../../../")
 if (!dir.exists("outs/control_ti_only/figures/")) {
   dir.create("outs/control_ti_only/figures/", recursive = TRUE)
 }
+if (!dir.exists("outs/control_ti_only/results/")) {
+  dir.create("outs/control_ti_only/results/", recursive = TRUE)
+}
 
 # Merge together the imbalance summary and TI results 
 ti_imba_scores_merged <- merge(
@@ -559,12 +562,12 @@ dev_combined$batch <- ifelse(
 
 # Plot combined data results as they are, for both celltype and batch 
 DimPlot(dev_combined, reduction = "umap", group.by = "celltype") +
-  theme(plot.title = element_blank()) + 
+  theme(plot.title = element_blank()) +
   labs(
     x = "UMAP 1",
     y = "UMAP 2"
   ) +
-  scale_color_brewer(palette = "Dark2") +  
+  scale_color_brewer(palette = "Dark2") +
   theme(aspect.ratio = 1)
 ggsave(
   "outs/control_ti_only/figures/19_dev_balanced_combined_celltypes.pdf",
@@ -577,10 +580,84 @@ DimPlot(dev_combined, reduction = "umap", group.by = "batch") +
     x = "UMAP 1",
     y = "UMAP 2"
   ) +
-  scale_color_brewer(palette = "Set1") + 
+  scale_color_brewer(palette = "Set1") +
   theme(aspect.ratio = 1)
 ggsave(
   "outs/control_ti_only/figures/19_dev_balanced_combined_batch.pdf",
   width = 6,
   height = 6
+)
+
+# Statistical test - concordance of correlation values before and after 
+# downsampling 
+
+# Fill in 'None' value for downsampled celltypes with a random 
+# draw from the given celltypes - to block correlation effect of 
+# downsampled celltype and `type` covariate in later use 
+imba_ti_unique_celltypes <- unique(ti_imba_scores_merged$`Downsampled celltypes`)
+imba_ti_unique_celltypes <- imba_ti_unique_celltypes[
+  imba_ti_unique_celltypes %ni% "None"
+]
+imba_ti_none_celltype_len <- length(
+  which(
+    ti_imba_scores_merged$`Downsampled celltypes` %in% "None"
+  )
+)
+imba_ti_none_celltype_draw <- sample(
+  imba_ti_unique_celltypes,
+  imba_ti_none_celltype_len,
+  replace = TRUE
+)
+ti_imba_scores_merged$`Downsampled celltypes`[
+  which(
+    ti_imba_scores_merged$`Downsampled celltypes` %in% "None"
+  )
+] <- imba_ti_none_celltype_draw
+
+# Format column names for an ANOVA test 
+colnames(ti_imba_scores_merged) <- plyr::mapvalues(
+  colnames(ti_imba_scores_merged),
+  from = c(
+    "Method",
+    "Downsampled celltypes",
+    "Spearman correlations"
+  ),
+  to = c(
+    "method",
+    "downsampled_celltypes",
+    "spearman_correlation"
+  )
+)
+
+# Perform an ANOVA test for concordance of spearman correlation vs type,
+# after factoring in method and celltype downsampled - format and save the 
+# result 
+ti_model_fit <- lm(
+  as.formula(
+    paste0(
+        "spearman_correlation",
+      "~",
+      "method+",
+      "downsampled_celltypes+",
+      "type"
+    )
+  ),
+  data = ti_imba_scores_merged
+)
+ti_anova_result <- anova(ti_model_fit, test = "F")
+ti_anova_result_dt <- as.data.table(ti_anova_result, keep.rownames = TRUE)
+colnames(ti_anova_result_dt)[1] <- "Covariate"
+ti_anova_result_dt$dataset_name <- "Cao et al. 2 batch balanced"
+ti_anova_result_dt$metric <- "Spearman correlation"
+ti_anova_result_dt$last_covariate <- "type"
+fwrite(
+  ti_anova_result_dt,
+  paste0(
+    "outs/control_ti_only/results/",
+    "19_cao_et_al_ti_leiden_spearman_corr_aov_results_ctrl_method_celltype_ds_no_liger.tsv"
+  ),
+  sep = "\t",
+  quote = FALSE,
+  row.names = FALSE,
+  col.names = TRUE
 )
