@@ -1,0 +1,16 @@
+{
+    "config_name": "control_power",
+    "int_datasets": {
+        "pbmc_2_batch_base_balanced" : {
+            "data_folder": "pbmc_2_batch_base_balanced_halved",
+            "ds_celltypes": [1],
+            "ds_proportions": [0.1, 0],
+            "num_batches": [0, 1],
+            "repetitions": 200
+        }
+    },
+    "int_ti_datasets": {},
+    "query_to_reference": "No",
+    "celltype_list": "No",
+    "dge_control": "No"
+}
