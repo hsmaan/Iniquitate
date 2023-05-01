@@ -54,3 +54,8 @@ dependencies:
   - r-emt>=1.2
   - cython>=0.29.25
   - r-rmarkdown>=2.14
+  - bioconductor-singlecellexperiment>=1.12.0
+  - bioconductor-scater>=1.18.0
+  - bioconductor-batchelor>=1.6.0
+  - bioconductor-bluster>=1.0.0
+  - r-pheatmap>=1.0.12
