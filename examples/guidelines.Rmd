@@ -38,8 +38,8 @@ if (!(file.exists("data/tran_et_al_batch_1.h5ad"))) {
   drive_user()
   
   # Download the files
-  file_id_1 <- as_id("17-5w1_Cfepf_AWsFPAjjGEKzKBhuB5Hr")
-  file_id_2 <- as_id("1H-lfDjIKJmRSY-A7cNX-mIevWsn5rm5e")
+  file_id_1 <- as_id("1LryRxnVGq2Ny4awDxyiS84oou_zkvQki")
+  file_id_2 <- as_id("1JMhR3cGGj4pueSLiFCPYl19jZDUKmznR")
   file_1 <- drive_get(file_id_1)
   file_2 <- drive_get(file_id_2)
   googledrive::drive_download(
@@ -57,7 +57,12 @@ if (!(file.exists("data/tran_et_al_batch_1.h5ad"))) {
 
 Read in both files using the SeuratDisk library
 ```{r, results="hide"}
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
+remotes::install_github("mojaveazure/seurat-disk")
 library(SeuratDisk)
+
 # Convert the tran et al files to h5seurat format
 Convert(
   "data/tran_et_al_batch_1.h5ad", 
@@ -140,8 +145,139 @@ retina_1_sce <- as.SingleCellExperiment(retina_1)
 retina_2_sce <- as.SingleCellExperiment(retina_2)
 ```
 
-
-
-
 ### Unsupervised clustering within each batch 
 
+```{r}
+library(Seurat)
+
+# Preprocess the data using Seurat - Normalize and scale  
+retina_1 <- NormalizeData(
+  retina_1, normalization.method = "LogNormalize", scale.factor = 10000
+)
+retina_1 <- FindVariableFeatures(retina_1, nfeatures = 2000)
+all.genes <- rownames(retina_1)
+retina_1 <- ScaleData(retina_1, features = all.genes)
+
+# Run PCA, create neighborhood graph and get the clusters using the Leiden
+# algorithm 
+retina_1 <- RunPCA(retina_1, features = VariableFeatures(retina_1))
+retina_1 <- FindNeighbors(retina_1, dims = 1:10)
+retina_1 <- FindClusters(retina_1, resolution = 0.5, algorithm = "leiden")
+
+# Get the UMAP reduction of the data
+retina_1 <- RunUMAP(retina_1, umap.method = "umap-learn", dims = 1:10)
+
+# Do the same for retina 2 
+retina_2 <- NormalizeData(
+  retina_2, normalization.method = "LogNormalize", scale.factor = 10000
+)
+retina_2 <- FindVariableFeatures(retina_2, nfeatures = 2000)
+all.genes <- row.names(retina_2)
+retina_2 <- ScaleData(retina_2, features = all.genes)
+retina_2 <- RunPCA(retina_2, features = VariableFeatures(retina_2))
+retina_2 <- FindNeighbors(retina_2, dims = 1:10)
+retina_2 <- FindClusters(retina_2, resolution = 0.5, algorithm = "leiden")
+retina_2 <- RunUMAP(retina_2, umap.method = "umap-learn", dims = 1:10)
+```
+
+# Plot the UMAPs of the resulting clustering
+```{r}
+DimPlot(retina_1, reduction = "umap")
+DimPlot(retina_2, reduction = "umap")
+```
+
+# Examine the number of clusters and proportions 
+```{r}
+library(ggplot2)
+
+# Update metadata 
+meta_1 <- retina_1@meta.data
+meta_2 <- retina_2@meta.data
+
+# Plot the number of clusters and proportions for both datasets
+ggplot(meta_1, aes(x=seurat_clusters)) + geom_bar()
+ggplot(meta_2, aes(x=seurat_clusters)) + geom_bar()
+  
+```
+
+# There are differences, integrate with Seurat first
+```{r}
+library(Seurat)
+
+retina_1@meta.data$batch <- "Batch 1"
+retina_2@meta.data$batch <- "Batch 2"
+
+retina_list <- c(retina_1, retina_2)
+features <- SelectIntegrationFeatures(object.list = retina_list)
+anchors <- FindIntegrationAnchors(
+  object.list = retina_list, anchor.features = features
+)
+retina_integrated <- IntegrateData(anchorset=anchors)
+
+
+retina_integrated <- ScaleData(retina_integrated)
+retina_integrated <- RunPCA(retina_integrated)
+retina_integrated <- FindNeighbors(retina_integrated, reduction="pca", dims=1:15)
+retina_integrated <- FindClusters(retina_integrated, resolution=0.5, algorithm="leiden")
+retina_integrated <- RunUMAP(retina_integrated, reduction="pca", dims=1:15)
+
+```
+
+
+# Plot the results
+```{r}
+DimPlot(retina_integrated, reduction="umap", group.by="batch")
+DimPlot(retina_integrated, reduction="umap", group.by="seurat_clusters")
+```
+
+# Measure the degree of batch mixing 
+```{r}
+library(bluster)
+batch_labels <- retina_integrated@meta.data$batch
+integrated_cluster_labels <- retina_integrated@meta.data$seurat_clusters
+a <- 1 - pairwiseRand(batch_labels, integrated_cluster_labels)
+a
+```
+
+# Strong batch mixing - check diagnostics for cell-type heterogeneity conservation
+
+```{r}
+library(pheatmap)
+library(bluster)
+
+cluster_labels_b1_before <- retina_1@meta.data$seurat_clusters
+cluster_labels_b2_before <- retina_2@meta.data$seurat_clusters
+
+cluster_labels_b1_after <- retina_integrated@meta.data$seurat_clusters[
+  retina_integrated@meta.data$batch == "Batch 1"
+]
+cluster_labels_b2_after <- retina_integrated@meta.data$seurat_clusters[
+  retina_integrated@meta.data$batch == "Batch 2"
+]
+
+tab_b1 <- nestedClusters(
+  ref=paste("Before", cluster_labels_b1_before), 
+  alt=paste("After", cluster_labels_b1_after)
+)
+tab_b2 <- nestedClusters(
+  ref=paste("Before", cluster_labels_b2_before),
+  alt=paste("After", cluster_labels_b2_after)
+)
+
+heat_b1 <- pheatmap(
+  tab_b1$proportions,
+  cluster_row=FALSE,
+  cluster_col=FALSE,
+  main="Retina Batch 1 Comparison",
+  silent=TRUE
+)
+heat_b2 <- pheatmap(
+  tab_b2$proportions,
+  cluster_row=FALSE,
+  cluster_col=FALSE,
+  main="Retina Batch 2 Comparison",
+  silent=TRUE
+)
+
+gridExtra::grid.arrange(heat_b1, heat_b2)
+```
