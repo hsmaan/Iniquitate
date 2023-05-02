@@ -1,21 +1,20 @@
 ---
 title: "Imbalanced integration guidelines tutorial - R"
-output: pdf_document
+output: rmarkdown::html_vignette
 date: '2023-04-24'
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  out.width = "100%",
-  tidy.opts = list(width.cutoff = 60),
   tidy = TRUE
 )
 ```
-
-
-# Imbalanced integration guidelines tutorial - R 
 
 This tutorial is based on the [Imbalanced integration guidelines](https://www.biorxiv.org/content/10.1101/2022.10.06.511156v3.full) in the Iniquitate manuscript. This example explores integration in the case of a severely imbalanced dataset - namely dataset number 7 from the [Tran et al. scRNA-seq integration benchmarking paper](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1850-9#availability-of-data-and-materials). Current scRNA-seq integration techniques perform very poorly on this dataset, as illustrated by the results from Tran et al. when benchmarking on this data. As such, we shouldn't expect a strong integration performance when it comes to conserving biological heterogeneity, but we'll try our best to tune this as we pretend we don't know the ground-truth labels. 
 
@@ -24,7 +23,7 @@ We'll begin by illustrating the properties of this dataset comprised of two batc
 ## Dataset exploration 
 
 Start by downloading the data - both batches:
-```{r}
+```{r, results="hide"}
 library(googledrive)
 
 # Create data directory
@@ -57,7 +56,7 @@ if (!(file.exists("data/tran_et_al_batch_1.h5ad"))) {
 ```
 
 Read in both files using the SeuratDisk library
-```{r}
+```{r, results="hide"}
 library(SeuratDisk)
 # Convert the tran et al files to h5seurat format
 Convert(
@@ -77,8 +76,7 @@ retina_2 <- SeuratDisk::LoadH5Seurat("data/tran_et_al_batch_2.h5seurat")
 ```
 
 Examine the cell-type distribution for each batch
-```{r, results = "markup", out.width = "100%", fig.align= "center"}
-library(Seurat)
+```{r, fig.width=14, fig.height=6, fig.align= "center"}
 library(ggplot2)
 library(ggthemes)
 
@@ -125,4 +123,25 @@ ggplot(data = meta_2, aes(celltype,fill=as.factor(celltype))) +
 ```
 As we can see, there is an extreme imbalance in terms of the cell-types present in both batches, and this is also a special case of imbalance where quite a few cell-types (astrocytes, fibroblasts, ganglion, horizontal, microglia, pericytes, vascular endothelium) are only present in batch 2 but not batch one.
 
-Now that we've seen the imbalance present in this dataset, we're going to take the role of a single-cell analysis practitioner that **does not know the underlying cell-type distribution of this dataset**. I.e. we don't know what cell-types are present and our goal is to learn a joint representation of these two batches of retinal cells that we've obtained from an experiment.  
+Now that we've seen the imbalance present in this dataset, we're going to take the role of a single-cell analysis practitioner that **does not know the underlying cell-type distribution of this dataset**. I.e. we don't know what cell-types are present and our goal is to learn a joint representation of these two batches of retinal cells that we've obtained from an experiment. 
+
+We'll start from the top of the guidelines and work our way down.
+
+## 1) Pre-integration stage
+
+Let's make our way down the flowchart, starting from the pre-integration stage.
+
+To perform our analysis workflow, we'll use the `SingleCellExperiment` R package and associated bioconductor packages. Lets first convert our Seurat class objects for the two batches to SingleCellExperiment (sce) objects.
+
+```{r, results="hide"}
+library(Seurat)
+
+retina_1_sce <- as.SingleCellExperiment(retina_1)
+retina_2_sce <- as.SingleCellExperiment(retina_2)
+```
+
+
+
+
+### Unsupervised clustering within each batch 
+
