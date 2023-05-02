@@ -7,7 +7,7 @@ channels:
   - defaults
 dependencies:
   - python>=3.7,<=3.10
-  - numpy>=1.19.0
+  - numpy>=1.19.0,<=1.23.5
   - pandas>=1.2.0
   - scipy>=1.5.0
   - seaborn>=0.11.2
@@ -33,7 +33,6 @@ dependencies:
   - r-ggplot2>=3.3.0
   - r-tidyverse>=1.2.1
   - r-reshape2>=1.4.3
-  - r-data.table>=1.14.0
   - r-ggthemes>=4.2.0
   - r-ggextra>=0.8.0
   - r-dotwhisker>=0.7.4
