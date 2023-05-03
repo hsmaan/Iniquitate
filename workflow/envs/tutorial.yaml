@@ -42,3 +42,4 @@ dependencies:
   - bioconductor-bluster=1.4.0
   - r-pheatmap>=1.0.12
   - r-devtools
+  - r-harmony
