@@ -12,7 +12,9 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  tidy = TRUE
+  tidy = TRUE,
+  fig.height = 8,
+  fig.width = 12
 )
 ```
 
@@ -136,15 +138,6 @@ We'll start from the top of the guidelines and work our way down.
 
 Let's make our way down the flowchart, starting from the pre-integration stage.
 
-To perform our analysis workflow, we'll use the `SingleCellExperiment` R package and associated bioconductor packages. Lets first convert our Seurat class objects for the two batches to SingleCellExperiment (sce) objects.
-
-```{r, results="hide"}
-library(Seurat)
-
-retina_1_sce <- as.SingleCellExperiment(retina_1)
-retina_2_sce <- as.SingleCellExperiment(retina_2)
-```
-
 ### Unsupervised clustering within each batch 
 
 ```{r}
@@ -243,7 +236,6 @@ a
 
 ```{r}
 library(pheatmap)
-library(bluster)
 
 cluster_labels_b1_before <- retina_1@meta.data$seurat_clusters
 cluster_labels_b2_before <- retina_2@meta.data$seurat_clusters
@@ -279,5 +271,229 @@ heat_b2 <- pheatmap(
   silent=TRUE
 )
 
-gridExtra::grid.arrange(heat_b1, heat_b2)
+gridExtra::grid.arrange(heat_b1[[4]], heat_b2[[4]])
+```
+
+# Check the batch-based cell-type cluster heterogeneity conservation scores
+
+```{r}
+b1_ari <- pairwiseRand(
+  cluster_labels_b1_before,
+  cluster_labels_b1_after,
+  mode="index"
+)
+b2_ari <- pairwiseRand(
+  cluster_labels_b2_before,
+  cluster_labels_b2_after,
+  mode="index"
+)
+print(paste0("Batch 1 ARI: ", b1_ari))
+print(paste0("Batch 2 ARI: ", b2_ari))
+```
+
+# Looks like the heterogeneity conservation for batch 2 is much worse than batch 1 - might
+# be specific cell-types in there that not present in batch 1 (imbalance)
+# This is also reflected in the cluster plots themselves (expand on this)
+
+# For us, the tradeoff between batch mixing and preserving heterogeneity not adaquete 
+# as we lose a lot of information from batch 2 after integration
+
+# Want to tune in such a manner that increases heterogeneity preservation 
+
+# We're going to modify the seurat approach to use reciprocal PCA instead of CCA (expand on this, but
+# not too much)
+
+```{r}
+features <- SelectIntegrationFeatures(object.list = retina_list)
+retina_list <- lapply(retina_list, function(x) {
+  x <- ScaleData(x, features = features, verbose = FALSE)
+  x <- RunPCA(x, features = features, verbose = FALSE)
+})
+anchors <- FindIntegrationAnchors(
+  object.list = retina_list,
+  anchor.features = features,
+  reduction = "rpca"
+)
+retina_integrated <- IntegrateData(anchorset = anchors)
+
+DefaultAssay(retina_integrated) <- "integrated"
+retina_integrated <- ScaleData(retina_integrated)
+retina_integrated <- RunPCA(retina_integrated, npcs=15)
+retina_integrated <- FindNeighbors(retina_integrated, reduction="pca", dims=1:15)
+retina_integrated <- FindClusters(retina_integrated, resolution=0.5, algorithm="leiden")
+retina_integrated <- RunUMAP(retina_integrated, reduction="pca", dims=1:15)
+```
+
+# Plot and visualize the results 
+```{r}
+DimPlot(retina_integrated, reduction="umap", group.by="batch")
+DimPlot(retina_integrated, reduction="umap", group.by="seurat_clusters")
+```
+
+# Measure the degree of batch mixing 
+```{r}
+library(bluster)
+batch_labels <- retina_integrated@meta.data$batch
+integrated_cluster_labels <- retina_integrated@meta.data$seurat_clusters
+a <- 1 - pairwiseRand(batch_labels, integrated_cluster_labels)
+a
+```
+
+# Strong batch mixing - check diagnostics for cell-type heterogeneity conservation
+
+```{r}
+library(pheatmap)
+
+cluster_labels_b1_before <- retina_1@meta.data$seurat_clusters
+cluster_labels_b2_before <- retina_2@meta.data$seurat_clusters
+
+cluster_labels_b1_after <- retina_integrated@meta.data$seurat_clusters[
+  retina_integrated@meta.data$batch == "Batch 1"
+]
+cluster_labels_b2_after <- retina_integrated@meta.data$seurat_clusters[
+  retina_integrated@meta.data$batch == "Batch 2"
+]
+
+tab_b1 <- nestedClusters(
+  ref=paste("Before", cluster_labels_b1_before), 
+  alt=paste("After", cluster_labels_b1_after)
+)
+tab_b2 <- nestedClusters(
+  ref=paste("Before", cluster_labels_b2_before),
+  alt=paste("After", cluster_labels_b2_after)
+)
+
+heat_b1 <- pheatmap(
+  tab_b1$proportions,
+  cluster_row=FALSE,
+  cluster_col=FALSE,
+  main="Retina Batch 1 Comparison",
+  silent=TRUE
+)
+heat_b2 <- pheatmap(
+  tab_b2$proportions,
+  cluster_row=FALSE,
+  cluster_col=FALSE,
+  main="Retina Batch 2 Comparison",
+  silent=TRUE
+)
+
+gridExtra::grid.arrange(heat_b1[[4]], heat_b2[[4]])
+```
+
+# Check the batch-based cell-type cluster heterogeneity conservation scores
+
+```{r}
+b1_ari <- pairwiseRand(
+  cluster_labels_b1_before,
+  cluster_labels_b1_after,
+  mode="index"
+)
+b2_ari <- pairwiseRand(
+  cluster_labels_b2_before,
+  cluster_labels_b2_after,
+  mode="index"
+)
+print(paste0("Batch 1 ARI: ", b1_ari))
+print(paste0("Batch 2 ARI: ", b2_ari))
+```
+
+# 
+
+# The scores do improve - lets try one more method in Harmony 
+```{r}
+library(harmony, eval=FALSE)
+
+rm(retina_integrated)
+rm(retina_2_sce)
+rm(retina_1_sce)
+rm(retina_list)
+gc()
+
+retina_combined <- merge(retina_1, retina_2)
+rm(retina_1)
+rm(retina_2)
+retina_combined <- NormalizeData(
+  retina_combined, normalization.method = "LogNormalize", scale.factor = 10000
+)
+retina_combined <- FindVariableFeatures(retina_combined, nfeatures = 2000)
+all.genes <- rownames(retina_combined)
+retina_combined <- ScaleData(retina_combined, features = all.genes)
+retina_combined <- RunPCA(retina_combined, features = VariableFeatures(retina_combined))
+retina_combined <- RunHarmony(retina_combined, "batch")
+
+retina_combined <- FindNeighbors(retina_combined, reduction="harmony", dims=1:15)
+retina_combined <- FindClusters(retina_combined, resolution=0.5, algorithm="leiden")
+retina_combined <- RunUMAP(retina_combined, reduction="harmony", dims=1:15)
+```
+
+# Plot and visualize the results 
+```{r, eval=FALSE}
+DimPlot(retina_combined, reduction="umap", group.by="batch")
+DimPlot(retina_combined, reduction="umap", group.by="seurat_clusters")
+```
+
+# Measure the degree of batch mixing 
+```{r, eval=FALSE}
+library(bluster)
+batch_labels <- retina_combined@meta.data$batch
+integrated_cluster_labels <- retina_combined@meta.data$seurat_clusters
+a <- 1 - pairwiseRand(batch_labels, integrated_cluster_labels)
+a
+```
+
+# Strong batch mixing - check diagnostics for cell-type heterogeneity conservation
+
+```{r, eval=FALSE}
+library(pheatmap)
+
+cluster_labels_b1_after <- retina_combined@meta.data$seurat_clusters[
+  retina_combined@meta.data$batch == "Batch 1"
+]
+cluster_labels_b2_after <- retina_combined@meta.data$seurat_clusters[
+  retina_combined@meta.data$batch == "Batch 2"
+]
+
+tab_b1 <- nestedClusters(
+  ref=paste("Before", cluster_labels_b1_before), 
+  alt=paste("After", cluster_labels_b1_after)
+)
+tab_b2 <- nestedClusters(
+  ref=paste("Before", cluster_labels_b2_before),
+  alt=paste("After", cluster_labels_b2_after)
+)
+
+heat_b1 <- pheatmap(
+  tab_b1$proportions,
+  cluster_row=FALSE,
+  cluster_col=FALSE,
+  main="Retina Batch 1 Comparison",
+  silent=TRUE
+)
+heat_b2 <- pheatmap(
+  tab_b2$proportions,
+  cluster_row=FALSE,
+  cluster_col=FALSE,
+  main="Retina Batch 2 Comparison",
+  silent=TRUE
+)
+
+gridExtra::grid.arrange(heat_b1[[4]], heat_b2[[4]])
+```
+
+# Check the batch-based cell-type cluster heterogeneity conservation scores
+
+```{r, eval=FALSE}
+b1_ari <- pairwiseRand(
+  cluster_labels_b1_before,
+  cluster_labels_b1_after,
+  mode="index"
+)
+b2_ari <- pairwiseRand(
+  cluster_labels_b2_before,
+  cluster_labels_b2_after,
+  mode="index"
+)
+print(paste0("Batch 1 ARI: ", b1_ari))
+print(paste0("Batch 2 ARI: ", b2_ari))
 ```
