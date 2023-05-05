@@ -13,14 +13,19 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   tidy = TRUE,
-  fig.height = 8,
-  fig.width = 12
+  fig.height = 4,
+  fig.width = 6,
+  message = FALSE,
+  warning = FALSE
 )
+options(future.globals.maxSize = 8000 * 1024^2)
 ```
 
-This tutorial is based on the [Imbalanced integration guidelines](https://www.biorxiv.org/content/10.1101/2022.10.06.511156v3.full) in the Iniquitate manuscript. This example explores integration in the case of a severely imbalanced dataset - namely dataset number 7 from the [Tran et al. scRNA-seq integration benchmarking paper](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1850-9#availability-of-data-and-materials). Current scRNA-seq integration techniques perform very poorly on this dataset, as illustrated by the results from Tran et al. when benchmarking on this data. As such, we shouldn't expect a strong integration performance when it comes to conserving biological heterogeneity, but we'll try our best to tune this as we pretend we don't know the ground-truth labels. 
+This tutorial is based on the [Imbalanced integration guidelines](https://www.biorxiv.org/content/10.1101/2022.10.06.511156v3.full) in the Iniquitate manuscript. This example explores integration in the case of a dataset comprising of two batches of PBMC data, for which a modified version was used in the paper experiments - namely dataset number 5 from the [Tran et al. scRNA-seq integration benchmarking paper](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1850-9#availability-of-data-and-materials). To simulate a case where significant cell-type imbalance exists between the batches in this dataset, we first dropped non-prevalent populations from both batches (<200 cells per batch, which included megakaryocytes, Plasmacytoid dendritic cells, and hematopoetic stem cells), and then removed CD4+ T cells and CD14+ Monocytes from batch 1. As demonstrated in the paper experiments, cell-type imbalance combined with proximity to similar cell-types can lead to loss of information about the imbalanced cell-types in the integrated space. Given that CD4+ T cells are in transcriptional proximity to CD8+ T cells and NK cells, and CD14+ Monocytes are in proximity to CD16+ Monocytes, and combined with the fact that they are imbalanced in this data, we would expect that integration methods might lead to loss of biological signal. 
 
-We'll begin by illustrating the properties of this dataset comprised of two batches of mouse retinal cells. 
+These facts are known to us because we know the cell-type labels, but we'll play the role of a researcher that has obtained these two batches in an unsupervised manner and demonstrate how the guidelines can be used. 
+
+We'll begin by examining the properties of these two batches. 
 
 ## Dataset exploration 
 
@@ -57,7 +62,7 @@ if (!(file.exists("data/tran_et_al_batch_1.h5ad"))) {
 }
 ```
 
-Read in both files using the SeuratDisk library
+Read in both files using the SeuratDisk library (we'll need to install it first but this shouldn't take long). We'll use the `Seurat` library for processing and analyzing the data:
 ```{r, results="hide"}
 if (!requireNamespace("remotes", quietly = TRUE)) {
   install.packages("remotes")
@@ -78,18 +83,18 @@ Convert(
 )
 
 # Load h5ad files for both batches
-retina_1 <- SeuratDisk::LoadH5Seurat("data/tran_et_al_batch_1.h5seurat")
-retina_2 <- SeuratDisk::LoadH5Seurat("data/tran_et_al_batch_2.h5seurat")
+pbmc_1 <- SeuratDisk::LoadH5Seurat("data/tran_et_al_batch_1.h5seurat")
+pbmc_2 <- SeuratDisk::LoadH5Seurat("data/tran_et_al_batch_2.h5seurat")
 ```
 
-Examine the cell-type distribution for each batch
-```{r, fig.width=14, fig.height=6, fig.align= "center"}
+Examine the cell-type distribution for each batch:
+```{r}
 library(ggplot2)
 library(ggthemes)
 
 # Grab the metadata
-meta_1 <- retina_1@meta.data
-meta_2 <- retina_2@meta.data
+meta_1 <- pbmc_1@meta.data
+meta_2 <- pbmc_2@meta.data
 
 # Print and plot the cell-type distribution for each batch
 print(table(meta_1$celltype))
@@ -128,123 +133,201 @@ ggplot(data = meta_2, aes(celltype,fill=as.factor(celltype))) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ```
-As we can see, there is an extreme imbalance in terms of the cell-types present in both batches, and this is also a special case of imbalance where quite a few cell-types (astrocytes, fibroblasts, ganglion, horizontal, microglia, pericytes, vascular endothelium) are only present in batch 2 but not batch one.
+As we can see from the results, there is an obvious **imbalance in terms of the cell-types present in both batches**, and that the **CD4+ T cells** and **CD14+ Monocytes** only exist in batch 2. 
 
-Now that we've seen the imbalance present in this dataset, we're going to take the role of a single-cell analysis practitioner that **does not know the underlying cell-type distribution of this dataset**. I.e. we don't know what cell-types are present and our goal is to learn a joint representation of these two batches of retinal cells that we've obtained from an experiment. 
+Now that we've seen the imbalance present in this dataset, we're going to take the role of a single-cell analysis practitioner that **does not know the underlying cell-type distribution of this dataset**. I.e. we don't know what cell-types are present and our goal is to learn a joint representation of these two batches of pbmc cells that we've obtained from an experiment. 
 
 We'll start from the top of the guidelines and work our way down.
 
-## 1) Pre-integration stage
+## Pre-integration stage
 
-Let's make our way down the flowchart, starting from the pre-integration stage.
+The first stage of the guidelines focuses on checks before integration, to determine whether or not an imbalance might be present in the dataset. This serves as a prior for our integration experiment, and combined with the post-integration diagnostics, helps inform whether or not we need to tune the tradeoff between *preserving biological heterogeneity* and *batch mixing*. 
 
-### Unsupervised clustering within each batch 
+Let's make our way down the flowchart. 
 
-```{r}
+### Unsupervised clustering within each batch
+
+The first step is to perform unsupervised clustering within each batch. We don't have any labels in this scenario, so we perform unsupervised clustering to gauge if different cell-types might be present based on the number and proportion of clusters between batches.
+
+Using `Seurat`, start by performing normalization, highly-variable gene selection, PCA-reduction, and unsupervised clustering of each batch separately. Then we can visualize the results using UMAP:
+```{r, warning=FALSE}
 library(Seurat)
 
 # Preprocess the data using Seurat - Normalize and scale  
-retina_1 <- NormalizeData(
-  retina_1, normalization.method = "LogNormalize", scale.factor = 10000
+pbmc_1 <- NormalizeData(
+  pbmc_1, normalization.method = "LogNormalize", scale.factor = 10000,
+  verbose = FALSE
 )
-retina_1 <- FindVariableFeatures(retina_1, nfeatures = 2000)
-all.genes <- rownames(retina_1)
-retina_1 <- ScaleData(retina_1, features = all.genes)
+pbmc_1 <- FindVariableFeatures(pbmc_1, nfeatures = 2000, verbose = FALSE)
+all.genes <- rownames(pbmc_1)
+pbmc_1 <- ScaleData(pbmc_1, features = all.genes, verbose = FALSE)
 
 # Run PCA, create neighborhood graph and get the clusters using the Leiden
 # algorithm 
-retina_1 <- RunPCA(retina_1, features = VariableFeatures(retina_1))
-retina_1 <- FindNeighbors(retina_1, dims = 1:10)
-retina_1 <- FindClusters(retina_1, resolution = 0.5, algorithm = "leiden")
+pbmc_1 <- RunPCA(
+  pbmc_1, features = VariableFeatures(pbmc_1), verbose = FALSE
+)
+pbmc_1 <- FindNeighbors(pbmc_1, dims = 1:10, verbose = FALSE)
+pbmc_1 <- FindClusters(
+  pbmc_1, resolution = 0.5, algorithm = "leiden", verbose = FALSE
+)
 
 # Get the UMAP reduction of the data
-retina_1 <- RunUMAP(retina_1, umap.method = "umap-learn", dims = 1:10)
-
-# Do the same for retina 2 
-retina_2 <- NormalizeData(
-  retina_2, normalization.method = "LogNormalize", scale.factor = 10000
+pbmc_1 <- RunUMAP(
+  pbmc_1, umap.method = "umap-learn", dims = 1:10, verbose = FALSE
 )
-retina_2 <- FindVariableFeatures(retina_2, nfeatures = 2000)
-all.genes <- row.names(retina_2)
-retina_2 <- ScaleData(retina_2, features = all.genes)
-retina_2 <- RunPCA(retina_2, features = VariableFeatures(retina_2))
-retina_2 <- FindNeighbors(retina_2, dims = 1:10)
-retina_2 <- FindClusters(retina_2, resolution = 0.5, algorithm = "leiden")
-retina_2 <- RunUMAP(retina_2, umap.method = "umap-learn", dims = 1:10)
+
+# Do the same for pbmc 2 
+pbmc_2 <- NormalizeData(
+  pbmc_2, normalization.method = "LogNormalize", scale.factor = 10000,
+   verbose = FALSE
+)
+pbmc_2 <- FindVariableFeatures(pbmc_2, nfeatures = 2000, verbose = FALSE)
+all.genes <- row.names(pbmc_2)
+pbmc_2 <- ScaleData(pbmc_2, features = all.genes, verbose = FALSE)
+pbmc_2 <- RunPCA(
+  pbmc_2, features = VariableFeatures(pbmc_2),  verbose = FALSE
+)
+pbmc_2 <- FindNeighbors(pbmc_2, dims = 1:10, verbose = FALSE)
+pbmc_2 <- FindClusters(
+  pbmc_2, resolution = 0.5, algorithm = "leiden", verbose = FALSE
+)
+pbmc_2 <- RunUMAP(
+  pbmc_2, umap.method = "umap-learn", dims = 1:10, verbose = FALSE
+)
 ```
 
-# Plot the UMAPs of the resulting clustering
+Plot the UMAP reduction of the clustering results for each individual batch:
 ```{r}
-DimPlot(retina_1, reduction = "umap")
-DimPlot(retina_2, reduction = "umap")
+DimPlot(pbmc_1, reduction = "umap")
+DimPlot(pbmc_2, reduction = "umap")
 ```
 
-# Examine the number of clusters and proportions 
+As we can see from the plots, there are differences in the number of clusters and possible proportion differences between the batches. We can examine this a bit closer using barplots:
 ```{r}
 library(ggplot2)
 
-# Update metadata 
-meta_1 <- retina_1@meta.data
-meta_2 <- retina_2@meta.data
+# Update metadata (previously set variable)
+meta_1 <- pbmc_1@meta.data
+meta_2 <- pbmc_2@meta.data
 
 # Plot the number of clusters and proportions for both datasets
-ggplot(meta_1, aes(x=seurat_clusters)) + geom_bar()
-ggplot(meta_2, aes(x=seurat_clusters)) + geom_bar()
+ggplot(meta_1, aes(x=seurat_clusters)) +
+  geom_bar(fill="dodgerblue2") +
+  labs(
+    x = "Cluster",
+    y = "Count in batch 1"
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16))
+  
+
+ggplot(meta_2, aes(x=seurat_clusters)) + 
+  geom_bar(fill="dodgerblue2") +
+    labs(
+    x = "Cluster",
+    y = "Count in batch 2"
+  ) +
+  theme_few() +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  theme(legend.title = element_text(size = 16)) +
+  theme(legend.text = element_text(size = 16))
+
   
 ```
 
-# There are differences, integrate with Seurat first
+From the barplots, we can see that the number of cells across clusters follows a similar distribution, but the fact that batch 2 contains more clusters at the same Leiden resolution signals that there may be an imbalance present between the batches of this dataset. We'll keep this in mind as we continue.
+
+Continuing down the flowchart for the **pre-integration stage**, we check if we have a reference dataset available. Let's assume we don't for brevity, but if we did, we would annotate each batch individually, and then check the same barplots as above, but with cell-type labels instead of clusters. We'd likely arrive at a similar conclusion. 
+
+Given that we found that there may be composition differences, it would be prudent to think about how to tune the tradeoff between *biological heterogeneity preservation* and *batch mixing*. Examining the [landmark benchmarking paper from Leuken et al.](https://www.nature.com/articles/s41592-021-01336-8) is another aspect of the guidelines. The major figures to examine would be Figure 3 (for RNA-based integration tasks) and Figure 5. From the paper we know that scGen and scANVI perform best when conserving biological heterogeneity, but their implementations in the paper required cell-type labels, which we do not have in this hypothetical analysis. A dataset of two pbmc batches is not a highly complex scenario, and in relatively simpler scenarios with batch effects, Seuratv3 was found to integrate strong technical effects (batch mixing), while Harmony was found to better performer in conserving biological signal.
+
+We do not know a-priori how strong the technical effects are between our pbmc batches - we only know that there might be composition differences. We'll use our post-integration diagnostics to assess how well the results meet our criteria for preserving biological heterogeneity and batch mixing. Our **optimal** setup will involve adequate batch correction (not necessarily the strongest) without sacrificing biological signal. As such, we will begin by testing both Seuratv3 canonical correlation analysis (CCA) and Harmony for integration.
+
+## Integration stage 
+
+Lets start by integrating using Seurat CCA first:
 ```{r}
 library(Seurat)
 
-retina_1@meta.data$batch <- "Batch 1"
-retina_2@meta.data$batch <- "Batch 2"
+# Include a batch covariate for integration in the metadata
+pbmc_1@meta.data$batch <- "Batch 1"
+pbmc_2@meta.data$batch <- "Batch 2"
 
-retina_list <- c(retina_1, retina_2)
-features <- SelectIntegrationFeatures(object.list = retina_list)
-anchors <- FindIntegrationAnchors(
-  object.list = retina_list, anchor.features = features
+# Obtain anchors between the two batches and perform CCA-base integration
+# using Seurat (the default)
+pbmc_list <- c(pbmc_1, pbmc_2)
+features <- SelectIntegrationFeatures(
+  object.list = pbmc_list, verbose = FALSE
 )
-retina_integrated <- IntegrateData(anchorset=anchors)
+anchors <- FindIntegrationAnchors(
+  object.list = pbmc_list, anchor.features = features, verbose = FALSE
+)
+pbmc_integrated <- IntegrateData(anchorset=anchors, verbose = FALSE)
 
-
-retina_integrated <- ScaleData(retina_integrated)
-retina_integrated <- RunPCA(retina_integrated)
-retina_integrated <- FindNeighbors(retina_integrated, reduction="pca", dims=1:15)
-retina_integrated <- FindClusters(retina_integrated, resolution=0.5, algorithm="leiden")
-retina_integrated <- RunUMAP(retina_integrated, reduction="pca", dims=1:15)
+# Using the integrated representation, obtain a reduced representation
+# through PCA, cluster the joint representation and obtain UMAP coordinates
+pbmc_integrated <- ScaleData(pbmc_integrated, verbose = FALSE)
+pbmc_integrated <- RunPCA(pbmc_integrated, verbose = FALSE)
+pbmc_integrated <- FindNeighbors(
+  pbmc_integrated, reduction="pca", dims=1:15, verbose = FALSE
+)
+pbmc_integrated <- FindClusters(
+  pbmc_integrated, resolution=0.5, algorithm="leiden", verbose = FALSE
+)
+pbmc_integrated <- RunUMAP(
+  pbmc_integrated, reduction="pca", dims=1:15, verbose = FALSE
+)
 
 ```
 
+## Post-integration stage
 
-# Plot the results
+Let's examine the Seuratv3 CCA integration results by UMAP:
 ```{r}
-DimPlot(retina_integrated, reduction="umap", group.by="batch")
-DimPlot(retina_integrated, reduction="umap", group.by="seurat_clusters")
+DimPlot(pbmc_integrated, reduction="umap", group.by="batch")
+DimPlot(pbmc_integrated, reduction="umap", group.by="seurat_clusters")
 ```
+### Measure degree of batch mixing post-integration
 
-# Measure the degree of batch mixing 
+From the UMAP plots we can clearly see that there is a strong degree of batch mixing. However, we don't know whether or not this have removed biological signal yet. We can first simply quantify the batch mixing by comparing the cluster labels with the batch labels using the `Adjusted Rand Index` (ARI). We'll use 1 - ARI, as a high score should indicate that the cluster labels and batch labels do not correspond - indicating strong batch mixing. 
 ```{r}
 library(bluster)
-batch_labels <- retina_integrated@meta.data$batch
-integrated_cluster_labels <- retina_integrated@meta.data$seurat_clusters
-a <- 1 - pairwiseRand(batch_labels, integrated_cluster_labels)
-a
+batch_labels <- pbmc_integrated@meta.data$batch
+integrated_cluster_labels <- pbmc_integrated@meta.data$seurat_clusters
+batch_ari <- 1 - pairwiseRand(batch_labels, integrated_cluster_labels, mode = "index")
+print(paste0("Batch mixing ARI: ", batch_ari))
 ```
+
+A score near 1 would indicate perfect batch mixing, and thus using Seuratv3 CCA, the results show that the batch mixing is very strong. 
+
+However, we still don't have an 
 
 # Strong batch mixing - check diagnostics for cell-type heterogeneity conservation
 
 ```{r}
 library(pheatmap)
 
-cluster_labels_b1_before <- retina_1@meta.data$seurat_clusters
-cluster_labels_b2_before <- retina_2@meta.data$seurat_clusters
+cluster_labels_b1_before <- pbmc_1@meta.data$seurat_clusters
+cluster_labels_b2_before <- pbmc_2@meta.data$seurat_clusters
 
-cluster_labels_b1_after <- retina_integrated@meta.data$seurat_clusters[
-  retina_integrated@meta.data$batch == "Batch 1"
+cluster_labels_b1_after <- pbmc_integrated@meta.data$seurat_clusters[
+  pbmc_integrated@meta.data$batch == "Batch 1"
 ]
-cluster_labels_b2_after <- retina_integrated@meta.data$seurat_clusters[
-  retina_integrated@meta.data$batch == "Batch 2"
+cluster_labels_b2_after <- pbmc_integrated@meta.data$seurat_clusters[
+  pbmc_integrated@meta.data$batch == "Batch 2"
 ]
 
 tab_b1 <- nestedClusters(
@@ -260,14 +343,14 @@ heat_b1 <- pheatmap(
   tab_b1$proportions,
   cluster_row=FALSE,
   cluster_col=FALSE,
-  main="Retina Batch 1 Comparison",
+  main="pbmc Batch 1 Comparison",
   silent=TRUE
 )
 heat_b2 <- pheatmap(
   tab_b2$proportions,
   cluster_row=FALSE,
   cluster_col=FALSE,
-  main="Retina Batch 2 Comparison",
+  main="pbmc Batch 2 Comparison",
   silent=TRUE
 )
 
@@ -304,37 +387,46 @@ print(paste0("Batch 2 ARI: ", b2_ari))
 # not too much)
 
 ```{r}
-features <- SelectIntegrationFeatures(object.list = retina_list)
-retina_list <- lapply(retina_list, function(x) {
+features <- SelectIntegrationFeatures(
+  object.list = pbmc_list, verbose = FALSE
+)
+pbmc_list <- lapply(pbmc_list, function(x) {
   x <- ScaleData(x, features = features, verbose = FALSE)
   x <- RunPCA(x, features = features, verbose = FALSE)
 })
 anchors <- FindIntegrationAnchors(
-  object.list = retina_list,
+  object.list = pbmc_list,
   anchor.features = features,
-  reduction = "rpca"
+  reduction = "rpca",
+  verbose = FALSE
 )
-retina_integrated <- IntegrateData(anchorset = anchors)
+pbmc_integrated <- IntegrateData(anchorset = anchors, verbose = FALSE)
 
-DefaultAssay(retina_integrated) <- "integrated"
-retina_integrated <- ScaleData(retina_integrated)
-retina_integrated <- RunPCA(retina_integrated, npcs=15)
-retina_integrated <- FindNeighbors(retina_integrated, reduction="pca", dims=1:15)
-retina_integrated <- FindClusters(retina_integrated, resolution=0.5, algorithm="leiden")
-retina_integrated <- RunUMAP(retina_integrated, reduction="pca", dims=1:15)
+DefaultAssay(pbmc_integrated) <- "integrated"
+pbmc_integrated <- ScaleData(pbmc_integrated, verbose = FALSE)
+pbmc_integrated <- RunPCA(pbmc_integrated, npcs=15, verbose = FALSE)
+pbmc_integrated <- FindNeighbors(
+  pbmc_integrated, reduction="pca", dims=1:15, verbose = FALSE
+)
+pbmc_integrated <- FindClusters(
+  pbmc_integrated, resolution=0.5, algorithm="leiden", verbose = FALSE
+)
+pbmc_integrated <- RunUMAP(
+  pbmc_integrated, reduction="pca", dims=1:15, verbose = FALSE
+)
 ```
 
 # Plot and visualize the results 
 ```{r}
-DimPlot(retina_integrated, reduction="umap", group.by="batch")
-DimPlot(retina_integrated, reduction="umap", group.by="seurat_clusters")
+DimPlot(pbmc_integrated, reduction="umap", group.by="batch")
+DimPlot(pbmc_integrated, reduction="umap", group.by="seurat_clusters")
 ```
 
 # Measure the degree of batch mixing 
 ```{r}
 library(bluster)
-batch_labels <- retina_integrated@meta.data$batch
-integrated_cluster_labels <- retina_integrated@meta.data$seurat_clusters
+batch_labels <- pbmc_integrated@meta.data$batch
+integrated_cluster_labels <- pbmc_integrated@meta.data$seurat_clusters
 a <- 1 - pairwiseRand(batch_labels, integrated_cluster_labels)
 a
 ```
@@ -344,14 +436,14 @@ a
 ```{r}
 library(pheatmap)
 
-cluster_labels_b1_before <- retina_1@meta.data$seurat_clusters
-cluster_labels_b2_before <- retina_2@meta.data$seurat_clusters
+cluster_labels_b1_before <- pbmc_1@meta.data$seurat_clusters
+cluster_labels_b2_before <- pbmc_2@meta.data$seurat_clusters
 
-cluster_labels_b1_after <- retina_integrated@meta.data$seurat_clusters[
-  retina_integrated@meta.data$batch == "Batch 1"
+cluster_labels_b1_after <- pbmc_integrated@meta.data$seurat_clusters[
+  pbmc_integrated@meta.data$batch == "Batch 1"
 ]
-cluster_labels_b2_after <- retina_integrated@meta.data$seurat_clusters[
-  retina_integrated@meta.data$batch == "Batch 2"
+cluster_labels_b2_after <- pbmc_integrated@meta.data$seurat_clusters[
+  pbmc_integrated@meta.data$batch == "Batch 2"
 ]
 
 tab_b1 <- nestedClusters(
@@ -367,14 +459,14 @@ heat_b1 <- pheatmap(
   tab_b1$proportions,
   cluster_row=FALSE,
   cluster_col=FALSE,
-  main="Retina Batch 1 Comparison",
+  main="pbmc Batch 1 Comparison",
   silent=TRUE
 )
 heat_b2 <- pheatmap(
   tab_b2$proportions,
   cluster_row=FALSE,
   cluster_col=FALSE,
-  main="Retina Batch 2 Comparison",
+  main="pbmc Batch 2 Comparison",
   silent=TRUE
 )
 
@@ -401,43 +493,42 @@ print(paste0("Batch 2 ARI: ", b2_ari))
 # 
 
 # The scores do improve - lets try one more method in Harmony 
-```{r}
-library(harmony, eval=FALSE)
-
-rm(retina_integrated)
-rm(retina_2_sce)
-rm(retina_1_sce)
-rm(retina_list)
+```{r, eval=FALSE}
+library(harmony)
+rm(pbmc_integrated)
+rm(pbmc_2_sce)
+rm(pbmc_1_sce)
+rm(pbmc_list)
 gc()
 
-retina_combined <- merge(retina_1, retina_2)
-rm(retina_1)
-rm(retina_2)
-retina_combined <- NormalizeData(
-  retina_combined, normalization.method = "LogNormalize", scale.factor = 10000
+pbmc_combined <- merge(pbmc_1, pbmc_2)
+rm(pbmc_1)
+rm(pbmc_2)
+pbmc_combined <- NormalizeData(
+  pbmc_combined, normalization.method = "LogNormalize", scale.factor = 10000
 )
-retina_combined <- FindVariableFeatures(retina_combined, nfeatures = 2000)
-all.genes <- rownames(retina_combined)
-retina_combined <- ScaleData(retina_combined, features = all.genes)
-retina_combined <- RunPCA(retina_combined, features = VariableFeatures(retina_combined))
-retina_combined <- RunHarmony(retina_combined, "batch")
+pbmc_combined <- FindVariableFeatures(pbmc_combined, nfeatures = 2000)
+all.genes <- rownames(pbmc_combined)
+pbmc_combined <- ScaleData(pbmc_combined, features = all.genes)
+pbmc_combined <- RunPCA(pbmc_combined, features = VariableFeatures(pbmc_combined))
+pbmc_combined <- RunHarmony(pbmc_combined, "batch")
 
-retina_combined <- FindNeighbors(retina_combined, reduction="harmony", dims=1:15)
-retina_combined <- FindClusters(retina_combined, resolution=0.5, algorithm="leiden")
-retina_combined <- RunUMAP(retina_combined, reduction="harmony", dims=1:15)
+pbmc_combined <- FindNeighbors(pbmc_combined, reduction="harmony", dims=1:15)
+pbmc_combined <- FindClusters(pbmc_combined, resolution=0.5, algorithm="leiden")
+pbmc_combined <- RunUMAP(pbmc_combined, reduction="harmony", dims=1:15)
 ```
 
 # Plot and visualize the results 
 ```{r, eval=FALSE}
-DimPlot(retina_combined, reduction="umap", group.by="batch")
-DimPlot(retina_combined, reduction="umap", group.by="seurat_clusters")
+DimPlot(pbmc_combined, reduction="umap", group.by="batch")
+DimPlot(pbmc_combined, reduction="umap", group.by="seurat_clusters")
 ```
 
 # Measure the degree of batch mixing 
 ```{r, eval=FALSE}
 library(bluster)
-batch_labels <- retina_combined@meta.data$batch
-integrated_cluster_labels <- retina_combined@meta.data$seurat_clusters
+batch_labels <- pbmc_combined@meta.data$batch
+integrated_cluster_labels <- pbmc_combined@meta.data$seurat_clusters
 a <- 1 - pairwiseRand(batch_labels, integrated_cluster_labels)
 a
 ```
@@ -447,11 +538,11 @@ a
 ```{r, eval=FALSE}
 library(pheatmap)
 
-cluster_labels_b1_after <- retina_combined@meta.data$seurat_clusters[
-  retina_combined@meta.data$batch == "Batch 1"
+cluster_labels_b1_after <- pbmc_combined@meta.data$seurat_clusters[
+  pbmc_combined@meta.data$batch == "Batch 1"
 ]
-cluster_labels_b2_after <- retina_combined@meta.data$seurat_clusters[
-  retina_combined@meta.data$batch == "Batch 2"
+cluster_labels_b2_after <- pbmc_combined@meta.data$seurat_clusters[
+  pbmc_combined@meta.data$batch == "Batch 2"
 ]
 
 tab_b1 <- nestedClusters(
@@ -467,14 +558,14 @@ heat_b1 <- pheatmap(
   tab_b1$proportions,
   cluster_row=FALSE,
   cluster_col=FALSE,
-  main="Retina Batch 1 Comparison",
+  main="pbmc Batch 1 Comparison",
   silent=TRUE
 )
 heat_b2 <- pheatmap(
   tab_b2$proportions,
   cluster_row=FALSE,
   cluster_col=FALSE,
-  main="Retina Batch 2 Comparison",
+  main="pbmc Batch 2 Comparison",
   silent=TRUE
 )
 
