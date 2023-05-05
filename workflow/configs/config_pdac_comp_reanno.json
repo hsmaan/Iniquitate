@@ -1,0 +1,15 @@
+{
+    "config_name": "pdac_comp_reanno",
+    "int_datasets": {
+        "peng_pdac_tumor_annot_8_reanno_batch": {
+            "data_folder": "peng_pdac_tumor_annot_reanno_8_batch",
+            "ds_celltypes": [1],
+            "ds_proportions": [0.1, 0],
+            "num_batches": [0, 4],
+            "repetitions": 50
+        }
+    },
+    "int_ti_datasets": {},
+    "query_to_reference": "No",
+    "celltype_list": "No"
+}
