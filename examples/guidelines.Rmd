@@ -566,7 +566,7 @@ pbmc_combined <- RunUMAP(pbmc_combined, reduction="harmony", dims=1:15)
 ### Measure degree of batch mixing post-integration
 
 Lets visualize the results of Harmony integration and quantify batch mixing:
-```{r, eval=FALSE}
+```{r}
 library(bluster)
 
 # Plot UMAP representation of batch and unsupervised clustering results
@@ -584,7 +584,7 @@ The batch mixing is very strong, similar to Seurat CCA.
 # Strong batch mixing - check diagnostics for cell-type heterogeneity conservation
 
 Now we can check how well the harmony embeddings retain biological variation post-integration:
-```{r, eval=FALSE, fig.height=8}
+```{r, fig.height=8}
 library(pheatmap)
 
 cluster_labels_b1_after <- pbmc_combined@meta.data$seurat_clusters[
@@ -621,7 +621,7 @@ heat_b2 <- pheatmap(
 gridExtra::grid.arrange(heat_b1[[4]], heat_b2[[4]])
 ```
 
-```{r, eval=FALSE}
+```{r}
 b1_ari <- pairwiseRand(
   cluster_labels_b1_before,
   cluster_labels_b1_after,
