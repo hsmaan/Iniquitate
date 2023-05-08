@@ -12,6 +12,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
+  tidy.opts = list(width.cutoff = 50),
   tidy = TRUE,
   fig.height = 4,
   fig.width = 6,
@@ -88,7 +89,7 @@ pbmc_2 <- SeuratDisk::LoadH5Seurat("data/tran_et_al_batch_2.h5seurat")
 ```
 
 Examine the cell-type distribution for each batch:
-```{r}
+```{r, fig.width=8}
 library(ggplot2)
 library(ggthemes)
 
@@ -106,6 +107,7 @@ ggplot(data = meta_1, aes(celltype,fill=as.factor(celltype))) +
     y = "Count in batch 1"
   ) +
   theme_few() +
+  coord_flip() + 
   theme(axis.title.x = element_text(size = 16)) +
   theme(axis.title.y = element_text(size = 16)) +
   theme(strip.text.x = element_text(size = 16)) +
@@ -124,6 +126,7 @@ ggplot(data = meta_2, aes(celltype,fill=as.factor(celltype))) +
     y = "Count in batch 2"
   ) +
   theme_few() +
+  coord_flip() + 
   theme(axis.title.x = element_text(size = 16)) +
   theme(axis.title.y = element_text(size = 16)) +
   theme(strip.text.x = element_text(size = 16)) +
@@ -373,9 +376,9 @@ The rows in these heatmaps sum to 1, and the key aspect to examine is whether or
 
 Further, if columns are split across rows, this may indicate that cell-types are being split across clusters after integration.
 
-Examining the comparison for **Batch 1**, we can see that every post-integrated cluster except for *4* correspond to their own pre-integration batches. Further, only a few pre-integration clusters are split across post-integration clusters. Therefore, the biological heterogeneity from batch 1 is likely being well-conserved after integration.
+Examining the comparison for **batch 1**, we can see that every post-integrated cluster except for *4* correspond to their own pre-integration batches. Further, only a few pre-integration clusters are split across post-integration clusters. Therefore, the biological heterogeneity from batch 1 is likely being well-conserved after integration.
 
-However, when examining batch 2, we can see that there are clearly many post-integration clusters that contain data from different pre-integration batch 2 clusters, including post-integration cluster 1, 10, 11, 12, 13, 2, 4, 6, 7, and 8. This means that certain cell-types from batch 2 might be getting mixed with others post-integration. There are also many more unsupervised clusters pre-integration (columns) being split up across post-integration clusters.
+However, when examining **batch 2**, we can see that there are clearly many post-integration clusters that contain data from different pre-integration batch 2 clusters, including post-integration cluster 1, 10, 11, 12, 13, 2, 4, 6, 7, and 8. This means that certain cell-types from batch 2 might be getting mixed with others post-integration. There are also many more unsupervised clusters pre-integration (columns) being split up across post-integration clusters.
 
 We'll now check the results numerically by calculating the ARI for pre and post-integration clusters of cells from each batch. Given the plots, we expect that the value for batch 2 will be lower. 
 
@@ -470,7 +473,7 @@ The batch mixing ARI is definitely less in this case compared to using CCA (0.93
 ### Compare pre and post-integration clusters
 
 Now we can once again check the pre and post integration clustering concordance to get a sense of how well this approach preserved biological heterogeneity:
-```{r}
+```{r, fig.height=8}
 library(pheatmap)
 
 cluster_labels_b1_before <- pbmc_1@meta.data$seurat_clusters
@@ -580,8 +583,6 @@ batch_ari <- 1 - pairwiseRand(batch_labels, integrated_cluster_labels, mode = "i
 print(paste0("Batch mixing ARI: ", batch_ari))
 ```
 The batch mixing is very strong, similar to Seurat CCA. 
-
-# Strong batch mixing - check diagnostics for cell-type heterogeneity conservation
 
 Now we can check how well the harmony embeddings retain biological variation post-integration:
 ```{r, fig.height=8}
