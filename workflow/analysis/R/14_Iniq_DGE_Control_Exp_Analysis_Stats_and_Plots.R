@@ -24,7 +24,7 @@ kev_palette <- c(
   "#6A3D9A", 
   "#FF7F00", 
   "black", "gold1",
-  "skyblue2", "#FB9A99", 
+  "skyblue2", "#FB9A99", imba_dge_power_merged
   "palegreen2",
   "#CAB2D6", 
   "#FDBF6F", 
@@ -170,6 +170,33 @@ imba_dge_power_merged <- imba_dge_power_merged[
 # Put in placeholder 'method' column for the control experiment
 imba_dge_control_merged$Method <- "Standard"
 
+# Indicate which samples are controls and which are real runs
+
+# For the control non-integrated case, remember that downsampling here is to 
+# 0.55 andablation is to 0.5, to match the integration scenario 
+imba_dge_control_merged$type <- ifelse(
+  imba_dge_control_merged$`Number of batches downsampled` == 0,
+  "Control",
+  ifelse(
+    imba_dge_control_merged$`Proportion downsampled` == 0.50,
+    "Ablated",
+    "Downsampled"
+  )
+) 
+imba_dge_control_merged$type <- factor(imba_dge_control_merged$type)
+
+# For the power control case, its the usual proportions (0.1 and 1)
+imba_dge_power_merged$type <- ifelse(
+  imba_dge_power_merged$`Number of batches downsampled` == 0,
+  "Control",
+  ifelse(
+    imba_dge_power_merged$`Proportion downsampled` == 0,
+    "Ablated",
+    "Downsampled"
+  )
+) 
+imba_dge_power_merged$type <- factor(imba_dge_power_merged$type)
+
 # Merge together both the dataframes
 imba_dge_merged <- rbind(
   imba_dge_control_merged,
@@ -198,18 +225,6 @@ imba_dge_merged$`Downsampled celltypes`[
     imba_dge_merged$`Downsampled celltypes` %in% "None"
   )
 ] <- imba_dge_none_celltype_draw
-
-# Indicate which samples are controls and which are real runs
-imba_dge_merged$type <- ifelse(
-  imba_dge_merged$`Number of batches downsampled` == 0,
-  "Control",
-  ifelse(
-    imba_dge_merged$`Proportion downsampled` == 0,
-    "Ablated",
-    "Downsampled"
-  )
-) 
-imba_dge_merged$type <- factor(imba_dge_merged$type)
 
 # Convert int to factor
 imba_dge_merged$int <- factor(imba_dge_merged$int)
