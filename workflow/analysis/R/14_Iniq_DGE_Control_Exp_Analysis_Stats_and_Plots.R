@@ -348,7 +348,7 @@ ggsave(
     "outs/dge_control_exp/figures/",
     "14_pbmc_base_control_exp_dge_rank_aov_f_value_results.pdf"
   ),
-  width = 12,
-  height = 12,
+  width = 8,
+  height = 6,
   device = cairo_pdf
 )
