@@ -43,3 +43,6 @@ dependencies:
   - r-pheatmap>=1.0.12
   - r-devtools
   - r-harmony
+  - pip
+  - pip:
+     - balanced-clustering==0.1.0
