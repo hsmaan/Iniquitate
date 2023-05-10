@@ -309,7 +309,9 @@ From the UMAP plots we can clearly see that there is a strong degree of batch mi
 # Using the bluster library, calculate the 1-batch ARI
 batch_labels <- pbmc_integrated@meta.data$batch
 integrated_cluster_labels <- pbmc_integrated@meta.data$seurat_clusters
-batch_ari <- 1 - pairwiseRand(batch_labels, integrated_cluster_labels, mode = "index")
+batch_ari <- 1 - pairwiseRand(
+  batch_labels, integrated_cluster_labels, mode = "index", adjusted = TRUE
+)
 print(paste0("Batch mixing ARI: ", batch_ari))
 ```
 
@@ -381,12 +383,14 @@ We'll now check the results numerically by calculating the ARI for pre and post-
 b1_ari <- pairwiseRand(
   cluster_labels_b1_before,
   cluster_labels_b1_after,
-  mode="index"
+  mode="index",
+  adjusted=TRUE
 )
 b2_ari <- pairwiseRand(
   cluster_labels_b2_before,
   cluster_labels_b2_after,
-  mode="index"
+  mode="index",
+  adjusted=TRUE
 )
 print(paste0("Batch 1 biological heterogeneity conservation ARI: ", b1_ari))
 print(paste0("Batch 2 biological heterogeneity conservation ARI: ", b2_ari))
@@ -456,7 +460,9 @@ We can already see that the batch mixing might not be as strong here compared to
 ```{r}
 batch_labels <- pbmc_integrated@meta.data$batch
 integrated_cluster_labels <- pbmc_integrated@meta.data$seurat_clusters
-batch_ari <- 1 - pairwiseRand(batch_labels, integrated_cluster_labels, mode = "index")
+batch_ari <- 1 - pairwiseRand(
+  batch_labels, integrated_cluster_labels, mode = "index", adjusted=TRUE
+)
 print(paste0("Batch mixing ARI: ", batch_ari))
 ```
 
@@ -505,12 +511,14 @@ gridExtra::grid.arrange(heat_b1[[4]], heat_b2[[4]])
 b1_ari <- pairwiseRand(
   cluster_labels_b1_before,
   cluster_labels_b1_after,
-  mode="index"
+  mode="index",
+  adjusted=TRUE
 )
 b2_ari <- pairwiseRand(
   cluster_labels_b2_before,
   cluster_labels_b2_after,
-  mode="index"
+  mode="index",
+  adjusted=TRUE
 )
 print(paste0("Batch 1 ARI: ", b1_ari))
 print(paste0("Batch 2 ARI: ", b2_ari))
@@ -567,7 +575,9 @@ DimPlot(pbmc_combined, reduction="umap", group.by="seurat_clusters")
 # Get the value for batch mixing ARI
 batch_labels <- pbmc_combined@meta.data$batch
 integrated_cluster_labels <- pbmc_combined@meta.data$seurat_clusters
-batch_ari <- 1 - pairwiseRand(batch_labels, integrated_cluster_labels, mode = "index")
+batch_ari <- 1 - pairwiseRand(
+  batch_labels, integrated_cluster_labels, mode = "index", adjusted=TRUE
+)
 print(paste0("Batch mixing ARI: ", batch_ari))
 ```
 The batch mixing is very strong, similar to Seurat CCA. 
@@ -612,18 +622,20 @@ gridExtra::grid.arrange(heat_b1[[4]], heat_b2[[4]])
 b1_ari <- pairwiseRand(
   cluster_labels_b1_before,
   cluster_labels_b1_after,
-  mode="index"
+  mode="index",
+  adjusted = TRUE
 )
 b2_ari <- pairwiseRand(
   cluster_labels_b2_before,
   cluster_labels_b2_after,
-  mode="index"
+  mode="index",
+  adjusted = TRUE
 )
 print(paste0("Batch 1 ARI: ", b1_ari))
 print(paste0("Batch 2 ARI: ", b2_ari))
 ```
 
-As we can see from the results, although Harmony does well on Batch 1, like Seurat CCA, it performs very poorly on Batch 2. This result also gives us more confidence that our assessment of loss of biological information from batch 2 was correct, as it was recaptilated from multiple methods.
+As we can see from the results, although Harmony does well on Batch 1, like Seurat CCA, it performs very poorly on Batch 2. This result also gives us more confidence that our assessment of loss of biological information from batch 2 was correct, as it was recapitulated from multiple methods.
 
 As the rPCA version of Seurat performed best, and we are mostly okay with the tradeoff between batch mixing and preserving biological heterogeneity, we can now **proceed with Seurat rPCA for downstream analysis**. Observing that batch 2 had potentially lost information in the integrated space, we must keep this fact in mind even with the better performing rPCA integrated space when performing downstream analyses, and be vigilant with respect to annotation and subsequent pipelines. 
 
@@ -728,21 +740,51 @@ heat_b2 <- pheatmap(
 
 gridExtra::grid.arrange(heat_b1[[4]], heat_b2[[4]])
 
-# Get overall ARI value for integration
-celltype_labels_all <- pbmc_integrated@meta.data$celltype
-cluster_labels_all <- pbmc_integrated@meta.data$seurat_clusters
-int_celltype_ari <- pairwiseRand(
-  celltype_labels_all,
-  cluster_labels_all,
-  mode="index"
+# Get the ARI value for each batch post-integration
+b1_ari <- pairwiseRand(
+  celltype_labels_b1,
+  cluster_labels_b1_after,
+  mode="index",
+  adjusted=TRUE
 )
-print(paste0("ARI cell-type: ", int_celltype_ari))
+b2_ari <- pairwiseRand(
+  celltype_labels_b2,
+  cluster_labels_b2_after,
+  mode="index",
+  adjusted=TRUE
+)
+print(paste0("Batch 1 ARI: ", b1_ari))
+print(paste0("Batch 2 ARI: ", b2_ari))
 ```
-As we can see from both the correspondence of the ground-truth cell-types and to the unsupervised clusters through the heatmaps and the ARI value, there is a significant loss of information after integration. The ARI value is quite low (0.48), and this is not expected for PBMC data with only 2 batches - the major driver of these results is once again imbalance. From this result, we know we'd end up losing a lot of information post-integration if we didn't seek to determine if there was an imbalance in the first place and try to account for it.
+As we can see from both the correspondence of the ground-truth cell-types and to the unsupervised clusters through the heatmaps and the ARI value, there is a significant loss of information after integration. The ARI value for batch 2 is quite low (0.58) and it's even lower for batch 1 (0.37). In particular, we can see that in batch 2, the CD14+ and CD16+ (FCGR3A) monocytes are mixed together in several unsupervised clusters, as are the CD4+ and CD8+ T cells. This result is not expected for PBMC data with only 2 batches - the major driver of these results is once again imbalance. From this result, we know we'd end up losing a lot of information post-integration if we didn't seek to determine if there was an imbalance in the first place and try to account for it.
 
-We just saw how the ARI value looks like, but as indicated in the manuscript, the ARI value does not take into account cell-type imbalance ([see Results Section V](https://www.biorxiv.org/content/10.1101/2022.10.06.511156v3)) and may lead to overestimates in integration performance for imbalanced scenarios. We know this dataset is inherently imbalanced, especially with respect to the CD4+ T cells and CD14+ Monocytes, which exist only in batch 2. We can reexamine the results using the balanced ARI, which is available in the [balanced clustering python package](https://github.com/hsmaan/balanced-clustering). Let's use `reticulate` to run the balanced ARI on our Seurat CCA integration results:
+We just saw how the ARI value looks like, but there's something a bit off - the ARI value for batch 1 was much lower than that of batch 2, but that contradicts our unsupervised clustering comparisons in the case where we didn't know the cell-type labels. Further, we can clearly see that the batch 2 cell-types demonstrate problematic behavior in the integrated space due to overlap in the unsupervised clusters. This is happening because even within batches, there is imbalance present. As indicated in the manuscript, the ARI value does not take into account cell-type imbalance ([see Results Section V](https://www.biorxiv.org/content/10.1101/2022.10.06.511156v3)) and may lead to skewed interpretations in terms of integration performance for imbalanced scenarios. In batch 1, most of the cells are from CD8+ T cells, and because we see that they are being mixed with CD4+ T cells from the batch 2 heatmap, this is driving down the ARI value due their prevalence. We can reexamine the results using the balanced ARI, which is available in the [balanced clustering python package](https://github.com/hsmaan/balanced-cratiolustering). Let's use `reticulate` to run the balanced ARI on our Seurat CCA integration results:
 
+```{python}
+from balanced_clustering import balanced_adjusted_rand_index
+import numpy as np 
+
+celltype_labels_b1_arr = np.array(r.celltype_labels_b1)
+celltype_labels_b2_arr = np.array(r.celltype_labels_b2)
+
+cluster_labels_b1_arr = np.array(r.cluster_labels_b1_after)
+cluster_labels_b2_arr = np.array(r.cluster_labels_b2_after)
+
+bal_ari_celltype_b1 = balanced_adjusted_rand_index(
+  celltype_labels_b1_arr,
+  cluster_labels_b1_arr
+)
+bal_ari_celltype_b2 = balanced_adjusted_rand_index(
+  celltype_labels_b2_arr,
+  cluster_labels_b2_arr
+)
+
+print("Batch 1 balanced ARI: " + str(bal_ari_celltype_b1))
+print("Batch 2 balanced ARI: " + str(bal_ari_celltype_b2))
 ```
 
+As we can see from the results, the balanced ARI values are overall higher. This is because the ARI, which will mostly account for the most prevalent cell-types, strongly penalized the results as the CD8+ T cells in batch 1and CD14+ Monocytes and CD4+ T cells in batch 2. However, the B cells and NK cells are largely integrated well, and even though they are less prevalent, they should be accounted for. The **most important aspect** that the balanced ARI captures more faithfully than the base ARI is that the information loss from batch 2 is overall greater than that of batch 1, when considering all cell-types to have equal weight, as shown by the lower score for batch 2. 
 
-```
+Although the balanced ARI and other balanced metrics cannot be effectively utilized in the guidelines because cell-type labels are not known a-priori in these integration scenarios, they have substantiative importance in benchmarking and tested methods across datasets.
+
+Through the guidelines, we've alleviated some of this information loss, but this is never going to be perfect. Nonetheless, it's imperative that discrepancies in proportions within and across batches for cell-types and states be accounted for when considering integration. We didn't address extremely challenging scenarios such as development and cancer biology, and in many of those cases the best course of action may not be to integrate at all and instead opt for individual-sample-level analysis. 
