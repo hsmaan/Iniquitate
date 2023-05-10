@@ -184,7 +184,7 @@ knn_anova_comp_results
 knn_anova_comp_results_concat <- Reduce(rbind, knn_anova_comp_results)
 fwrite(
   knn_anova_comp_results_concat,
-  "outs/pdac_comp_reanno/results/21comp_specific_ds_knn_f1_score_anovas.tsv",
+  "outs/pdac_comp_reanno/results/21_comp_specific_ds_knn_f1_score_anovas.tsv",
   sep = "\t",
   quote = FALSE,
   row.names = FALSE,
@@ -247,7 +247,7 @@ ggplot(data = knn_aov_comp_df_melted, aes(Covariates, value)) +
 ggsave(
   paste0(
     "outs/pdac_comp_reanno/figures/",
-    "21pdac_knn_aov_comp_ds_f_statistic.pdf"
+    "21_pdac_knn_aov_comp_ds_f_statistic.pdf"
   ),
   width = 12,
   height = 12,
