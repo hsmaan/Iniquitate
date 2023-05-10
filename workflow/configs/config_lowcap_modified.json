@@ -23,7 +23,7 @@
             "repetitions": 50
         },
         "peng_pdac_8_batch": {
-            "data_folder": "peng_pdac_tumor_annot_reanno_8_batch",
+            "data_folder": "peng_pdac_tumor_annot_8_batch",
             "ds_celltypes": [0],
             "ds_proportions": [0],
             "num_batches": [0],
