@@ -30,10 +30,24 @@ We'll begin by examining the properties of these two batches.
 
 ## Dataset exploration 
 
+Load the necessary libraries for the tutorial: 
+```{r, results="hide"}
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
+remotes::install_github("mojaveazure/seurat-disk")
+library(SeuratDisk)
+library(googledrive)
+library(ggplot2)
+library(ggthemes)
+library(Seurat)
+library(bluster)
+library(pheatmap)
+library(reticulate)
+```
+
 Start by downloading the data - both batches:
 ```{r, results="hide"}
-library(googledrive)
-
 # Create data directory
 if (!dir.exists("data")){
   dir.create("data")  
@@ -65,12 +79,6 @@ if (!(file.exists("data/tran_et_al_batch_1.h5ad"))) {
 
 Read in both files using the SeuratDisk library (we'll need to install it first but this shouldn't take long). We'll use the `Seurat` library for processing and analyzing the data:
 ```{r, results="hide"}
-if (!requireNamespace("remotes", quietly = TRUE)) {
-  install.packages("remotes")
-}
-remotes::install_github("mojaveazure/seurat-disk")
-library(SeuratDisk)
-
 # Convert the tran et al files to h5seurat format
 Convert(
   "data/tran_et_al_batch_1.h5ad", 
@@ -89,10 +97,7 @@ pbmc_2 <- SeuratDisk::LoadH5Seurat("data/tran_et_al_batch_2.h5seurat")
 ```
 
 Examine the cell-type distribution for each batch:
-```{r, fig.width=8}
-library(ggplot2)
-library(ggthemes)
-
+```{r, fig.width=8, echo=FALSE}
 # Grab the metadata
 meta_1 <- pbmc_1@meta.data
 meta_2 <- pbmc_2@meta.data
@@ -154,8 +159,6 @@ The first step is to perform unsupervised clustering within each batch. We don't
 
 Using `Seurat`, start by performing normalization, highly-variable gene selection, PCA-reduction, and unsupervised clustering of each batch separately. Then we can visualize the results using UMAP:
 ```{r, warning=FALSE}
-library(Seurat)
-
 # Preprocess the data using Seurat - Normalize and scale  
 pbmc_1 <- NormalizeData(
   pbmc_1, normalization.method = "LogNormalize", scale.factor = 10000,
@@ -207,9 +210,7 @@ DimPlot(pbmc_2, reduction = "umap")
 ```
 
 As we can see from the plots, there are differences in the number of clusters and possible proportion differences between the batches. We can examine this a bit closer using barplots:
-```{r}
-library(ggplot2)
-
+```{r, echo=FALSE}
 # Update metadata (previously set variable)
 meta_1 <- pbmc_1@meta.data
 meta_2 <- pbmc_2@meta.data
@@ -247,8 +248,6 @@ ggplot(meta_2, aes(x=seurat_clusters)) +
   theme(axis.text.y = element_text(size = 16)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
-
-  
 ```
 
 From the barplots, we can see that the number of cells across clusters follows a similar distribution, but the fact that batch 2 contains more clusters at the same Leiden resolution signals that there may be an imbalance present between the batches of this dataset. We'll keep this in mind as we continue.
@@ -261,10 +260,8 @@ We do not know a-priori how strong the technical effects are between our pbmc ba
 
 ## Integration stage 
 
-Lets start by integrating using Seurat CCA first:
+let's start by integrating using Seurat CCA first:
 ```{r}
-library(Seurat)
-
 # Include a batch covariate for integration in the metadata
 pbmc_1@meta.data$batch <- "Batch 1"
 pbmc_2@meta.data$batch <- "Batch 2"
@@ -309,8 +306,6 @@ DimPlot(pbmc_integrated, reduction="umap", group.by="seurat_clusters")
 
 From the UMAP plots we can clearly see that there is a strong degree of batch mixing. However, we don't know whether or not this have removed biological signal yet. We can first simply quantify the batch mixing by comparing the cluster labels with the batch labels using the `Adjusted Rand Index` (ARI). We'll use 1 - ARI, as a high score should indicate that the cluster labels and batch labels do not correspond - indicating strong batch mixing. 
 ```{r}
-library(bluster)
-
 # Using the bluster library, calculate the 1-batch ARI
 batch_labels <- pbmc_integrated@meta.data$batch
 integrated_cluster_labels <- pbmc_integrated@meta.data$seurat_clusters
@@ -326,10 +321,8 @@ Despite the strong batch mixing results, we still don't have an idea about how w
 
 Essentially, as we don't have access to cell-type labels, we're going to use the degree of concordance of unsupervised clusters within each batch (before integration) and unsupervised clusters after integration. We can assess this overlap based on heatmaps, as well as directly quantify it for each batch using the ARI between unsupervised clusters before integration and after integration. This readout is used as a surrogate for preservation of cell-type heterogeneity, because if cells from one pre-integration unsupervised cluster are being broken up or merged with cells from other pre-integration unsupervised clusters, this indicates a potential loss of biological signal. In general, we do expect some degree of information loss because of the assumptions and limitations of unsupervised clustering compared to expert annotated cell-type labels, but this technique works well as a post-integration diagnostic.  
 
-Lets compare the pre and post-integration unsupervised clustering results: 
+let's compare the pre and post-integration unsupervised clustering results: 
 ```{r, fig.height=8}
-library(pheatmap)
-
 # Get the cluster labels for each batch before integration
 cluster_labels_b1_before <- pbmc_1@meta.data$seurat_clusters
 cluster_labels_b2_before <- pbmc_2@meta.data$seurat_clusters
@@ -453,15 +446,14 @@ pbmc_integrated <- RunUMAP(
 
 ### Measure degree of batch mixing post-integration
 
-Lets go ahead and see what the results look like using the UMAP reduction: 
+let's go ahead and see what the results look like using the UMAP reduction: 
 ```{r}
 DimPlot(pbmc_integrated, reduction="umap", group.by="batch")
 DimPlot(pbmc_integrated, reduction="umap", group.by="seurat_clusters")
 ```
 
-We can already see that the batch mixing might not be as strong here compared to the CCA approach. Lets quantify this:
+We can already see that the batch mixing might not be as strong here compared to the CCA approach. let's quantify this:
 ```{r}
-library(bluster)
 batch_labels <- pbmc_integrated@meta.data$batch
 integrated_cluster_labels <- pbmc_integrated@meta.data$seurat_clusters
 batch_ari <- 1 - pairwiseRand(batch_labels, integrated_cluster_labels, mode = "index")
@@ -474,8 +466,6 @@ The batch mixing ARI is definitely less in this case compared to using CCA (0.93
 
 Now we can once again check the pre and post integration clustering concordance to get a sense of how well this approach preserved biological heterogeneity:
 ```{r, fig.height=8}
-library(pheatmap)
-
 cluster_labels_b1_before <- pbmc_1@meta.data$seurat_clusters
 cluster_labels_b2_before <- pbmc_2@meta.data$seurat_clusters
 
@@ -545,8 +535,6 @@ gc()
 
 # Merge the pbmc objects to learn a joint PCA which harmony will correct
 pbmc_combined <- merge(pbmc_1, pbmc_2)
-rm(pbmc_1)
-rm(pbmc_2)
 pbmc_combined <- NormalizeData(
   pbmc_combined, normalization.method = "LogNormalize", scale.factor = 10000
 )
@@ -568,7 +556,7 @@ pbmc_combined <- RunUMAP(pbmc_combined, reduction="harmony", dims=1:15)
 
 ### Measure degree of batch mixing post-integration
 
-Lets visualize the results of Harmony integration and quantify batch mixing:
+let's visualize the results of Harmony integration and quantify batch mixing:
 ```{r}
 library(bluster)
 
@@ -586,8 +574,6 @@ The batch mixing is very strong, similar to Seurat CCA.
 
 Now we can check how well the harmony embeddings retain biological variation post-integration:
 ```{r, fig.height=8}
-library(pheatmap)
-
 cluster_labels_b1_after <- pbmc_combined@meta.data$seurat_clusters[
   pbmc_combined@meta.data$batch == "Batch 1"
 ]
@@ -645,4 +631,118 @@ This case study demonstrates how the guidelines for single-cell integration in i
 
 ## Pulling the curtain
 
-Now lets revisit what we knew about this data before we pretended to forget that we had cell-type labels - in batch 2 we did not have CD4+ T cells and CD14+ Monocytes, but they were present in batch 1. From [the manuscript](https://www.biorxiv.org/content/10.1101/2022.10.06.511156v3), we know that *relative cell-type support* and *minimum cell-type center distance* are the two facts that contribute to quantitation differences post-integration. In fact, this case-study used the same data (minus some tweaks and balancing) as the main pbmc perturbation experiments in the paper - the major difference being that batch 2 had two cell-types ablated compared to batch 1, instead of just 1 cell-type being downsampled or ablated. In the paper experiments, loss of biological heterogeneity was observed subsequently through the KNN-classification experiments for the downsampled/ablated cell-types and their related cell-types. As such, it should be no surprise that integrating with Seurat/Harmony leads to worse biological heterogeneity conservation scores for the cells from batch 2. We demonstrated how to use the guidelines to alleviate these effects even when we don't have cell-type labels, but it must be made clear that these are heuristics and must be utilized carefully. One factor that is not included is whether or not the researchers have a prior on whether or not there is going to be an imbalance present - such as in the case of developmental or tumor data. In this case, it may be prudent to actually consider tuning the integration method extensively before the first iteration. 
+Now let's revisit what we knew about this data before we pretended to forget that we had cell-type labels - in batch 2 we did not have CD4+ T cells and CD14+ Monocytes, but they were present in batch 1. From [the manuscript](https://www.biorxiv.org/content/10.1101/2022.10.06.511156v3), we know that *relative cell-type support* and *minimum cell-type center distance* are the two facts that contribute to quantitation differences post-integration. In fact, this case-study used the same data (minus some tweaks and balancing) as the main pbmc perturbation experiments in the paper - the major difference being that batch 2 had two cell-types ablated compared to batch 1, instead of just 1 cell-type being downsampled or ablated. In the paper experiments, loss of biological heterogeneity was observed subsequently through the KNN-classification experiments for the downsampled/ablated cell-types and their related cell-types. As such, it should be no surprise that integrating with Seurat/Harmony leads to worse biological heterogeneity conservation scores for the cells from batch 2. We demonstrated how to use the guidelines to alleviate these effects even when we don't have cell-type labels, but it must be made clear that these are heuristics and must be utilized carefully. One factor that is not included is whether or not the researchers have a prior on whether or not there is going to be an imbalance present - such as in the case of developmental or tumor data. In this case, it may be prudent to actually consider tuning the integration method extensively before the first iteration.
+
+## Counterfactual - what if we didn't use the guidelines?
+
+To conclude, let's consider a scenario where we didn't use the guidelines. What would happen to the biological heterogeneity in the batches after integration? What might our conclusions look like and what might they miss? To test such a case, let's go ahead and do integration with Seurat CCA without any checks:
+```{r}
+# Clean up some files and reload the pbmc data from scratch
+rm(pbmc_combined)
+rm(pbmc_1)
+rm(pbmc_2)
+gc()
+
+pbmc_1 <- SeuratDisk::LoadH5Seurat("data/tran_et_al_batch_1.h5seurat")
+pbmc_2 <- SeuratDisk::LoadH5Seurat("data/tran_et_al_batch_2.h5seurat")
+
+pbmc_1@meta.data$batch <- "Batch 1"
+pbmc_2@meta.data$batch <- "Batch 2"
+
+# Re-normalize and get variable genes again
+pbmc_1 <- NormalizeData(
+  pbmc_1, normalization.method = "LogNormalize", scale.factor = 10000,
+  verbose = FALSE
+)
+pbmc_1 <- FindVariableFeatures(pbmc_1, nfeatures = 2000, verbose = FALSE)
+pbmc_2 <- NormalizeData(
+  pbmc_2, normalization.method = "LogNormalize", scale.factor = 10000,
+  verbose = FALSE
+)
+pbmc_2 <- FindVariableFeatures(pbmc_2, nfeatures = 2000, verbose = FALSE)
+
+# Obtain anchors between the two batches and perform CCA-base integration
+# using Seurat (the default)
+pbmc_list <- c(pbmc_1, pbmc_2)
+features <- SelectIntegrationFeatures(
+  object.list = pbmc_list, verbose = FALSE
+)
+anchors <- FindIntegrationAnchors(
+  object.list = pbmc_list, anchor.features = features, verbose = FALSE
+)
+pbmc_integrated <- IntegrateData(anchorset=anchors, verbose = FALSE)
+
+# Using the integrated representation, obtain a reduced representation
+# through PCA, cluster the joint representation and obtain UMAP coordinates
+pbmc_integrated <- ScaleData(pbmc_integrated, verbose = FALSE)
+pbmc_integrated <- RunPCA(pbmc_integrated, verbose = FALSE)
+pbmc_integrated <- FindNeighbors(
+  pbmc_integrated, reduction="pca", dims=1:15, verbose = FALSE
+)
+pbmc_integrated <- FindClusters(
+  pbmc_integrated, resolution=0.5, algorithm="leiden", verbose = FALSE
+)
+pbmc_integrated <- RunUMAP(
+  pbmc_integrated, reduction="pca", dims=1:15, verbose = FALSE
+)
+```
+
+Now that we've pulled the curtain, we can actually assess what the concordance between the ground-truth cell-types in each batch and the unsupervised clusters in the integrated space might look like. Let's go ahead and do that:
+
+```{r, fig.height=8}
+
+# Get post-integration cluster labels and cell-type labels
+cluster_labels_b1_after <- pbmc_integrated@meta.data$seurat_clusters[
+  pbmc_integrated@meta.data$batch == "Batch 1"
+]
+cluster_labels_b2_after <- pbmc_integrated@meta.data$seurat_clusters[
+  pbmc_integrated@meta.data$batch == "Batch 2"
+]
+celltype_labels_b1 <- pbmc_1@meta.data$celltype
+celltype_labels_b2 <- pbmc_2@meta.data$celltype
+
+tab_b1 <- nestedClusters(
+  ref=celltype_labels_b1, 
+  alt=paste("Cluster", cluster_labels_b1_after)
+)
+tab_b2 <- nestedClusters(
+  ref=celltype_labels_b2,
+  alt=paste("Cluster", cluster_labels_b2_after)
+)
+
+# Assess concordance using the same heatmaps 
+heat_b1 <- pheatmap(
+  tab_b1$proportions,
+  cluster_row=FALSE,
+  cluster_col=FALSE,
+  main="pbmc Batch 1 Comparison",
+  silent=TRUE
+)
+heat_b2 <- pheatmap(
+  tab_b2$proportions,
+  cluster_row=FALSE,
+  cluster_col=FALSE,
+  main="pbmc Batch 2 Comparison",
+  silent=TRUE
+)
+
+gridExtra::grid.arrange(heat_b1[[4]], heat_b2[[4]])
+
+# Get overall ARI value for integration
+celltype_labels_all <- pbmc_integrated@meta.data$celltype
+cluster_labels_all <- pbmc_integrated@meta.data$seurat_clusters
+int_celltype_ari <- pairwiseRand(
+  celltype_labels_all,
+  cluster_labels_all,
+  mode="index"
+)
+print(paste0("ARI cell-type: ", int_celltype_ari))
+```
+As we can see from both the correspondence of the ground-truth cell-types and to the unsupervised clusters through the heatmaps and the ARI value, there is a significant loss of information after integration. The ARI value is quite low (0.48), and this is not expected for PBMC data with only 2 batches - the major driver of these results is once again imbalance. From this result, we know we'd end up losing a lot of information post-integration if we didn't seek to determine if there was an imbalance in the first place and try to account for it.
+
+We just saw how the ARI value looks like, but as indicated in the manuscript, the ARI value does not take into account cell-type imbalance ([see Results Section V](https://www.biorxiv.org/content/10.1101/2022.10.06.511156v3)) and may lead to overestimates in integration performance for imbalanced scenarios. We know this dataset is inherently imbalanced, especially with respect to the CD4+ T cells and CD14+ Monocytes, which exist only in batch 2. We can reexamine the results using the balanced ARI, which is available in the [balanced clustering python package](https://github.com/hsmaan/balanced-clustering). Let's use `reticulate` to run the balanced ARI on our Seurat CCA integration results:
+
+```
+
+
+```
