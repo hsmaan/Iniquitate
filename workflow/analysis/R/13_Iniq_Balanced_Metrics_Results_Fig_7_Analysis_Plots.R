@@ -686,7 +686,6 @@ ggsave(
   height = 8
 )
 
-
 # Plot the cluster coordinate results per method 
 palette_7E_cluster <- kev_palette[1:length(unique(bal_7E_cluster_df$cluster))]
 p_7e_3 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
@@ -708,6 +707,7 @@ p_7e_3 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) + 
+  theme(legend.position = "None") +
   guides(colour = guide_legend(override.aes = list(size=3))) 
 p_7e_3
 ggsave(
