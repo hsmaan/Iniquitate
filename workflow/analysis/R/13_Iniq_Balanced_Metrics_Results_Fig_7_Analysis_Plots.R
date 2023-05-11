@@ -687,6 +687,41 @@ ggsave(
 )
 
 # Plot the cluster coordinate results per method 
+# unique_subsets <- as.list(unique(bal_7E_cluster_df$Subset))
+# p_list <- lapply(unique_subsets, function(x) {
+#   cluster_df_sub <-
+#     bal_7E_cluster_df %>%
+#     filter(Subset == x)
+#   print(cluster_df_sub)
+#   palette <- kev_palette[1:length(unique(cluster_df_sub$cluster))]
+#   p <- 
+#     cluster_df_sub %>%
+#     ggplot(aes(x = x, y = y)) +
+#     geom_point(aes(color = factor(cluster)), size = 0.25) +
+#     facet_wrap(.~Subset, scales = "free") +
+#     labs(
+#       color = "Cluster",
+#       x = "UMAP 1",
+#       y = "UMAP 2"
+#     ) +
+#     scale_color_manual(values = palette) +
+#     theme_few() +
+#     theme(axis.title.x = element_text(size = 16)) +
+#     theme(axis.title.y = element_text(size = 16)) +
+#     theme(strip.text.x = element_text(size = 16)) +
+#     theme(plot.title = element_text(size = 14)) +
+#     theme(axis.text.x = element_text(size = 16)) +
+#     theme(axis.text.y = element_text(size = 16)) +
+#     theme(legend.title = element_text(size = 16)) +
+#     theme(legend.text = element_text(size = 16)) +
+#     theme(aspect.ratio = 1) + 
+#     guides(colour = guide_legend(override.aes = list(size=3)))
+#   
+#   return(p)
+# })
+# 
+# p_list[[1]] | p_list[[2]] | p_list[[3]]
+
 palette_7E_cluster <- kev_palette[1:length(unique(bal_7E_cluster_df$cluster))]
 p_7e_3 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = factor(cluster)), size = 0.25) +
