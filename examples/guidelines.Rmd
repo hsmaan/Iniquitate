@@ -28,7 +28,7 @@ These facts are known to us because we know the cell-type labels, but we'll play
 
 We'll begin by examining the properties of these two batches. 
 
-## Dataset exploration 
+## Dataset exploration
 
 Load the necessary libraries for the tutorial: 
 ```{r, results="hide"}

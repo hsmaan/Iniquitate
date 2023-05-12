@@ -829,8 +829,8 @@ then decide whether or not to iterate further.</p>
 <span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(pbmc_list)</span>
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="fu">gc</span>()</span>
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             used   (Mb) gc trigger    (Mb)   max used   (Mb)</span></span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Ncells   4631823  247.4    8242414   440.2    8242414  440.2</span></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Vcells 549342075 4191.2 1476054789 11261.5 1229973531 9384.0</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Ncells   4631939  247.4    8241467   440.2    8241467  440.2</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Vcells 549342592 4191.2 1476055682 11261.5 1229973884 9384.0</span></span>
 <span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Merge the pbmc objects to learn a joint PCA</span></span>
 <span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a><span class="co"># which harmony will correct</span></span>
@@ -921,7 +921,16 @@ downstream analysis</strong>. Observing that batch 2 had potentially
 lost information in the integrated space, we must keep this fact in mind
 even with the better performing rPCA integrated space when performing
 downstream analyses, and be vigilant with respect to annotation and
-subsequent pipelines.</p>
+subsequent pipelines. Specifically, we observed in the manuscript
+experiments that fine-grained cell-types are very difficult to recover
+in integration scenarios where their more coarse counterparts are
+affected by the transcriptomic similarity and cell-type support
+properties (<a href="https://www.biorxiv.org/content/10.1101/2022.10.06.511156v3">see
+Results Section II - Query-to-reference projection and cell-type
+annotation</a>). Therefore, due to the observed loss of information in
+batch 2, fine-grained annotations within the integrated space must be
+carefully considered, and it may be best to annotate the batches
+individually if fine-grained cell-types need to be recovered.</p>
 <p>This case study demonstrates how the guidelines for single-cell
 integration in imbalanced settings can be utilized, and how users can
 tune <em>the tradeoff</em> based on their preferences.</p>
@@ -967,8 +976,8 @@ with Seurat CCA without any checks:</p>
 <span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(pbmc_2)</span>
 <span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="fu">gc</span>()</span>
 <span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;             used   (Mb) gc trigger    (Mb)   max used    (Mb)</span></span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Ncells   4679261  249.9    8242414   440.2    8242414   440.2</span></span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Vcells 519808941 3965.9 1417076597 10811.5 1476054707 11261.5</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Ncells   4679377  250.0    8241467   440.2    8241467   440.2</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Vcells 519809458 3965.9 1417077455 10811.5 1476055137 11261.5</span></span>
 <span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>pbmc_1 <span class="ot">&lt;-</span> SeuratDisk<span class="sc">::</span><span class="fu">LoadH5Seurat</span>(<span class="st">&quot;data/tran_et_al_batch_1.h5seurat&quot;</span>)</span>
 <span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>pbmc_2 <span class="ot">&lt;-</span> SeuratDisk<span class="sc">::</span><span class="fu">LoadH5Seurat</span>(<span class="st">&quot;data/tran_et_al_batch_2.h5seurat&quot;</span>)</span>
