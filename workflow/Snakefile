@@ -91,7 +91,10 @@ if config["celltype_list"] == "No":
                             "query_to_reference",
                             "reference_full_annotated",
                             "annotation_results",
-                            "annotation_scores"
+                            "annotation_scores",
+                            "umap_plots",
+                            "umap_plots",
+                            "umap_plots"
                         ], 
                         [
                             "integrated",
@@ -109,7 +112,10 @@ if config["celltype_list"] == "No":
                             "reference_annotated",
                             "reference_full_annotated",
                             "annotation_result",
-                            "annotation_score"
+                            "annotation_score",
+                            "umap_leiden,
+                            "umap_celltype",
+                            "umap_batch"
                         ],
                         [
                             "h5ad",
@@ -127,7 +133,10 @@ if config["celltype_list"] == "No":
                             "h5ad",
                             "h5ad",
                             "tsv",
-                            "tsv"
+                            "tsv",
+                            "pdf",
+                            "pdf",
+                            "pdf"
                         ]
                     )
                 ),
@@ -183,7 +192,10 @@ if config["celltype_list"] == "No":
                             "dge_ranking_stats_marker_sub",
                             "imbalance_summaries",
                             "celltype_imbalance_summaries",
-                            "knn_classification_reports"
+                            "knn_classification_reports".
+                            "umap_plots",
+                            "umap_plots",
+                            "umap_plots"
                         ], 
                         [
                             "integrated",
@@ -197,7 +209,10 @@ if config["celltype_list"] == "No":
                             "dge_ranking_stats_marker_sub",
                             "imbalance_summary",
                             "celltype_imbalance_summary",
-                            "knn_classification"
+                            "knn_classification",
+                            "umap_leiden,
+                            "umap_celltype",
+                            "umap_batch"
                         ],
                         [
                             "h5ad",
@@ -211,7 +226,10 @@ if config["celltype_list"] == "No":
                             "tsv",
                             "tsv",
                             "tsv",
-                            "tsv"
+                            "tsv",
+                            "pdf",
+                            "pdf",
+                            "pdf"
                         ]
                     )
                 ),
@@ -773,5 +791,35 @@ rule relatedness_metric:
             --filedir {input} \
             --outfile {output} \
             --dataset {wildcards.data_folder} \
+            &> {log}
+        """
+
+# Rule for generating umap plot of the integrated datasets
+rule umap:
+    conda:
+        "envs/integrate.yaml"
+    input:
+        "../results/{configname}/integrated_results/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_integrated.h5ad"
+    output:
+        leiden_plot = "../results/{configname}/umap_plots/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" + 
+        "_downsample_{num_batches}_batch_ds_c_{rep}_umap_leiden.pdf",
+        celtype_plot = "../results/{configname}/umap_plots/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_umap_celltype.pdf",
+        batch_plot = "../results/{configname}/umap_plots/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_umap_batch.pdf"
+    params:
+        script_path = "scripts/python/umap_plots.py"
+    log:
+        "logs/{configname}/umap_plots/{data_folder}_{ds_celltype}_celltypes_{ds_proportion}" +
+        "_downsample_{num_batches}_batch_ds_c_{rep}_umap_plots.log"
+    priority: 100
+    shell:
+        """
+        python {params.script_path} \
+            --infile {input} \
+            --leiden_plot_loc {output.leiden_plot} \
+            --celltype_plot_loc {output.celtype_plot} \
+            --batch_plot_loc {output.batch_plot} \
             &> {log}
         """

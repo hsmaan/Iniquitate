@@ -9,7 +9,7 @@ import scanpy as sc
 
 from utils import Umap
 
-def main(h5ad_loc, save_loc):
+def main(h5ad_loc, leiden_save_loc, celltype_save_loc, batch_save_loc):
     # Load h5ad file 
     adata = sc.read_h5ad(h5ad_loc)
     
@@ -59,21 +59,21 @@ def main(h5ad_loc, save_loc):
     umap_leiden.umap_df()
     umap_leiden.umap_plot(show_plot=True)
     umap_leiden.save_umap(
-        save_dir=save_loc + "_leiden.pdf",
+        save_dir=leiden_save_loc,
         dpi=300
     )
     
     umap_celltype.umap_df()
     umap_celltype.umap_plot(show_plot=True)
     umap_celltype.save_umap(
-        save_dir=save_loc + "_celltype.pdf",
+        save_dir=celltype_save_loc,
         dpi=300
     )
     
     umap_batch.umap_df()
     umap_batch.umap_plot(show_plot=True)
     umap_batch.save_umap(
-        save_dir=save_loc + "_batch.pdf",
+        save_dir=batch_save_loc,
         dpi=300
     )
     
@@ -87,12 +87,24 @@ if __name__ == '__main__':
         help = "Path of integrated h5ad file"
     )
     parser.add_argument(
-        "--outfile",
+        "--leiden_plot_loc",
         type = str,
-        help = "Filepath for saving UMAP results from integrated h5ad file"
+        help = "Filepath for saving leiden overlayed UMAP results"
+    )
+    parser.add_argument(
+        "--celltype_plot_loc",
+        type = str,
+        help = "Filepath for saving celltype overlayed UMAP results"
+    )
+    parser.add_argument(
+        "--batch_plot_loc",
+        type = str,
+        help = "Filepath for saving batch overlayed UMAP results"
     )
     args = parser.parse_args()
     main(
         h5ad_loc = args.infile,
-        save_loc = args.outfile
+        leiden_save_loc = args.leiden_plot_loc,
+        celltype_save_loc = args.celltype_plot_loc,
+        batch_save_loc = args.batch_plot_loc
     )
