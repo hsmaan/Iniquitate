@@ -66,7 +66,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     umap_celltype.umap_df()
     umap_celltype.umap_plot(show_plot=True)
     umap_celltype.save_umap(
-        save_dir=save_loc + "_celltype.pdf"",
+        save_dir=save_loc + "_celltype.pdf",
         dpi=300
     )
     
