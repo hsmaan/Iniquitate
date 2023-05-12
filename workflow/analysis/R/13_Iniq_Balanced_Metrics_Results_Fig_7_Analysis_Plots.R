@@ -727,7 +727,7 @@ p_7e_3 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = factor(cluster)), size = 0.25) +
   facet_wrap(.~Subset, scales = "free") + 
   labs(
-    color = "Cluster",
+    color = "Method-specific \nclusters ...",
     x = "UMAP 1",
     y = "UMAP 2"
   ) +
@@ -742,7 +742,6 @@ p_7e_3 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) + 
-  theme(legend.position = "None") +
   guides(colour = guide_legend(override.aes = list(size=3))) 
 p_7e_3
 ggsave(
