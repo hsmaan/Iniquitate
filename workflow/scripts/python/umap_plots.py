@@ -9,7 +9,7 @@ import scanpy as sc
 
 from utils import Umap
 
-def main(h5ad_loc, save_loc, dataset_name, rep):
+def main(h5ad_loc, save_loc):
     # Load h5ad file 
     adata = sc.read_h5ad(h5ad_loc)
     
