@@ -1,6 +1,6 @@
 import os 
 
-configfile: "configs/config_control.json"
+configfile: "configs/config_umap.json"
 configname = config["config_name"]
 
 # Get all combinations through the config file
@@ -113,7 +113,7 @@ if config["celltype_list"] == "No":
                             "reference_full_annotated",
                             "annotation_result",
                             "annotation_score",
-                            "umap_leiden,
+                            "umap_leiden",
                             "umap_celltype",
                             "umap_batch"
                         ],
@@ -192,7 +192,7 @@ if config["celltype_list"] == "No":
                             "dge_ranking_stats_marker_sub",
                             "imbalance_summaries",
                             "celltype_imbalance_summaries",
-                            "knn_classification_reports".
+                            "knn_classification_reports",
                             "umap_plots",
                             "umap_plots",
                             "umap_plots"
@@ -210,7 +210,7 @@ if config["celltype_list"] == "No":
                             "imbalance_summary",
                             "celltype_imbalance_summary",
                             "knn_classification",
-                            "umap_leiden,
+                            "umap_leiden",
                             "umap_celltype",
                             "umap_batch"
                         ],
