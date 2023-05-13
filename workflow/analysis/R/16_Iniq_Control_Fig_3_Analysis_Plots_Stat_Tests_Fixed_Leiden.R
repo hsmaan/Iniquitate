@@ -202,7 +202,7 @@ ggplot(data = imba_clus_merged, aes(
     alpha = 0.8 
   ) + 
   geom_jitter(color = "black", size = 0.4, alpha = 0.7) +
-  facet_wrap(.~Method, scales = "fixed") +
+  facet_wrap(.~Method, scales = "free_x") +
   scale_fill_manual( 
     breaks = c("Control", "Downsampled", "Ablated"),
     values = c("forestgreen", "darkorchid3", "firebrick2")
@@ -211,6 +211,15 @@ ggplot(data = imba_clus_merged, aes(
     fill = "Type",
     x = "Cell-type downsampled",
     y = "Number of Leiden clusters post-integration"
+  ) +
+  scale_y_continuous(
+    limits = (
+      c(
+        min(imba_clus_merged$`Cluster number`), 
+        max(imba_clus_merged$`Cluster number`)
+      )
+    ),
+    oob = scales::squish
   ) +
   coord_flip() +
   theme_few() +
