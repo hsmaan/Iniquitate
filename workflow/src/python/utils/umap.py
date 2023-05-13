@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import colorcet as cc
-from utils.nat_sort import natural_sort
 
 
 class Umap:
