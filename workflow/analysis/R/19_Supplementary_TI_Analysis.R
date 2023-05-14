@@ -346,7 +346,16 @@ ggplot(
     alpha = 0.8 
   ) +
   facet_wrap(
-    .~`Method`
+    .~`Method`, scale="free_x"
+  ) +
+  scale_y_continuous(
+    limits = (
+      c(
+        min(ti_imba_scores_merged$`Pearson correlations`), 
+        max(ti_imba_scores_merged$`Pearson correlations`)
+      )
+    ),
+    oob = scales::squish
   ) +
   labs(
     fill = "Type",
@@ -401,7 +410,16 @@ ggplot(
     alpha = 0.8 
   ) +
   facet_wrap(
-    .~`Method`
+    .~`Method`, scale = "free_x",
+  ) +
+  scale_y_continuous(
+    limits = (
+      c(
+        min(ti_imba_scores_merged$`Spearman correlations`), 
+        max(ti_imba_scores_merged$`Spearman correlations`)
+      )
+    ),
+    oob = scales::squish
   ) +
   labs(
     fill = "Type",
@@ -456,7 +474,16 @@ ggplot(
     alpha = 0.8 
   ) +
   facet_wrap(
-    .~`Method`
+    .~`Method`, scale = "free_x",
+  ) +
+  scale_y_continuous(
+    limits = (
+      c(
+        min(ti_imba_scores_merged$`Kendall correlations`), 
+        max(ti_imba_scores_merged$`Kendall correlations`)
+      )
+    ),
+    oob = scales::squish
   ) +
   labs(
     fill = "Type",
