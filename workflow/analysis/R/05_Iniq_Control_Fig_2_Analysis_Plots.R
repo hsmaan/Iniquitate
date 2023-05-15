@@ -2213,7 +2213,7 @@ ggscatter(median_imba_knn_cluster_results_cari,
           add = "reg.line", 
           add.params = list(color = "blue", fill = "lightgray"),
           conf.int = TRUE) +
-  facet_wrap(.~`Method`, scales = "fixed") +
+  facet_wrap(.~`Method`, scales = "free_x") +
   stat_cor(
     aes(label = ..r.label..),
     method = "spearman", 
@@ -2221,6 +2221,24 @@ ggscatter(median_imba_knn_cluster_results_cari,
     label.y = 0.4, 
     p.digits = 2,
     size = 5
+  ) +
+  scale_x_continuous(
+    limits = (
+      c(
+        min(median_imba_knn_cluster_results_cari$`Celltype ARI Imbalanced`), 
+        max(median_imba_knn_cluster_results_cari$`Celltype ARI Imbalanced`)
+      )
+    ),
+    oob = scales::squish
+  ) +
+  scale_y_continuous(
+    limits = (
+      c(
+        min(median_imba_knn_cluster_results_cari$`Median F1-score`), 
+        max(median_imba_knn_cluster_results_cari$`Median F1-score`)
+      )
+    ),
+    oob = scales::squish
   ) +
   theme_few() +
   theme(axis.title.x = element_text(size = 16)) +
@@ -2261,7 +2279,8 @@ ggscatter(median_imba_knn_cluster_results_bari,
           add = "reg.line", 
           add.params = list(color = "blue", fill = "lightgray"),
           conf.int = TRUE) +
-  facet_wrap(.~`Method`, scales = "fixed") +
+  facet_wrap(.~`Method`, scales = "free_x") +
+  
   stat_cor(
     aes(label = ..r.label..),
     method = "spearman", 
@@ -2269,6 +2288,24 @@ ggscatter(median_imba_knn_cluster_results_bari,
     label.y = 0.1, 
     p.digits = 2,
     size = 5
+  ) +
+  scale_y_continuous(
+    limits = (
+      c(
+        min(median_imba_knn_cluster_results_bari$`Median F1-score`), 
+        max(median_imba_knn_cluster_results_bari$`Median F1-score`)
+      )
+    ),
+    oob = scales::squish
+  ) +
+  scale_x_continuous(
+    limits = (
+      c(
+        min(median_imba_knn_cluster_results_bari$`Batch ARI`), 
+        max(median_imba_knn_cluster_results_bari$`Batch ARI`)
+      )
+    ),
+    oob = scales::squish
   ) +
   theme_few() +
   theme(axis.title.x = element_text(size = 16)) +
