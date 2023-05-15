@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import seaborn as sns
 import colorcet as cc
+from natsort import natsorted
 
 
 class Umap:
@@ -39,13 +40,15 @@ class Umap:
             
         sns.set_style("ticks")
 
-    def df_get(self, subset, clustering, coords):
+    def df_get(self, subset, clustering, coords, category = None):
         df = pd.DataFrame({
             "Subset" : np.repeat(subset, len(clustering)),
-            "Clustering" : clustering,
             "UMAP 1" : coords[:, 0],
             "UMAP 2" : coords[:, 1]
         })
+        df["Clustering"] = pd.Categorical(
+            clustering, categories=category, ordered=True
+        )
         return df
 
     def umap_df(self):
@@ -63,6 +66,7 @@ class Umap:
             self.clustering_scanorama,
             self.clustering_seurat
         ]
+        clustering_unique = natsorted(np.unique(np.concatenate(clustering_list)))
         coords_list = [
             self.umap_harmony,
             self.umap_scvi,
@@ -70,9 +74,8 @@ class Umap:
             self.umap_scanorama,
             self.umap_seurat
         ]
-
         umap_dfs = [
-            self.df_get(i, j, k) for i, j, k in zip(
+            self.df_get(i, j, k, category = clustering_unique) for i, j, k in zip(
                 subset_list,
                 clustering_list,
                 coords_list
@@ -82,10 +85,7 @@ class Umap:
 
     def umap_plot(self, show_plot = False):
         self.umap_df()
-        if len(np.unique(self.umap_concat["Clustering"])) > 20:
-            palette = cc.glasbey_bw[0:len(np.unique(self.umap_concat["Clustering"]))]
-        else:
-            palette = "tab20"
+        palette = cc.glasbey_bw[0:len(np.unique(self.umap_concat["Clustering"]))]
         self.umap_plt = sns.FacetGrid(
             self.umap_concat,
             col = "Subset",

@@ -1,6 +1,7 @@
 import argparse 
 import os 
 import sys 
+sys.path.append("src/python/")
 
 import numpy as np
 import pandas as pd
