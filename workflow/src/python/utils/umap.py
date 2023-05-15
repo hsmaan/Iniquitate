@@ -48,7 +48,7 @@ class Umap:
         })
         subsets = natsorted(np.unique(subset))
         df["Subset"] = pd.Categorical(
-            df["Subset"], categories=subsets, ordered=True
+            np.repeat(subset, len(clustering)), categories=subsets, ordered=True
         )
         df["Clustering"] = pd.Categorical(
             clustering, categories=category, ordered=True
@@ -57,25 +57,25 @@ class Umap:
 
     def umap_df(self):
         subset_list = [
-            "harmony",
-            "scvi",
             "bbknn",
+            "harmony",
             "scanorama",
+            "scvi",
             "seurat"
         ]
         clustering_list = [
-            self.clustering_harmony,
-            self.clustering_scvi,
             self.clustering_bbknn,
+            self.clustering_harmony,
             self.clustering_scanorama,
+            self.clustering_scvi,
             self.clustering_seurat
         ]
         clustering_unique = natsorted(np.unique(np.concatenate(clustering_list)))
         coords_list = [
-            self.umap_harmony,
-            self.umap_scvi,
             self.umap_bbknn,
+            self.umap_harmony,
             self.umap_scanorama,
+            self.umap_scvi,
             self.umap_seurat
         ]
         umap_dfs = [
