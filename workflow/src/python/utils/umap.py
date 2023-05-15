@@ -46,6 +46,10 @@ class Umap:
             "UMAP 1" : coords[:, 0],
             "UMAP 2" : coords[:, 1]
         })
+        subsets = natsorted(np.unique(subset))
+        df["Subset"] = pd.Categorical(
+            df["Subset"], categories=subsets, ordered=True
+        )
         df["Clustering"] = pd.Categorical(
             clustering, categories=category, ordered=True
         )
