@@ -1,6 +1,7 @@
 import argparse 
 import os 
 import sys 
+sys.path.append("src/python/")
 
 import numpy as np
 import pandas as pd
@@ -55,7 +56,7 @@ def main(h5ad_loc, leiden_save_loc, celltype_save_loc, batch_save_loc):
         subset_name = "Batch",
     )
     
-    # Plot each of the unap objects
+    # Plot each of the umap objects
     umap_leiden.umap_df()
     umap_leiden.umap_plot(show_plot=True)
     umap_leiden.save_umap(
@@ -75,6 +76,24 @@ def main(h5ad_loc, leiden_save_loc, celltype_save_loc, batch_save_loc):
     umap_batch.save_umap(
         save_dir=batch_save_loc,
         dpi=300
+    )
+    
+    # Save the umap dataframes as auxiliary files
+    umap_leiden_df = umap_leiden.umap_concat
+    umap_celltype_df = umap_celltype.umap_concat
+    umap_batch_df = umap_batch.umap_concat
+    
+    umap_leiden_df.to_csv(
+        os.path.splitext(leiden_save_loc)[0] + ".tsv",
+        sep = "\t"
+    )
+    umap_celltype_df.to_csv(
+        os.path.splitext(celltype_save_loc)[0] + ".tsv",
+        sep = "\t"
+    )
+    umap_batch_df.to_csv(
+        os.path.splitext(batch_save_loc)[0] + ".tsv",
+        sep = "\t"
     )
     
 if __name__ == '__main__':
