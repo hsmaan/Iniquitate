@@ -121,7 +121,7 @@ umap_plot <- function(df, save_prefix) {
       ) +
       facet_wrap(
         .~Subset, 
-        scales = "free_x"
+        scales = "free"
       ) +
       labs(
         color = "",
@@ -148,7 +148,7 @@ umap_plot <- function(df, save_prefix) {
         save_prefix,
         ".pdf"
       ),
-      width = 12,
+      width = 16,
       height = 8,
       device = cairo_pdf
     )
@@ -167,7 +167,7 @@ umap_plot <- function(df, save_prefix) {
       ) +
       facet_wrap(
         .~Subset, 
-        scales = "free_x"
+        scales = "free"
       ) +
       labs(
         color = "",
@@ -191,14 +191,14 @@ umap_plot <- function(df, save_prefix) {
         save_prefix,
         ".pdf"
       ),
-      width = 12,
+      width = 16,
       height = 8,
       device = cairo_pdf
     )
   }
 }
 
-# Iterate over the umap files and namees and save the results 
+# Iterate over the umap files and names and save the results 
 mapply(
   umap_plot,
   df = umap_loaded, 
