@@ -77,13 +77,47 @@ if (!dir.exists("outs/umap/figures")) {
 
 # Create function to loop over the umap files and return the results 
 umap_plot <- function(df, save_prefix) {
+  # Format celltype names
+  df$Clustering <- plyr::mapvalues(
+    df$Clustering,
+    from = c(
+      "Monocyte_CD14",
+      "Monocyte_FCGR3A",
+      "CD4 T cell",
+      "CD8 T cell"
+    ),
+    to = c(
+      "CD14+ Monocyte",
+      "FCGR3A+ Monocyte",
+      "CD4+ T cell",
+      "CD8+ T cell"
+    )
+  )
+  
+  # Format batch names 
+  df$Clustering <- plyr::mapvalues(
+    df$Clustering,
+    from = c(
+      "batch_1",
+      "batch_2"
+    ),
+    to = c(
+      "Batch 1",
+      "Batch 2"
+    )
+  )
+  
   unique_cluster_len <- length(unique(df$Clustering))
   if (unique_cluster_len > 8) {
     ggplot(data = df, aes(x = `UMAP 1`, y = `UMAP 2`)) +
       geom_point(
         aes(
-          color = factor(Clustering),
-        )
+          color = factor(
+            as.numeric(Clustering),
+            levels = sort(as.numeric(unique(df$Clustering)))
+          )
+        ),
+        size = 0.25
       ) +
       facet_wrap(
         .~Subset, 
@@ -97,7 +131,8 @@ umap_plot <- function(df, save_prefix) {
       scale_color_manual(
         name = "",
         values = kev_palette[1:unique_cluster_len]
-      ) +  
+      ) + 
+      guides(color = guide_legend(override.aes = list(size=2))) + 
       theme_few() +
       theme(axis.title.x = element_text(size = 16)) +
       theme(axis.title.y = element_text(size = 16)) +
@@ -118,11 +153,17 @@ umap_plot <- function(df, save_prefix) {
       device = cairo_pdf
     )
   } else {
+    if (any(grepl("Batch", df$Clustering))) {
+      pal = "Set1"
+    } else {
+      pal = "Dark2"
+    }
     ggplot(data = df, aes(x = `UMAP 1`, y = `UMAP 2`)) +
       geom_point(
         aes(
           color = factor(Clustering),
-        )
+        ),
+        size = 0.5
       ) +
       facet_wrap(
         .~Subset, 
@@ -133,7 +174,8 @@ umap_plot <- function(df, save_prefix) {
         x = "UMAP 1",
         y = "UMAP 2"
       ) +
-      scale_color_brewer(palette = "Dark2") +  
+      guides(color = guide_legend(override.aes = list(size=2))) +
+      scale_color_brewer(palette = pal) +  
       theme_few() +
       theme(axis.title.x = element_text(size = 16)) +
       theme(axis.title.y = element_text(size = 16)) +
