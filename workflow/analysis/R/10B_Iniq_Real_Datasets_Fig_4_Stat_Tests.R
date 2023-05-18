@@ -307,7 +307,7 @@ datasets <- c(
   "pbmc_2_batch",
   "pbmc_4_batch",
   "mouse_hindbrain_6_batch",
-  "peng_pdac_8_batch"
+  "peng_pdac_tumor_annot_8_batch_granular"
 )
 
 # Load relatedness metrics for all four datasets
