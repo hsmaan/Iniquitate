@@ -2,7 +2,7 @@
     "config_name": "lowcap_modified_pdac_reanno",
     "int_datasets": {
         "peng_pdac_8_batch": {
-            "data_folder": "peng_pdac_tumor_annot_8_batch",
+            "data_folder": "peng_pdac_tumor_annot_8_batch_granular",
             "ds_celltypes": [0],
             "ds_proportions": [0],
             "num_batches": [0],
