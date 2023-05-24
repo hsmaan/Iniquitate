@@ -4,9 +4,17 @@ This folder contains an rmarkdown example for using the guidelines shown in the 
 
 ### Viewing the rendered markdown
 
+#### Through the html
+
 1. Download the `guidelines.html` file
 
 2. Open the file with a web browser (chrome, safari, firefox, etc.)
+
+#### Through the pdf 
+
+1. Download the 'guidelines.pdf' file and view with a PDF browser
+
+Please note that the pdf rendering of the code might not be formatted well as the file was originally rendered as an html vignette
 
 ### Running the tutorial
 
