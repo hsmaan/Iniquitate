@@ -445,7 +445,7 @@ ggsave(
     "outs/control_ti_only/figures/",
     "19_chondrocyte_ti_spearman_corr_ds_celltype_method_no_liger.pdf"
   ),
-  width = 14,
+  width = 28,
   height = 8,
   device = cairo_pdf
 )
