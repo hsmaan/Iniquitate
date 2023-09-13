@@ -1,6 +1,7 @@
 *.png
 *.jpeg
 *.pdf
+*.html
 *.svg
 *.tsv
 *.csv
@@ -14,6 +15,7 @@ __pycache__
 *.Rhistory
 *.RData
 *.tar.gz
+*.h5ad
 cluster.json
 submit.slrm
 submit.sh
