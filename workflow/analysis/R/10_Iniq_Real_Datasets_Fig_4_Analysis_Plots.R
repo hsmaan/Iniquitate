@@ -1447,7 +1447,7 @@ knn_support_plot <- function(dataset, knn_class_df, plot_height, plot_width) {
     geom_jitter(aes(color = Log_support)) +
     geom_boxplot(aes(fill = Log_support)) +
     labs(
-      fill = "Relative \ncell-type \nsupport",
+      fill = "Aggregate \ncell-type \nsupport",
       x = "Cell-type",
       y = "F1-classification score post-integration"
     ) +
