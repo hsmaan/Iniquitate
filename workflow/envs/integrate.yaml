@@ -36,5 +36,5 @@ dependencies:
   - colorcet>=3.0.0
   - seaborn>=0.11.0
 variables:
-  TMPDIR: "TMPDIR=/scratch/gobi2/hmaan/Documents/Iniquitate/workflow/tmp" 
+  TMPDIR: "/tmp" 
   

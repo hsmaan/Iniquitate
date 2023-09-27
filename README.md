@@ -52,6 +52,7 @@ git clone https://github.com/hsmaan/Iniquitate.git
 
     Note that the above Snakemake run utilizes a `workflow/cluster.json` configuration file and HPC parallelization of the various steps in the pipeline. Users will need to create a `cluster.json` file specific to their HPC setup that has resources for all of the rules in `workflow/Snakefile`. Alternatively, users can also choose to employ Snakemake profiles. Details can be found here: https://snakemake.readthedocs.io/en/stable/snakefiles/configuration.html.
 
+    Further, currently all of the temporary integration files will by default be stored in `/tmp` based on the `TMPDIR` variable in `workflow/envs/integrate.yaml`. These files can be quite large and pile up during runtime, even though they are being deleted at the end of each run, and we therefore recommend that users set this directory to one that contains enough space - at least 100 GB. 
 
 4. Analyze the results using the R and python scripts/notebooks:
 
