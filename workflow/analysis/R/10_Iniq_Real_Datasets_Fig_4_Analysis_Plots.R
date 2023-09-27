@@ -430,7 +430,7 @@ datasets <- c(
   "pbmc_2_batch",
   "pbmc_4_batch",
   "mouse_hindbrain_6_batch",
-  "peng_pdac_8_batch"
+  "peng_pdac_tumor_annot_8_batch_granular"
 )
 
 # Load relatedness metrics for all four datasets
@@ -1248,7 +1248,7 @@ datasets <- c(
   "pbmc_2_batch",
   "pbmc_4_batch",
   "mouse_hindbrain_6_batch",
-  "peng_pdac_8_batch"
+  "peng_pdac_tumor_annot_8_batch_granular"
 )
 
 # Load relatedness metrics for all four datasets
@@ -1691,7 +1691,7 @@ ggsave(
   device = cairo_pdf
 )
 
-pdac_8_batch_relate_formatted <- relatedness_loaded$peng_pdac_8_batch %>%
+pdac_8_batch_relate_formatted <- relatedness_loaded$peng_pdac_tumor_annot_8_batch_granular %>%
   group_by(`Celltype 1`, `Celltype 2`) %>%
   summarize(`Average PCA cosine dist` = mean(`PCA cosine dist`)) %>%
   as.data.frame() 

@@ -151,98 +151,132 @@ if config["celltype_list"] == "No":
                         dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
                 )
     else:
-        rule all:
-            input:
-                expand(
-                    "../results/{configname}/{outputs[0]}/{dataset}_{outputs[1]}.{outputs[2]}",
-                    configname = configname,
-                    dataset = get_combinations(config, "int_ti_datasets"),
-                    outputs = zip(
-                        [
-                            "paga_integrated_results",
-                            "paga_imbalance_summaries",
-                            "paga_ti_scores"
-                        ], 
-                        [
-                            "paga_integrated",
-                            "paga_imbalance_summary",
-                            "paga_ti_score"
-                        ],
-                        [
-                            "h5ad",
-                            "tsv",
-                            "tsv"
-                        ]
-                    )
-                ),
-                expand(
-                    "../results/{configname}/{outputs[0]}/{dataset}_{outputs[1]}.{outputs[2]}",
-                    configname = configname,
-                    dataset = get_combinations(config, "int_datasets"),
-                    outputs = zip(
-                        [
-                            "integrated_results",
-                            "downsample_summaries", 
-                            "clustering_summaries", 
-                            "clustering_concord_summaries",
-                            "dge_concord_full",
-                            "dge_concord_stats",
-                            "dge_ranking_stats",
-                            "dge_ranking_results_per_cluster",
-                            "dge_ranking_stats_marker_sub",
-                            "imbalance_summaries",
-                            "celltype_imbalance_summaries",
-                            "knn_classification_reports",
-                            "umap_plots",
-                            "umap_plots",
-                            "umap_plots"
-                        ], 
-                        [
-                            "integrated",
-                            "downsample_summary", 
-                            "clustering_summary", 
-                            "clustering_concord_summary",
-                            "dge_concord_full",
-                            "dge_concord_stats",
-                            "dge_ranking_stats",
-                            "dge_ranking_results_per_cluster",
-                            "dge_ranking_stats_marker_sub",
-                            "imbalance_summary",
-                            "celltype_imbalance_summary",
-                            "knn_classification",
-                            "umap_leiden",
-                            "umap_celltype",
-                            "umap_batch"
-                        ],
-                        [
-                            "h5ad",
-                            "tsv", 
-                            "tsv", 
-                            "tsv", 
-                            "tsv",
-                            "tsv",
-                            "tsv",
-                            "tsv",
-                            "tsv",
-                            "tsv",
-                            "tsv",
-                            "tsv",
-                            "pdf",
-                            "pdf",
-                            "pdf"
-                        ]
-                    )
-                ),
-                expand(
-                    "../results/{configname}/marker_results/{dataset}_preintegration_marker_selection.tsv",
+        if config["config_name"] == "pdac_comp_reanno":
+           rule all:
+                input:
+                    expand(
+                        "../results/{configname}/{outputs[0]}/{dataset}_{outputs[1]}.{outputs[2]}",
                         configname = configname,
-                        dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
-                ),
-                expand(
-                    "../results/{configname}/relatedness_results/{dataset}_celltype_relatedness.tsv",
+                        dataset = get_combinations(config, "int_datasets"),
+                        outputs = zip(
+                            [
+                                "integrated_results",
+                                "downsample_summaries", 
+                                "clustering_summaries", 
+                                "clustering_concord_summaries",
+                                "imbalance_summaries",
+                                "celltype_imbalance_summaries",
+                                "knn_classification_reports"
+                            ], 
+                            [
+                                "integrated",
+                                "downsample_summary", 
+                                "clustering_summary", 
+                                "clustering_concord_summary",
+                                "imbalance_summary",
+                                "celltype_imbalance_summary",
+                                "knn_classification"
+                            ],
+                            [
+                                "h5ad",
+                                "tsv", 
+                                "tsv", 
+                                "tsv",
+                                "tsv",
+                                "tsv",
+                                "tsv"
+                            ]
+                        )
+                    ),
+                    expand(
+                        "../results/{configname}/relatedness_results/{dataset}_celltype_relatedness.tsv",
+                            configname = configname,
+                            dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
+                    )
+        else:
+            rule all:
+                input:
+                    expand(
+                        "../results/{configname}/{outputs[0]}/{dataset}_{outputs[1]}.{outputs[2]}",
                         configname = configname,
-                        dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
-                )
+                        dataset = get_combinations(config, "int_ti_datasets"),
+                        outputs = zip(
+                            [
+                                "paga_integrated_results",
+                                "paga_imbalance_summaries",
+                                "paga_ti_scores"
+                            ], 
+                            [
+                                "paga_integrated",
+                                "paga_imbalance_summary",
+                                "paga_ti_score"
+                            ],
+                            [
+                                "h5ad",
+                                "tsv",
+                                "tsv"
+                            ]
+                        )
+                    ),
+                    expand(
+                        "../results/{configname}/{outputs[0]}/{dataset}_{outputs[1]}.{outputs[2]}",
+                        configname = configname,
+                        dataset = get_combinations(config, "int_datasets"),
+                        outputs = zip(
+                            [
+                                "integrated_results",
+                                "downsample_summaries", 
+                                "clustering_summaries", 
+                                "clustering_concord_summaries",
+                                "dge_concord_full",
+                                "dge_concord_stats",
+                                "dge_ranking_stats",
+                                "dge_ranking_results_per_cluster",
+                                "dge_ranking_stats_marker_sub",
+                                "imbalance_summaries",
+                                "celltype_imbalance_summaries",
+                                "knn_classification_reports"
+                            ], 
+                            [
+                                "integrated",
+                                "downsample_summary", 
+                                "clustering_summary", 
+                                "clustering_concord_summary",
+                                "dge_concord_full",
+                                "dge_concord_stats",
+                                "dge_ranking_stats",
+                                "dge_ranking_results_per_cluster",
+                                "dge_ranking_stats_marker_sub",
+                                "imbalance_summary",
+                                "celltype_imbalance_summary",
+                                "knn_classification"
+                            ],
+                            [
+                                "h5ad",
+                                "tsv", 
+                                "tsv", 
+                                "tsv", 
+                                "tsv",
+                                "tsv",
+                                "tsv",
+                                "tsv",
+                                "tsv",
+                                "tsv",
+                                "tsv",
+                                "tsv"
+                            ]
+                        )
+                    ),
+                    expand(
+                        "../results/{configname}/marker_results/{dataset}_preintegration_marker_selection.tsv",
+                            configname = configname,
+                            dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
+                    ),
+                    expand(
+                        "../results/{configname}/relatedness_results/{dataset}_celltype_relatedness.tsv",
+                            configname = configname,
+                            dataset = [config["int_datasets"][key]["data_folder"] for key in config["int_datasets"].keys()]
+                    )
 else:
     print("No")
 
