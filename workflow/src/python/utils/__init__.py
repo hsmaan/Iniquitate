@@ -10,3 +10,4 @@ from .kmeans import faiss_kmeans
 from .seurat_reference_mapping import SeuratReferenceMap
 from .mnn import mutual_nn, find_mutual_nn, find_knn, cross_data_knn
 from .relatedness import relatedness_score
+from .umap import Umap

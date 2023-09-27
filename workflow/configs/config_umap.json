@@ -1,0 +1,50 @@
+{
+    "config_name": "umap",
+    "int_datasets": {
+        "pbmc_2_batch_base_balanced" : {
+            "data_folder": "pbmc_2_batch_base_balanced",
+            "ds_celltypes": [1],
+            "ds_proportions": [0.1, 0],
+            "num_batches": [0, 1],
+            "repetitions": 1
+        },
+        "pbmc_2_batch_hierarchical_balanced": {
+            "data_folder": "pbmc_2_batch_hierarchical_balanced",
+            "ds_celltypes": [1],
+            "ds_proportions": [0.1, 0],
+            "num_batches": [0, 1],
+            "repetitions": 1
+        },
+        "pbmc_2_batch" : {
+            "data_folder": "pbmc_2_batch",
+            "ds_celltypes": [0],
+            "ds_proportions": [0],
+            "num_batches": [0],
+            "repetitions": 1
+        },
+        "pbmc_4_batch" : {
+            "data_folder": "pbmc_4_batch",
+            "ds_celltypes": [0],
+            "ds_proportions": [0],
+            "num_batches": [0],
+            "repetitions": 1
+        },
+        "mouse_hindbrain_6_batch": {
+            "data_folder": "mouse_hindbrain_6_batch",
+            "ds_celltypes": [0],
+            "ds_proportions": [0],
+            "num_batches": [0],
+            "repetitions": 1
+        },
+        "peng_pdac_8_batch": {
+            "data_folder": "peng_pdac_tumor_annot_8_batch",
+            "ds_celltypes": [0],
+            "ds_proportions": [0],
+            "num_batches": [0],
+            "repetitions": 1
+        }
+    },
+    "int_ti_datasets": {},
+    "query_to_reference": "No",
+    "celltype_list": "No"
+}
