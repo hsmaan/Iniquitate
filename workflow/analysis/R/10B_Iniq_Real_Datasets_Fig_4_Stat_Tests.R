@@ -298,7 +298,7 @@ fwrite(
   col.names = TRUE
 )
 
-### Test 2 - testing whether or not the proposed metrics - relative celltype 
+### Test 2 - testing whether or not the proposed metrics - aggregate celltype 
 ### support and minimum celltype center distance are significant in an ANOVA
 ### test for their predictive value for F1-scores 
 
@@ -469,7 +469,7 @@ support_anova <- function(dataset, knn_class_df) {
   return(anova_result_dt)
 }
 
-# Get the ANOVA results across all methods for relative celltype support
+# Get the ANOVA results across all methods for aggregate celltype support
 support_anova_results <- mapply(
   support_anova,
   dataset = datasets,

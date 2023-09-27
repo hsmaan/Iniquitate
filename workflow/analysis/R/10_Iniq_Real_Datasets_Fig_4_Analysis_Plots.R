@@ -1112,6 +1112,40 @@ ggsave(
 
 ##### Plotting of relatedness metric for both PBMC 2 batch balanced and ##### 
 ##### imbalanced datasets #####
+
+# Format cell-type names before plotting
+pbmc_2_batch_bal_relate_formatted$`Celltype 1` <- plyr::mapvalues(
+  pbmc_2_batch_bal_relate_formatted$`Celltype 1`,
+  from = c(
+    "Monocyte_CD14",
+    "Monocyte_FCGR3A",
+    "CD4 T cell",
+    "CD8 T cell"
+  ),
+  to = c(
+    "CD14+ Monocyte",
+    "FCGR3A+ Monocyte",
+    "CD4+ T cell",
+    "CD8+ T cell"
+  )
+)
+
+pbmc_2_batch_bal_relate_formatted$`Celltype 2` <- plyr::mapvalues(
+  pbmc_2_batch_bal_relate_formatted$`Celltype 2`,
+  from = c(
+    "Monocyte_CD14",
+    "Monocyte_FCGR3A",
+    "CD4 T cell",
+    "CD8 T cell"
+  ),
+  to = c(
+    "CD14+ Monocyte",
+    "FCGR3A+ Monocyte",
+    "CD4+ T cell",
+    "CD8+ T cell"
+  )
+)
+
 ggplot(
   data = pbmc_2_batch_bal_relate_formatted,
   aes(
@@ -1447,7 +1481,7 @@ knn_support_plot <- function(dataset, knn_class_df, plot_height, plot_width) {
     geom_jitter(aes(color = Log_support)) +
     geom_boxplot(aes(fill = Log_support)) +
     labs(
-      fill = "Relative \ncell-type \nsupport",
+      fill = "Aggregate \ncell-type \nsupport",
       x = "Cell-type",
       y = "F1-classification score post-integration"
     ) +

@@ -33,5 +33,8 @@ dependencies:
   - cython>=0.29.25,<=0.29.34
   - r-rann=2.6.1
   - natsort>=7.0.0
+  - colorcet>=3.0.0
+  - seaborn>=0.11.0
 variables:
   TMPDIR: "TMPDIR=/scratch/gobi2/hmaan/Documents/Iniquitate/workflow/tmp" 
+  
