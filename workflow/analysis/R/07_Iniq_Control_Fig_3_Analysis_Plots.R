@@ -2109,7 +2109,7 @@ ggplot(data = imba_clus_merged, aes(
     alpha = 0.8 
   ) + 
   geom_jitter(color = "black", size = 0.4, alpha = 0.7) +
-  facet_wrap(.~Method, scales = "fixed") +
+  facet_wrap(.~Method, scales = "free_x") +
   scale_fill_manual( 
     breaks = c("Control", "Downsampled", "Ablated"),
     values = c("forestgreen", "darkorchid3", "firebrick2")
@@ -2118,6 +2118,15 @@ ggplot(data = imba_clus_merged, aes(
     fill = "Type",
     x = "Cell-type downsampled",
     y = "Number of Leiden clusters post-integration"
+  ) +
+  scale_y_continuous(
+    limits = (
+      c(
+        min(imba_clus_merged$`Cluster number`), 
+        max(imba_clus_merged$`Cluster number`)
+      )
+    ),
+    oob = scales::squish
   ) +
   coord_flip() +
   theme_few() +
@@ -3285,7 +3294,7 @@ ggplot(data = imba_anno_merged_score_format_l1, aes(
     alpha = 0.8 
   ) + 
   geom_jitter(color = "black", size = 0.4, alpha = 0.7) +
-  facet_wrap(.~`Celltype scored`, scales = "fixed") +
+  facet_wrap(.~`Celltype scored`, scales = "free_x") +
   scale_fill_manual( 
     breaks = c("Control", "Downsampled", "Ablated"),
     values = c("forestgreen", "darkorchid3", "firebrick2")
@@ -3297,6 +3306,15 @@ ggplot(data = imba_anno_merged_score_format_l1, aes(
   ) +
   coord_flip() +
   theme_few() +
+  scale_y_continuous(
+    limits = (
+      c(
+        min(imba_anno_merged_score_format_l1$`Score`), 
+        max(imba_anno_merged_score_format_l1$`Score`)
+      )
+    ),
+    oob = scales::squish
+  ) +
   theme(axis.title.x = element_text(size = 16)) +
   theme(axis.title.y = element_text(size = 16)) +
   theme(strip.text.x = element_text(size = 16)) +
@@ -3327,7 +3345,7 @@ ggplot(data = imba_anno_merged_score_format_l2, aes(
     alpha = 0.8 
   ) + 
   geom_jitter(color = "black", size = 0.4, alpha = 0.7) +
-  facet_wrap(.~`Celltype scored`, scales = "fixed") +
+  facet_wrap(.~`Celltype scored`, scales = "free_x") +
   scale_fill_manual( 
     breaks = c("Control", "Downsampled", "Ablated"),
     values = c("forestgreen", "darkorchid3", "firebrick2")
@@ -3336,6 +3354,15 @@ ggplot(data = imba_anno_merged_score_format_l2, aes(
     fill = "Type",
     x = "Cell-type downsampled",
     y = "L2 annotation accuracy (F1-score)"
+  ) +
+  scale_y_continuous(
+    limits = (
+      c(
+        min(imba_anno_merged_score_format_l2$`Score`), 
+        max(imba_anno_merged_score_format_l2$`Score`)
+      )
+    ),
+    oob = scales::squish
   ) +
   coord_flip() +
   theme_few() +

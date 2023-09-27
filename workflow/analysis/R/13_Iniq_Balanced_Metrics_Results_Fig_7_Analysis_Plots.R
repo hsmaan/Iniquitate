@@ -405,7 +405,7 @@ ggplot(data = bal_7C_cluster_df, aes(x = x, y = y)) +
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) + 
   guides(colour = guide_legend(override.aes = list(size=3)))
-ggsave(
+ ggsave(
   "outs/balanced_metrics/figures/13_7C_trial_cluster_coordinates.pdf",
   width = 7,
   height = 7
@@ -686,14 +686,48 @@ ggsave(
   height = 8
 )
 
-
 # Plot the cluster coordinate results per method 
+# unique_subsets <- as.list(unique(bal_7E_cluster_df$Subset))
+# p_list <- lapply(unique_subsets, function(x) {
+#   cluster_df_sub <-
+#     bal_7E_cluster_df %>%
+#     filter(Subset == x)
+#   print(cluster_df_sub)
+#   palette <- kev_palette[1:length(unique(cluster_df_sub$cluster))]
+#   p <- 
+#     cluster_df_sub %>%
+#     ggplot(aes(x = x, y = y)) +
+#     geom_point(aes(color = factor(cluster)), size = 0.25) +
+#     facet_wrap(.~Subset, scales = "free") +
+#     labs(
+#       color = "Cluster",
+#       x = "UMAP 1",
+#       y = "UMAP 2"
+#     ) +
+#     scale_color_manual(values = palette) +
+#     theme_few() +
+#     theme(axis.title.x = element_text(size = 16)) +
+#     theme(axis.title.y = element_text(size = 16)) +
+#     theme(strip.text.x = element_text(size = 16)) +
+#     theme(plot.title = element_text(size = 14)) +
+#     theme(axis.text.x = element_text(size = 16)) +
+#     theme(axis.text.y = element_text(size = 16)) +
+#     theme(legend.title = element_text(size = 16)) +
+#     theme(legend.text = element_text(size = 16)) +
+#     theme(aspect.ratio = 1) + 
+#     guides(colour = guide_legend(override.aes = list(size=3)))
+#   
+#   return(p)
+# })
+# 
+# p_list[[1]] | p_list[[2]] | p_list[[3]]
+
 palette_7E_cluster <- kev_palette[1:length(unique(bal_7E_cluster_df$cluster))]
 p_7e_3 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
   geom_point(aes(color = factor(cluster)), size = 0.25) +
   facet_wrap(.~Subset, scales = "free") + 
   labs(
-    color = "Cluster",
+    color = "Method-specific \nclusters ...",
     x = "UMAP 1",
     y = "UMAP 2"
   ) +
@@ -856,3 +890,40 @@ save_plot(
   base_width = 16
 )
 
+# Plot individual plots of ARI, bARI, AMI, and bAMI for these results, per
+# method 
+
+# Subset data for these metrics
+bal_7E_metrics_df_sub <- bal_7E_metrics_df %>%
+  filter(
+    Metric %in% c(
+      "ARI imbalanced", 
+      "ARI balanced", 
+      "AMI imbalanced", 
+      "AMI balanced"
+      )
+  )
+
+# Plot the results 
+ggplot(data = bal_7E_metrics_df_sub, aes(x = Metric, y = Value)) +
+  geom_bar(stat="identity", fill="dodgerblue2") +
+  facet_wrap(~Subset, scales = "fixed") +
+  theme_classic() +
+  labs(
+    x = "Metric",
+    y = "Score"
+  ) +
+  ylim(c(0, 1)) +
+  theme(axis.title.x = element_text(size = 16)) +
+  theme(axis.title.y = element_text(size = 16)) +
+  theme(strip.text.x = element_text(size = 16)) +
+  theme(strip.text.y = element_text(size = 16)) +
+  theme(plot.title = element_text(size = 14)) +
+  theme(axis.text.x = element_text(size = 16)) +
+  theme(axis.text.y = element_text(size = 16)) +
+  coord_flip()
+ggsave(
+  "outs/balanced_metrics/figures/13_7E_trial_bal_imbal_ari_ami_scores.pdf",
+  width = 16,
+  height = 7
+)
