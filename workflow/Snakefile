@@ -1,6 +1,6 @@
 import os 
 
-configfile: "configs/config_lowcap_modified_pdac_reanno.json"
+configfile: "configs/config_umap.json"
 configname = config["config_name"]
 
 # Get all combinations through the config file
