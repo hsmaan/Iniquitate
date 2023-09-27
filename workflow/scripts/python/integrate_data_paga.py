@@ -15,8 +15,7 @@ def none_or_str(value):
         return None
     return value
 
-def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_celltypes_names, ds_proportions, 
-         num_batches):
+def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_proportions, num_batches):
     # Load h5ad files 
     files_list = os.listdir(h5ad_dir)
     adata_loaded = []
@@ -30,10 +29,6 @@ def main(h5ad_dir, root_celltype, save_loc, ds_celltypes, ds_celltypes_names, ds
             c.replace(" ", "_") for c in adata.obs.celltype
         ] # Remove spaces from celltype names - for Snakemake wildcard matching
         adata_loaded.append(adata)
-        
-    # Parse celltypes names if not none 
-    if ds_celltypes_names is not None:
-        ds_celltypes_names = ds_celltypes_names.split(", ")
     
     # Downsample loaded h5ad files based on params 
     if num_batches == 0:
@@ -166,13 +161,6 @@ if __name__ == "__main__":
         help = "Number of celltypes to randomly downsample in given batch"
     )
     parser.add_argument(
-        "--ds_celltype_names",
-        type = none_or_str,
-        nargs = "?",
-        default = None,
-        help = "Custom names of celltypes to downsample in given batch"
-    )
-    parser.add_argument(
         "--ds_proportions",
         type = float,
         help = "Proportion of downsampling per celltype in a given batch"
@@ -193,7 +181,6 @@ if __name__ == "__main__":
         root_celltype  = args.root_celltype,
         save_loc = args.outfile,
         ds_celltypes = args.ds_celltypes,
-        ds_celltypes_names = args.ds_celltype_names,
         ds_proportions = args.ds_proportions,
         num_batches = args.num_batches        
     )
