@@ -1,6 +1,10 @@
 ## Imbalanced integration guidelines 
 
+![Example Image](assets/Figure_8_Revised.png)
+
 This folder contains an rmarkdown example for using the guidelines shown in the [Imbalanced integration manuscript](https://www.biorxiv.org/content/10.1101/2022.10.06.511156v3). The tutorial is available as a rendered rmarkdown html document (guidelines.html), which can be downloaded and viewed with a web browser.
+
+The full details of the imbalanced integration guidelines can be found in the manuscript in Results Section: Guidelines for imbalanced single-cell data integration, and the associated Supplementary Table 2.
 
 ### Viewing the rendered markdown
 
