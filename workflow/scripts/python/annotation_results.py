@@ -51,7 +51,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--outfile",
         type = str,
-        help = "Filepath for saving annotation  results"
+        help = "Filepath for saving annotation results"
     )
     parser.add_argument(
         "--dataset",

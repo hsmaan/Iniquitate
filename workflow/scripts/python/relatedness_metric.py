@@ -30,7 +30,7 @@ def main(h5ad_dir, save_loc, dataset_name):
          
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description = "Input and output files for marker gene summary"
+        description = "Input and output files for calculating relatedness metric"
     )
     parser.add_argument(
         "--filedir",
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--outfile",
         type = str,
-        help = "Filepath for saving output from marker gene selection"
+        help = "Filepath for saving output from relatedness metric calculation"
     )
     parser.add_argument(
         "--dataset",

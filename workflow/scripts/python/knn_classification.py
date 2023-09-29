@@ -97,7 +97,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description = "Input and output files for clustering results summary"
+        description = "Input and output files for KNN classification results summary"
     )
     parser.add_argument(
         "--infile",
@@ -107,7 +107,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--outfile",
         type = str,
-        help = "Filepath for saving clustering results of integrated h5ad file"
+        help = "Filepath for saving KNN classification results of integrated h5ad file"
     )
     parser.add_argument(
         "--dataset",

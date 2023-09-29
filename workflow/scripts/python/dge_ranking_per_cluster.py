@@ -98,7 +98,7 @@ def main(h5ad_loc, save_loc, dataset_name, rep):
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description = "Input and output files for dge ranking summary"
+        description = "Input and output files for dge ranking summary per cluster"
     )
     parser.add_argument(
         "--infile",
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--outfile",
         type = str,
-        help = "Filepath for saving dge ranking statistics of integrated h5ad file"
+        help = "Filepath for saving dge ranking statistics per cluster of integrated h5ad file"
     )
     parser.add_argument(
         "--dataset",

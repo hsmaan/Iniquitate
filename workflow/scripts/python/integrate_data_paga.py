@@ -173,7 +173,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--outfile",
         type = str,
-        help = "Filepath for saving output from scRNA-seq integration"
+        help = "Filepath for saving output from scRNA-seq integration and pseudotime estimation"
     )
     args = parser.parse_args()
     main(
@@ -182,5 +182,5 @@ if __name__ == "__main__":
         save_loc = args.outfile,
         ds_celltypes = args.ds_celltypes,
         ds_proportions = args.ds_proportions,
-        num_batches = args.num_batches        
+        num_batches = args.num_batches      
     )
