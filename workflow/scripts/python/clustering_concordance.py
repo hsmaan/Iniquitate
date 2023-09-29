@@ -53,7 +53,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--outfile",
         type = str,
-        help = "Filepath for saving downsampling statistics of integrated h5ad file"
+        help = "Filepath for saving clustering concordance statistics tsv"
     )
     parser.add_argument(
         "--dataset",

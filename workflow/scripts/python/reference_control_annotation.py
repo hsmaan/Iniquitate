@@ -73,7 +73,7 @@ def main(h5ad_loc, ref_h5ad_loc, save_loc):
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description = "Input and output files for query to reference mapping"
+        description = "Input and output files for query to reference mapping - control experiment"
     )
     parser.add_argument(
         "--infile",
