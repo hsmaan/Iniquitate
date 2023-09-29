@@ -4,6 +4,10 @@
 
 ***
 
+### Using the imbalanced integration guidelines
+
+A separate README for the imbalanced integration guidelines, with full environment installation instructions are in the `docs` folder. 
+
 ### Reproducing the paper analysis 
 
 1. Clone the GitHub repository:
