@@ -29,11 +29,13 @@ git clone https://github.com/hsmaan/Iniquitate.git
 
 3. Run the different configurations utilized in the study through the Snakemake pipeline:
 
-    - Change the configuration option at the top of `workflow/Snakefile`. The following configs were utilized for different analyses in the study:
+    - Change the configuration option at the top of `workflow/Snakefile`. The following configs were utilized for different main analyses in the study:
 
-        - config_control 
-        - config_lowcap_modified
-        - config_pdac_comp
+        - config_control.json 
+        - config_lowcap_modified.json
+        - config_pdac_comp_reanno.json
+        - config_control_ti_only.json
+        - config_umap.json
 
     - Run the Snakemake pipeline specific to the selected config:
 
@@ -58,7 +60,7 @@ git clone https://github.com/hsmaan/Iniquitate.git
 
     Further, currently all of the temporary integration files will by default be stored in `/tmp` based on the `TMPDIR` variable in `workflow/envs/integrate.yaml`. These files can be quite large and pile up during runtime, even though they are being deleted at the end of each run, and we therefore recommend that users set this directory to one that contains enough space - at least 100 GB. 
 
-4. Analyze the results using the R and python scripts/notebooks:
+4. After running all of the configurations, analyze the results using the R and python scripts/notebooks:
 
     - Begin by installing the analysis conda environment:
     ```
