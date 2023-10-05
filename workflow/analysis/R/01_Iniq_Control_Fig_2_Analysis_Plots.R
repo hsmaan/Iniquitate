@@ -16,6 +16,14 @@ library(Cairo)
 # Helper functions
 `%ni%` <- Negate(`%in%`)
 
+# Create output directories if not made already
+if (!dir.exists("outs/control/figures/")) {
+  dir.create("outs/control/figures/", recursive = TRUE)
+}
+if (!dir.exists("outs/control/results/")) {
+  dir.create("outs/control/results/", recursive = TRUE)
+}
+
 # Change to results dir for control data 
 setwd("../../../results/control/")
 

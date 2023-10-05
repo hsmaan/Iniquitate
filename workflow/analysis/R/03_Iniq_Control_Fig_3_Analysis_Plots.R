@@ -92,7 +92,7 @@ setwd("../dge_ranking_stats_marker_sub")
 dge_rank_files <- list.files()
 dge_rank_files <- grep(
   "pbmc_2_batch_base_balanced",
-  dge_rank_files,02_
+  dge_rank_files,
   value = TRUE
 )
 dge_rank_loaded <- lapply(dge_rank_files, fread)
