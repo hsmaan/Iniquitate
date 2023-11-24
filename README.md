@@ -16,18 +16,23 @@ A separate README for the imbalanced integration guidelines, with full environme
 git clone https://github.com/hsmaan/Iniquitate.git
 ```
 
-2. Download the resources utilized in the study, extract and move to Iniquitate directory:
+2. Download the resources utilized in the study, extract and move to Iniquitate directory. The data can be downloaded from Figshare or Google Drive:
+
+    Figshare:
+    https://doi.org/10.6084/m9.figshare.24625302.v1
 
 
+    Google Drive Link:
     - Download the data from https://drive.google.com/file/d/1gWsYEI_u0Bn-7liar1XmvcrFqdt3IHjV/view?usp=sharing
     - Alternatively, you can use gdown (https://github.com/wkentaro/gdown) if a command-line download is needed/desired
 
+    After downloading:
     ```
     tar -xzvf resources.tar.gz 
     mv resources Iniquitate
     ```
 
-3. Run the different configurations utilized in the study through the Snakemake pipeline:
+4. Run the different configurations utilized in the study through the Snakemake pipeline:
 
     - Change the configuration option at the top of `workflow/Snakefile`. The following configs were utilized for different analyses in the study:
 
@@ -58,7 +63,7 @@ git clone https://github.com/hsmaan/Iniquitate.git
 
     Further, currently all of the temporary integration files will by default be stored in `/tmp` based on the `TMPDIR` variable in `workflow/envs/integrate.yaml`. These files can be quite large and pile up during runtime, even though they are being deleted at the end of each run, and we therefore recommend that users set this directory to one that contains enough space - at least 100 GB. 
 
-4. Analyze the results using the R and python scripts/notebooks:
+5. Analyze the results using the R and python scripts/notebooks:
 
     - Begin by installing the analysis conda environment:
     ```
