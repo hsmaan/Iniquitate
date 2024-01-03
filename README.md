@@ -92,4 +92,46 @@ It is also recommended to **Run the R and python analysis notebooks** in an HPC 
 ***
 ### Custom configuration setup 
 
-**Under construction**
+The following steps are necessary to use a custom dataset:
+
+1) Process the batches/samples as necessary and convert to `h5ad` format. Create a folder in `resources/h5ad_files/int_datasets/` (e.g. `resources/h5ad_files/int_datasets/custom_data`) and move batches/samples to this location.
+
+2) Modify the custom dataset configuration file (`workflow/configs/config_custom.json`). This .json file has the following parameters:
+
+    - `config_name` - this can be left as custom, or changed to a different name, but this same name must be used when modifying the `Snakefile`
+    - `int_datasets` - this is a nested dictionary of the datasets to be used in the downsampling experiments. In this case, it's best to use the name of the dataset in `resources/h5ad_files/int_datasets` as the top level name
+        - `data_folder` - this value should be the same as the folder containing the batches/samples in `resources/h5ad_files/int_datasets/`
+        - `ds_celltypes` - this value indicates how many cell-types to downsample and/or ablate in each run
+        - `ds_proportions` - this value indicates what proportion of cell-types remain in the downsampled batch after the pertubation. In this case, 0 would indicate ablation, and 0.1 would indicate the same level of downsampling used for the main experiments in the study
+        - `num_batches` - the number of batches to downsample in each perturbation. The 0 option is included here so that control experiments are possible (no perturbation to any batches).
+        - `repetitions` - how many experiments based on the given grid of `ds_celltypes`, `ds_proportions`, and `num_batches` to perform. 200 is a good starting point. If the space of possible cell-types is very large (n celltypes > 20), then it may be useful to increase this value to ensure each cell-type is downsampled/ablated enough times in the total number of runs.
+
+    - `int_ti_datasets` - if any datasets have an underlying trajectory, and PAGA-based integration is needed to be done, then they should be added here with the same options indicated in `int_datasets`
+    - `query_to_reference` - A "Yes" or "No" option indicating whether or not to perform query-to-reference experiments. Currently this functionality is not available, but custom query-to-reference setups will be available soon. This should be left as "No".
+    - `celltype_list` - If the user has a list of specific cell-types to downsample (and not others), they can be included her as a json list of strings based on their names. We don't recommend specifying certain cell-types, as a-priori knowledge of the effects of downsampling/perturbation may not be accurate. 
+
+3) Modify the `Snakefile` in `workflow\Snakefile` at line 3, in reference to the name of the specific config being used. In the example given, the `configfile` line would be changed to:
+
+    - `configfile: "configs/config_custom.json"`
+
+4) Run snakemake:
+
+    ```
+    snakemake --unlock 
+    snakemake -j 1000 \
+        --use-conda \
+        --cluster-config cluster.json \
+        --cluster "sbatch \
+            --mem={cluster.mem} \
+            --gres=gpu:{cluster.gpu} \
+            -t {cluster.time} \
+            -p {cluster.partition} \
+            -c {threads}" \
+        --restart-times 0 \
+        --latency-wait 300 \
+        --keep-going \
+        --rerun-incomplete 
+    ```
+
+    Note that the above Snakemake run utilizes a `workflow/cluster.json` configuration file and HPC parallelization of the various steps in the pipeline. Users will need to create a `cluster.json` file specific to their HPC setup that has resources for all of the rules in `workflow/Snakefile`.
+    
