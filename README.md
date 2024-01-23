@@ -1,8 +1,14 @@
-# Iniquitate Pipeline
+# Iniquitate Pipeline <!-- omit in toc -->
 
-## Downsampling-based perturbation experiments for single-cell RNA sequencing integration
+### Downsampling-based perturbation experiments for single-cell RNA sequencing integration <!-- omit in toc -->
 
 ***
+
+## Table of contents  <!-- omit in toc -->
+- [Using the imbalanced integration guidelines](#using-the-imbalanced-integration-guidelines)
+- [Reproducing the paper analysis](#reproducing-the-paper-analysis)
+- [Custom data perturbation configuration setup](#custom-data-perturbation-configuration-setup)
+
 
 ### Using the imbalanced integration guidelines
 
@@ -90,7 +96,7 @@ git clone https://github.com/hsmaan/Iniquitate.git
 It is also recommended to **Run the R and python analysis notebooks** in an HPC environment as well, because some of the steps are memory-intensive. Particularly, we don't recommend running Rscripts 08 or 09 without HPC, as they are time-intensive sampling experiments. 
 
 ***
-### Custom configuration setup 
+### Custom data perturbation configuration setup 
 
 The following steps are necessary to use a custom dataset:
 
@@ -135,3 +141,4 @@ The following steps are necessary to use a custom dataset:
 
     Note that the above Snakemake run utilizes a `workflow/cluster.json` configuration file and HPC parallelization of the various steps in the pipeline. Users will need to create a `cluster.json` file specific to their HPC setup that has resources for all of the rules in `workflow/Snakefile`.
     
+5) Analyze the result files using the R scripts - all of the R scripts in the `workflow/analysis/R` folder can be used to analyze the results of the perturbation experiments. **Currently, an exhaustive list of custom analysis scripts is not available, but the existing scripts can be modified to suit the needs of the user**. We provide one custom script for analysis of KNN classification accuracy in the `workflow/analysis/R/knn_example.R` file. Please note that this file still needs to be modified in the appropriate input locations, which are indicated in the comments of the file.
