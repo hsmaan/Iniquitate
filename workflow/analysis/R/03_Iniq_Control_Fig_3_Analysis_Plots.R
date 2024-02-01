@@ -224,7 +224,7 @@ ggplot(data = imba_clus_merged, aes(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/control/figures/07_pbmc_ds_ablate_allmethod_cluster_number.pdf",
+  "outs/control/figures/03_pbmc_ds_ablate_allmethod_cluster_number.pdf",
   width = 14,
   height = 8,
   device = cairo_pdf
@@ -262,7 +262,7 @@ ggscatter(imba_clus_merged,
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) 
 ggsave(
-  "outs/control/figures/07_pbmc_ds_ablate_clus_num_celltype_ari_corr.pdf",
+  "outs/control/figures/03_pbmc_ds_ablate_clus_num_celltype_ari_corr.pdf",
   width = 14,
   height = 8,
   device = cairo_pdf
@@ -297,7 +297,7 @@ ggscatter(imba_clus_merged,
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) 
 ggsave(
-  "outs/control/figures/07_pbmc_ds_ablate_clus_num_batch_ari_corr.pdf",
+  "outs/control/figures/03_pbmc_ds_ablate_clus_num_batch_ari_corr.pdf",
   width = 14,
   height = 8,
   device = cairo_pdf
@@ -381,7 +381,7 @@ ggplot(data = imba_dge_merged, aes(
   theme(legend.position = "None")
 ggsave(
   paste0(
-    "outs/control/figures/07_pbmc_ds_ablate_",
+    "outs/control/figures/03_pbmc_ds_ablate_",
     "marker_gene_max_ranks.pdf"
   ),
   width = 14,
@@ -436,7 +436,7 @@ ggplot(data = imba_dge_merged, aes(
   theme(legend.position = "None")
 ggsave(
   paste0(
-    "outs/control/figures/07_pbmc_ds_ablate_",
+    "outs/control/figures/03_pbmc_ds_ablate_",
     "marker_gene_max_ranks_per_method.pdf"
   ),
   width = 14,
@@ -491,7 +491,7 @@ lapply(methods, function(x) {
   dge_method_plt(imba_dge_merged, x)
   ggsave(
     paste0(
-      "outs/control/figures/07_pbmc_ds_ablate_",
+      "outs/control/figures/03_pbmc_ds_ablate_",
       x,
       "_dge_rankings.pdf"
     ),
@@ -648,7 +648,7 @@ ht4 <- Heatmap(
 # Plot and save all of the heatmaps together 
 marker_pert_hm <- ht1 + ht2 + ht3 + ht4
 CairoPDF(
-  "outs/control/figures/07_marker_gene_pert_pbmc_control_heatmap.pdf",
+  "outs/control/figures/03_marker_gene_pert_pbmc_control_heatmap.pdf",
   width = 14, 
   height = 6
 )
@@ -712,7 +712,7 @@ ht3 <- Heatmap(
 )
 marker_per_hm_no_celltype <- ht1 + ht2 + ht3
 CairoPDF(
-  "outs/control/figures/07_marker_gene_pert_pbmc_control_heatmap_no_ctype.pdf",
+  "outs/control/figures/03_marker_gene_pert_pbmc_control_heatmap_no_ctype.pdf",
   width = 14, 
   height = 6
 )
@@ -770,7 +770,7 @@ ggplot(imba_dge_merged_top_10_var_genes, aes(x = Gene, y = `Max rank`)) +
   theme(legend.text = element_text(size = 14))
 ggsave(
   paste0(
-    "outs/control/figures/07_pbmc_ds_ablate_dge_rankings_top_10_var_genes.pdf"
+    "outs/control/figures/03_pbmc_ds_ablate_dge_rankings_top_10_var_genes.pdf"
   ),
   width = 14,
   height = 8,
@@ -839,7 +839,7 @@ lapply(methods, function(x) {
   dge_stdev_method_plt(gene_rank_variance_grouped, x)
   ggsave(
     paste0(
-      "outs/control/figures/07_pbmc_ds_ablate_",
+      "outs/control/figures/03_pbmc_ds_ablate_",
       x,
       "_dge_rankings_method_type_stdev.pdf"
     ),
@@ -898,7 +898,7 @@ ggplot(
   theme(legend.text = element_text(size = 14))
 ggsave(
   paste0(
-    "outs/control/figures/07_pbmc_ds_ablate_",
+    "outs/control/figures/03_pbmc_ds_ablate_",
     "_dge_rankings_method_type_stdev_top_10.pdf"
   ),
   width = 14,
@@ -961,7 +961,7 @@ ggplot(
   theme(legend.text = element_text(size = 14))
 ggsave(
   paste0(
-    "outs/control/figures/07_pbmc_ds_ablate_",
+    "outs/control/figures/03_pbmc_ds_ablate_",
     "_dge_rankings_type_stdev.pdf"
   ),
   width = 14,
@@ -1031,7 +1031,7 @@ top_10_var_marker_genes_sankey <- sankeyNetwork(
 saveNetwork(
   top_10_var_marker_genes_sankey,
   file = paste0(
-    "outs/control/figures/07_pbmc_ds_ablate_",
+    "outs/control/figures/03_pbmc_ds_ablate_",
     "_top_var_dges_with_assoc_celltypes.html"
   ),
   selfcontained = TRUE
@@ -1174,7 +1174,7 @@ ggplot(
   )
 ggsave(
   paste0(
-    "outs/control/figures/07_pbmc_ds_only_",
+    "outs/control/figures/03_pbmc_ds_only_",
     "_dge_rankings_celltype_marker_celltype_ds_compare.pdf"
   ),
   width = 14,
@@ -1235,7 +1235,7 @@ ggplot(
   )
 ggsave(
   paste0(
-    "outs/control/figures/07_pbmc_ablated_only_",
+    "outs/control/figures/03_pbmc_ablated_only_",
     "_dge_rankings_celltype_marker_celltype_ablated_compare.pdf"
   ),
   width = 14,
@@ -1387,7 +1387,7 @@ ggplot(data = imba_anno_merged_score_format_l1, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l1_annotation_f1_scores_celltype_ds.pdf"
+    "03_pbmc_ds_ablate_l1_annotation_f1_scores_celltype_ds.pdf"
   ),
   width = 16,
   height = 7,
@@ -1429,7 +1429,7 @@ ggplot(data = imba_anno_merged_score_format_l2, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l2_annotation_f1_scores_celltype_ds.pdf"
+    "03_pbmc_ds_ablate_l2_annotation_f1_scores_celltype_ds.pdf"
   ),
   width = 16,
   height = 7,
@@ -1486,7 +1486,7 @@ ggplot(data = imba_anno_merged_score_format_l1_sd, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l1_annotation_f1_scores_celltype_sdev.pdf"
+    "03_pbmc_ds_ablate_l1_annotation_f1_scores_celltype_sdev.pdf"
   ),
   width = 7,
   height = 5,
@@ -1530,7 +1530,7 @@ ggplot(data = imba_anno_merged_score_format_l2_sd, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l2_annotation_f1_scores_celltype_sdev.pdf"
+    "03_pbmc_ds_ablate_l2_annotation_f1_scores_celltype_sdev.pdf"
   ),
   width = 7,
   height = 5,
@@ -1628,7 +1628,7 @@ ggplot(data = imba_anno_merged_all_tcell, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l1_annotation_t_cell_preds_barplot.pdf"
+    "03_pbmc_ds_ablate_l1_annotation_t_cell_preds_barplot.pdf"
   ),
   width = 10,
   height = 7,
@@ -1660,7 +1660,7 @@ ggplot(data = imba_anno_merged_all_tcell, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l2_annotation_t_cell_preds_barplot.pdf"
+    "03_pbmc_ds_ablate_l2_annotation_t_cell_preds_barplot.pdf"
   ),
   width = 10,
   height = 7,
@@ -1704,7 +1704,7 @@ ggplot(data = imba_anno_merged_all_cd4_tcell, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l1_annotation_cd4t_cell_preds",
+    "03_pbmc_ds_ablate_l1_annotation_cd4t_cell_preds",
     "_celltype_ds_specific_barplots.pdf"
   ),
   width = 12,
@@ -1737,7 +1737,7 @@ ggplot(data = imba_anno_merged_all_cd4_tcell, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l2_annotation_cd4t_cell_preds",
+    "03_pbmc_ds_ablate_l2_annotation_cd4t_cell_preds",
     "_celltype_ds_specific_barplots.pdf"
   ),
   width = 12,
@@ -1770,7 +1770,7 @@ ggplot(data = imba_anno_merged_all_cd8_tcell, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l1_annotation_cd8t_cell_preds",
+    "03_pbmc_ds_ablate_l1_annotation_cd8t_cell_preds",
     "_celltype_ds_specific_barplots.pdf"
   ),
   width = 12,
@@ -1803,7 +1803,7 @@ ggplot(data = imba_anno_merged_all_cd8_tcell, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l2_annotation_cd8t_cell_preds",
+    "03_pbmc_ds_ablate_l2_annotation_cd8t_cell_preds",
     "_celltype_ds_specific_barplots.pdf"
   ),
   width = 12,
@@ -1857,7 +1857,7 @@ ggplot(data = imba_anno_merged_score_format_l1_baseline, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l1_baseline_annotation_f1_scores_celltype_ds.pdf"
+    "03_pbmc_ds_ablate_l1_baseline_annotation_f1_scores_celltype_ds.pdf"
   ),
   width = 16,
   height = 7,
@@ -1899,7 +1899,7 @@ ggplot(data = imba_anno_merged_score_format_l2_baseline, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l2_baseline_annotation_f1_scores_celltype_ds.pdf"
+    "03_pbmc_ds_ablate_l2_baseline_annotation_f1_scores_celltype_ds.pdf"
   ),
   width = 16,
   height = 7,
@@ -2139,7 +2139,7 @@ ggplot(data = imba_clus_merged, aes(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/control/figures/07_pbmc_ds_ablate_allmethod_cluster_number_no_liger.pdf",
+  "outs/control/figures/03_pbmc_ds_ablate_allmethod_cluster_number_no_liger.pdf",
   width = 14,
   height = 8,
   device = cairo_pdf
@@ -2177,7 +2177,7 @@ ggscatter(imba_clus_merged,
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) 
 ggsave(
-  "outs/control/figures/07_pbmc_ds_ablate_clus_num_celltype_ari_corr_no_liger.pdf",
+  "outs/control/figures/03_pbmc_ds_ablate_clus_num_celltype_ari_corr_no_liger.pdf",
   width = 14,
   height = 8,
   device = cairo_pdf
@@ -2212,7 +2212,7 @@ ggscatter(imba_clus_merged,
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) 
 ggsave(
-  "outs/control/figures/07_pbmc_ds_ablate_clus_num_batch_ari_corr_no_liger.pdf",
+  "outs/control/figures/03_pbmc_ds_ablate_clus_num_batch_ari_corr_no_liger.pdf",
   width = 14,
   height = 8,
   device = cairo_pdf
@@ -2296,7 +2296,7 @@ ggplot(data = imba_dge_merged, aes(
   theme(legend.position = "None")
 ggsave(
   paste0(
-    "outs/control/figures/07_pbmc_ds_ablate_",
+    "outs/control/figures/03_pbmc_ds_ablate_",
     "marker_gene_max_ranks_no_liger.pdf"
   ),
   width = 14,
@@ -2351,7 +2351,7 @@ ggplot(data = imba_dge_merged, aes(
   theme(legend.position = "None")
 ggsave(
   paste0(
-    "outs/control/figures/07_pbmc_ds_ablate_",
+    "outs/control/figures/03_pbmc_ds_ablate_",
     "marker_gene_max_ranks_per_method_no_liger.pdf"
   ),
   width = 14,
@@ -2406,7 +2406,7 @@ lapply(methods, function(x) {
   dge_method_plt(imba_dge_merged, x)
   ggsave(
     paste0(
-      "outs/control/figures/07_pbmc_ds_ablate_",
+      "outs/control/figures/03_pbmc_ds_ablate_",
       x,
       "_dge_rankings_no_liger.pdf"
     ),
@@ -2578,7 +2578,7 @@ ht4 <- Heatmap(
 # Plot and save all of the heatmaps together 
 marker_pert_hm <- ht1 + ht2 + ht3 + ht4
 CairoPDF(
-  "outs/control/figures/07_marker_gene_pert_pbmc_control_heatmap_no_liger.pdf",
+  "outs/control/figures/03_marker_gene_pert_pbmc_control_heatmap_no_liger.pdf",
   width = 14, 
   height = 6
 )
@@ -2642,7 +2642,7 @@ ht3 <- Heatmap(
 )
 marker_per_hm_no_celltype <- ht1 + ht2 + ht3
 CairoPDF(
-  "outs/control/figures/07_marker_gene_pert_pbmc_control_heatmap_no_ctype_no_liger.pdf",
+  "outs/control/figures/03_marker_gene_pert_pbmc_control_heatmap_no_ctype_no_liger.pdf",
   width = 14, 
   height = 6
 )
@@ -2700,7 +2700,7 @@ ggplot(imba_dge_merged_top_10_var_genes, aes(x = Gene, y = `Max rank`)) +
   theme(legend.text = element_text(size = 14))
 ggsave(
   paste0(
-    "outs/control/figures/07_pbmc_ds_ablate_dge_rankings_top_10_var_genes_no_liger.pdf"
+    "outs/control/figures/03_pbmc_ds_ablate_dge_rankings_top_10_var_genes_no_liger.pdf"
   ),
   width = 14,
   height = 8,
@@ -2769,7 +2769,7 @@ lapply(methods, function(x) {
   dge_stdev_method_plt(gene_rank_variance_grouped, x)
   ggsave(
     paste0(
-      "outs/control/figures/07_pbmc_ds_ablate_",
+      "outs/control/figures/03_pbmc_ds_ablate_",
       x,
       "_dge_rankings_method_type_stdev_no_liger.pdf"
     ),
@@ -2828,7 +2828,7 @@ ggplot(
   theme(legend.text = element_text(size = 14))
 ggsave(
   paste0(
-    "outs/control/figures/07_pbmc_ds_ablate_",
+    "outs/control/figures/03_pbmc_ds_ablate_",
     "_dge_rankings_method_type_stdev_top_10_no_liger.pdf"
   ),
   width = 14,
@@ -2891,7 +2891,7 @@ ggplot(
   theme(legend.text = element_text(size = 14))
 ggsave(
   paste0(
-    "outs/control/figures/07_pbmc_ds_ablate_",
+    "outs/control/figures/03_pbmc_ds_ablate_",
     "_dge_rankings_type_stdev_no_liger.pdf"
   ),
   width = 14,
@@ -2961,7 +2961,7 @@ top_10_var_marker_genes_sankey <- sankeyNetwork(
 saveNetwork(
   top_10_var_marker_genes_sankey,
   file = paste0(
-    "outs/control/figures/07_pbmc_ds_ablate_",
+    "outs/control/figures/03_pbmc_ds_ablate_",
     "_top_var_dges_with_assoc_celltypes_no_liger.html"
   ),
   selfcontained = TRUE
@@ -3104,7 +3104,7 @@ ggplot(
   )
 ggsave(
   paste0(
-    "outs/control/figures/07_pbmc_ds_only_",
+    "outs/control/figures/03_pbmc_ds_only_",
     "_dge_rankings_celltype_marker_celltype_ds_compare_no_liger.pdf"
   ),
   width = 14,
@@ -3165,7 +3165,7 @@ ggplot(
   )
 ggsave(
   paste0(
-    "outs/control/figures/07_pbmc_ablated_only_",
+    "outs/control/figures/03_pbmc_ablated_only_",
     "_dge_rankings_celltype_marker_celltype_ablated_compare_no_liger.pdf"
   ),
   width = 14,
@@ -3326,7 +3326,7 @@ ggplot(data = imba_anno_merged_score_format_l1, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l1_annotation_f1_scores_celltype_ds_no_liger.pdf"
+    "03_pbmc_ds_ablate_l1_annotation_f1_scores_celltype_ds_no_liger.pdf"
   ),
   width = 16,
   height = 7,
@@ -3377,7 +3377,7 @@ ggplot(data = imba_anno_merged_score_format_l2, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l2_annotation_f1_scores_celltype_ds_no_liger.pdf"
+    "03_pbmc_ds_ablate_l2_annotation_f1_scores_celltype_ds_no_liger.pdf"
   ),
   width = 16,
   height = 7,
@@ -3434,7 +3434,7 @@ ggplot(data = imba_anno_merged_score_format_l1_sd, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l1_annotation_f1_scores_celltype_sdev_no_liger.pdf"
+    "03_pbmc_ds_ablate_l1_annotation_f1_scores_celltype_sdev_no_liger.pdf"
   ),
   width = 7,
   height = 5,
@@ -3478,7 +3478,7 @@ ggplot(data = imba_anno_merged_score_format_l2_sd, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l2_annotation_f1_scores_celltype_sdev_no_liger.pdf"
+    "03_pbmc_ds_ablate_l2_annotation_f1_scores_celltype_sdev_no_liger.pdf"
   ),
   width = 7,
   height = 5,
@@ -3576,7 +3576,7 @@ ggplot(data = imba_anno_merged_all_tcell, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l1_annotation_t_cell_preds_barplot_no_liger.pdf"
+    "03_pbmc_ds_ablate_l1_annotation_t_cell_preds_barplot_no_liger.pdf"
   ),
   width = 10,
   height = 7,
@@ -3612,7 +3612,7 @@ ggplot(data = imba_anno_merged_all_tcell, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l2_annotation_t_cell_preds_barplot_no_liger.pdf"
+    "03_pbmc_ds_ablate_l2_annotation_t_cell_preds_barplot_no_liger.pdf"
   ),
   width = 10,
   height = 7,
@@ -3656,7 +3656,7 @@ ggplot(data = imba_anno_merged_all_cd4_tcell, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l1_annotation_cd4t_cell_preds",
+    "03_pbmc_ds_ablate_l1_annotation_cd4t_cell_preds",
     "_celltype_ds_specific_barplots_no_liger.pdf"
   ),
   width = 12,
@@ -3689,7 +3689,7 @@ ggplot(data = imba_anno_merged_all_cd4_tcell, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l2_annotation_cd4t_cell_preds",
+    "03_pbmc_ds_ablate_l2_annotation_cd4t_cell_preds",
     "_celltype_ds_specific_barplots_no_liger.pdf"
   ),
   width = 12,
@@ -3722,7 +3722,7 @@ ggplot(data = imba_anno_merged_all_cd8_tcell, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l1_annotation_cd8t_cell_preds",
+    "03_pbmc_ds_ablate_l1_annotation_cd8t_cell_preds",
     "_celltype_ds_specific_barplots_no_liger.pdf"
   ),
   width = 12,
@@ -3755,7 +3755,7 @@ ggplot(data = imba_anno_merged_all_cd8_tcell, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l2_annotation_cd8t_cell_preds",
+    "03_pbmc_ds_ablate_l2_annotation_cd8t_cell_preds",
     "_celltype_ds_specific_barplots_no_liger.pdf"
   ),
   width = 12,
@@ -3808,7 +3808,7 @@ ggplot(data = imba_anno_merged_score_format_l1_baseline, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l1_baseline_annotation_f1_scores_celltype_ds_no_liger.pdf"
+    "03_pbmc_ds_ablate_l1_baseline_annotation_f1_scores_celltype_ds_no_liger.pdf"
   ),
   width = 16,
   height = 7,
@@ -3850,7 +3850,7 @@ ggplot(data = imba_anno_merged_score_format_l2_baseline, aes(
 ggsave(
   paste0(
     "outs/control/figures/",
-    "07_pbmc_ds_ablate_l2_baseline_annotation_f1_scores_celltype_ds_no_liger.pdf"
+    "03_pbmc_ds_ablate_l2_baseline_annotation_f1_scores_celltype_ds_no_liger.pdf"
   ),
   width = 16,
   height = 7,
@@ -4037,7 +4037,7 @@ ggplot(test_concat, aes(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/control/figures/07_t_cell_marker_perturbation_supp_analysis.pdf",
+  "outs/control/figures/03_t_cell_marker_perturbation_supp_analysis.pdf",
   width = 12,
   height = 6,
   device = cairo_pdf

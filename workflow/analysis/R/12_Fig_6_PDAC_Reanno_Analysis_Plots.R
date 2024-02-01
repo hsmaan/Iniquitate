@@ -35,7 +35,7 @@ kev_palette <- c(
 )
 
 # Change to results dir for PDAC comp data 
-setwd("../../../results/pdac_comp/")
+setwd("../../../results/pdac_comp_reanno/")
 
 # Load in and concatenate imbalance summary files 
 setwd("imbalance_summaries/")
@@ -65,26 +65,6 @@ clus_concord_loaded <- lapply(clus_concord_files, fread)
 clus_concord_concat <- Reduce(rbind, clus_concord_loaded)
 gc()
 
-# Load in and concatenate dge concordance summaries
-setwd("../dge_concord_stats/")
-dge_files <- list.files()
-dge_loaded <- lapply(dge_files, fread)
-dge_concat <- Reduce(rbind, dge_loaded)
-gc()
-
-# Load in and concatenate dge ranking summaries, subset by marker genes
-setwd("../dge_ranking_stats_marker_sub")
-dge_rank_files <- list.files()
-dge_rank_loaded <- lapply(dge_rank_files, fread)
-dge_rank_concat <- Reduce(rbind, dge_rank_loaded)
-gc()
-
-# Load in markers and corresponding celltypes 
-setwd("../marker_results/")
-base_marker_genes <- fread(
-  "peng_pdac_tumor_annot_8_batch_preintegration_marker_selection.tsv"
-) 
-
 # Load in and concatenate knn classification summaries
 setwd("../knn_classification_reports/")
 knn_files <- list.files()
@@ -96,11 +76,11 @@ gc()
 setwd("../../..")
 
 # Make pdac comp output dir if it doesn't exist
-if (!dir.exists("outs/pdac_comp/figures")) {
-  dir.create("outs/pdac_comp/figures", recursive = TRUE)
+if (!dir.exists("outs/pdac_comp_reanno/figures")) {
+  dir.create("outs/pdac_comp_reanno/figures", recursive = TRUE)
 }
-if (!dir.exists("outs/pdac_comp/results")) {
-  dir.create("outs/pdac_comp/results", recursive = TRUE)
+if (!dir.exists("outs/pdac_comp_reanno/results")) {
+  dir.create("outs/pdac_comp_reanno/results", recursive = TRUE)
 }
 
 ### Fig 6A - Differences in number of clusters before and after downsampling
@@ -165,7 +145,7 @@ ggplot(data = imba_clus_merged, aes(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/pdac_comp/figures/12_pdac_compartment_ds_ablate_methods_nclusters.pdf",
+  "outs/pdac_comp_reanno/figures/12_pdac_comp_reannoartment_ds_ablate_methods_nclusters.pdf",
   width = 12,
   height = 7,
   device = cairo_pdf
@@ -288,7 +268,7 @@ ht3 = Heatmap(
 )
 celltype_ari_hm <- ht1 + ht2 + ht3
 CairoPDF(
-  "outs/pdac_comp/figures/12_celltype_ari_ds_effects_heatmap.pdf",
+  "outs/pdac_comp_reanno/figures/12_celltype_ari_ds_effects_heatmap.pdf",
   width = 8, 
   height = 4
 )
@@ -393,7 +373,7 @@ ht3 = Heatmap(
 )
 batch_ari_hm <- ht1 + ht2 + ht3
 CairoPDF(
-  "outs/pdac_comp/figures/12_batch_ari_ds_effects_heatmap.pdf", 
+  "outs/pdac_comp_reanno/figures/12_batch_ari_ds_effects_heatmap.pdf", 
   width = 8, 
   height = 4
 )
@@ -477,7 +457,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/pdac_comp/figures/12_pdac_compartment_ds_ablate_methods_knn_f1_score.pdf",
+  "outs/pdac_comp_reanno/figures/12_pdac_comp_reannoartment_ds_ablate_methods_knn_f1_score.pdf",
   width = 16,
   height = 7,
   device = cairo_pdf
@@ -572,7 +552,7 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/pdac_comp/figures/12_pdac_compartment_batches_celltype_n_cells.pdf",
+  "outs/pdac_comp_reanno/figures/12_pdac_comp_reannoartment_batches_celltype_n_cells.pdf",
   width = 7,
   height = 5,
   device = cairo_pdf
@@ -600,7 +580,7 @@ kev_palette <- c(
   "darkturquoise", "green1", "yellow4", "yellow3",
   "darkorange4", "brown"
 )
-setwd("results/pdac_comp/")
+setwd("results/pdac_comp_reanno/")
 
 # Load in and concatenate imbalance summary files 
 setwd("imbalance_summaries/")
@@ -637,29 +617,6 @@ clus_concord_concat <- clus_concord_concat[
 ]
 gc()
 
-# Load in and concatenate dge concordance summaries
-setwd("../dge_concord_stats/")
-dge_files <- list.files()
-dge_loaded <- lapply(dge_files, fread)
-dge_concat <- Reduce(rbind, dge_loaded)
-dge_concat <- dge_concat[dge_concat$`Method 1` != "liger"]
-dge_concat <- dge_concat[dge_concat$`Method 2` != "liger"]
-gc()
-
-# Load in and concatenate dge ranking summaries, subset by marker genes
-setwd("../dge_ranking_stats_marker_sub")
-dge_rank_files <- list.files()
-dge_rank_loaded <- lapply(dge_rank_files, fread)
-dge_rank_concat <- Reduce(rbind, dge_rank_loaded)
-dge_rank_concat <- dge_rank_concat[dge_rank_concat$Method != "liger"]
-gc()
-
-# Load in markers and corresponding celltypes 
-setwd("../marker_results/")
-base_marker_genes <- fread(
-  "peng_pdac_tumor_annot_8_batch_preintegration_marker_selection.tsv"
-) 
-
 # Load in and concatenate knn classification summaries
 setwd("../knn_classification_reports/")
 knn_files <- list.files()
@@ -672,11 +629,11 @@ gc()
 setwd("../../..")
 
 # Make pdac comp output dir if it doesn't exist
-if (!dir.exists("outs/pdac_comp/figures")) {
-  dir.create("outs/pdac_comp/figures", recursive = TRUE)
+if (!dir.exists("outs/pdac_comp_reanno/figures")) {
+  dir.create("outs/pdac_comp_reanno/figures", recursive = TRUE)
 }
-if (!dir.exists("outs/pdac_comp/results")) {
-  dir.create("outs/pdac_comp/results", recursive = TRUE)
+if (!dir.exists("outs/pdac_comp_reanno/results")) {
+  dir.create("outs/pdac_comp_reanno/results", recursive = TRUE)
 }
 
 ### Fig 6A - Differences in number of clusters before and after downsampling
@@ -741,7 +698,7 @@ ggplot(data = imba_clus_merged, aes(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/pdac_comp/figures/12_pdac_compartment_ds_ablate_methods_nclusters_no_liger.pdf",
+  "outs/pdac_comp_reanno/figures/12_pdac_comp_reannoartment_ds_ablate_methods_nclusters_no_liger.pdf",
   width = 12,
   height = 7,
   device = cairo_pdf
@@ -864,8 +821,8 @@ ht3 = Heatmap(
 )
 celltype_ari_hm <- ht1 + ht2 + ht3
 CairoPDF(
-  "outs/pdac_comp/figures/12_celltype_ari_ds_effects_heatmap_no_liger.pdf",
-  width = 8, 
+  "outs/pdac_comp_reanno/figures/12_celltype_ari_ds_effects_heatmap_no_liger.pdf",
+  width = 8,
   height = 4
 )
 draw(
@@ -969,112 +926,12 @@ ht3 = Heatmap(
 )
 batch_ari_hm <- ht1 + ht2 + ht3
 CairoPDF(
-  "outs/pdac_comp/figures/12_batch_ari_ds_effects_heatmap_no_liger.pdf", 
+  "outs/pdac_comp_reanno/figures/12_batch_ari_ds_effects_heatmap_no_liger.pdf", 
   width = 8, 
   height = 4
 )
 draw(
   batch_ari_hm,
-  column_title = "Integration method",
-  column_title_side = "bottom",
-  column_title_gp = gpar(fontsize = 14, fontface = "bold")
-)
-dev.off()
-
-# Redo the ARI compartment plot above, but now with the balanced ARI 
-median_celltype_ari_results <- imba_clus_merged %>% 
-  group_by(Method, type, `Downsampled celltypes`) %>% 
-  summarize(
-    `Median celltype ARI` = median(`Celltype ARI Balanced`, na.rm = FALSE),
-    .groups = "keep"
-  ) %>%
-  as.data.frame()
-
-median_celltype_ari_results_vals_long <- reshape2::dcast(
-  median_celltype_ari_results,
-  formula = type + `Downsampled celltypes` ~ `Method`,
-  value.var = "Median celltype ARI"
-)
-median_celltype_ari_results_vals_long$type <- factor(
-  median_celltype_ari_results_vals_long$type,
-  levels = c("Control", "Downsampled", "Ablated")
-)
-median_celltype_ari_results_vals_long <- median_celltype_ari_results_vals_long[
-  order(
-    median_celltype_ari_results_vals_long$type,
-    median_celltype_ari_results_vals_long$`Downsampled celltypes`
-  ),
-]
-rownames(median_celltype_ari_results_vals_long) <- c(
-  paste0("R_", seq(1, nrow(median_celltype_ari_results_vals_long)))
-)
-colnames(median_celltype_ari_results_vals_long)[1] <- c(
-  "Type"
-)
-median_celltype_ari_long_vals_only <- median_celltype_ari_results_vals_long[
-  ,-c(1,2)
-]
-median_celltype_ari_long_vals_only_scaled <- scale(
-  median_celltype_ari_long_vals_only,
-  center = TRUE,
-  scale = TRUE
-)
-median_celltype_ari_long_type <- median_celltype_ari_results_vals_long[
-  ,1, drop = FALSE
-]
-median_celltype_ari_long_celltype <- median_celltype_ari_results_vals_long[
-  ,2, drop = FALSE
-]
-
-dark_2_cols = palette.colors(n = 8, "Dark2")
-col_type = c(
-  "Control" = "forestgreen",
-  "Downsampled" = "darkorchid3",
-  "Ablated" = "firebrick2"
-)
-col_celltype = c(
-  "Epithelial normal" = dark_2_cols[1], 
-  "Epithelial tumor" = dark_2_cols[2], 
-  "Microenvironment" = dark_2_cols[3],
-  "None" = "Black"
-)
-
-ht1 = Heatmap(
-  as.matrix(median_celltype_ari_long_vals_only_scaled), 
-  name = "Scaled median \ncompartment \nbalanced ARI", 
-  width = unit(5, "cm"),
-  cluster_rows = FALSE,
-  cluster_columns = FALSE,
-  show_row_names = FALSE
-)
-ht2 = Heatmap(
-  as.matrix(median_celltype_ari_long_type), 
-  name = "Type",
-  col = col_type,
-  width = unit(0.5, "cm"),
-  cluster_rows = FALSE,
-  cluster_columns = FALSE,
-  show_row_names = FALSE,
-  show_column_names = FALSE
-)
-ht3 = Heatmap(
-  as.matrix(median_celltype_ari_long_celltype), 
-  name = "Affected compartment",
-  col = col_celltype,
-  width = unit(0.5, "cm"),  
-  cluster_rows = FALSE,
-  cluster_columns = FALSE,
-  show_row_names = FALSE,
-  show_column_names = FALSE
-)
-celltype_ari_hm <- ht1 + ht2 + ht3
-CairoPDF(
-  "outs/pdac_comp/figures/12_celltype_balanced_ari_ds_effects_heatmap_no_liger.pdf",
-  width = 8, 
-  height = 4
-)
-draw(
-  celltype_ari_hm,
   column_title = "Integration method",
   column_title_side = "bottom",
   column_title_gp = gpar(fontsize = 14, fontface = "bold")
@@ -1153,7 +1010,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/pdac_comp/figures/12_pdac_compartment_ds_ablate_methods_knn_f1_score_no_liger.pdf",
+  "outs/pdac_comp_reanno/figures/12_pdac_comp_reannoartment_ds_ablate_methods_knn_f1_score_no_liger.pdf",
   width = 16,
   height = 7,
   device = cairo_pdf
@@ -1215,7 +1072,7 @@ ggplot(data = imba_knn_merged, aes(x = `Method`, y = `F1-score`)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/pdac_comp/figures/12_pdac_non_compart_specific_ds_ablate_methods_knn_f1_score_no_liger.pdf",
+  "outs/pdac_comp_reanno/figures/12_pdac_non_compart_specific_ds_ablate_methods_knn_f1_score_no_liger.pdf",
   width = 24,
   height = 12,
   device = cairo_pdf
@@ -1310,7 +1167,7 @@ ggplot(
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/pdac_comp/figures/12_pdac_compartment_batches_celltype_n_cells_no_liger.pdf",
+  "outs/pdac_comp_reanno/figures/12_pdac_comp_reannoartment_batches_celltype_n_cells_no_liger.pdf",
   width = 7,
   height = 5,
   device = cairo_pdf
