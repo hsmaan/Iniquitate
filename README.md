@@ -8,6 +8,7 @@
 - [Using the imbalanced integration guidelines](#using-the-imbalanced-integration-guidelines)
 - [Reproducing the paper analysis](#reproducing-the-paper-analysis)
 - [Custom data perturbation configuration setup](#custom-data-perturbation-configuration-setup)
+- [Citation information](#citation-information)
 
 
 ### Using the imbalanced integration guidelines
@@ -142,3 +143,13 @@ The following steps are necessary to use a custom dataset:
     Note that the above Snakemake run utilizes a `workflow/cluster.json` configuration file and HPC parallelization of the various steps in the pipeline. Users will need to create a `cluster.json` file specific to their HPC setup that has resources for all of the rules in `workflow/Snakefile`.
     
 5) Analyze the result files using the R scripts - all of the R scripts in the `workflow/analysis/R` folder can be used to analyze the results of the perturbation experiments. **Currently, an exhaustive list of custom analysis scripts is not available, but the existing scripts can be modified to suit the needs of the user**. We provide one custom script for analysis of KNN classification accuracy in the `workflow/analysis/R/knn_example.R` file. Please note that this file still needs to be modified in the appropriate input locations, which are indicated in the comments of the file.
+
+### Citation information
+
+If you use the Iniquitate pipeline, integration guidelines, and/or associated results in your research, please reference the following publication:
+
+> The differential impacts of dataset imbalance in single-cell data integration
+>
+> Hassaan Maan, Lin Zhang, Chengxin Yu, Michael Geuenich, Kieran R. Campbell, Bo Wang
+>
+> bioRxiv December 19, 2022; doi: https://doi.org/10.1101/2022.10.06.511156  
