@@ -5,6 +5,3 @@ build:
     python: "3.11"
 mkdocs:
   configuration: mkdocs.yml
-branches:
-  only:
-    - rtd
