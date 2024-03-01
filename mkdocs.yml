@@ -1,3 +1,7 @@
 site_name: Iniquitate
 nav:
   - Home: index.md
+  - Using the Imbalanced Integration Guidelines: using-the-imbalanced-integration-guidelines.md
+  - Reproducing the Paper Analysis: reproducing-the-paper-analysis.md
+  - Custom Data Perturbation Configuration Setup: custom-data-perturbation-configuration-setup.md
+  - Citation Information: citation-information.md
