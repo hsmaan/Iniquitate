@@ -17,6 +17,19 @@ A separate README for the imbalanced integration guidelines, with full environme
 
 ### Reproducing the paper analysis 
 
+Please note that `mamba` and `snakemake` are required to run the pipeline through `conda`. After installing `conda` (https://conda.io/projects/conda/en/latest/user-guide/install/index.html), please add `mamba` (https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) to the base environment, as well as `snakemake` (https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) in base or a new environment:
+
+```
+conda install -n base -c conda-forge mamba
+mamba create -c conda-forge -c bioconda -n snakemake snakemake
+mamba activate snakemake
+```
+
+The environments necessary to run the pipeline will be automatically installed by snakemake. The only exception is the `analysis` pipeline, which is outlined in step 5 below.
+
+The following steps are necessary to reproduce the paper analysis:
+
+
 1. Clone the GitHub repository:
 
 ```
@@ -98,6 +111,8 @@ It is also recommended to **Run the R and python analysis notebooks** in an HPC 
 
 ***
 ### Custom data perturbation configuration setup 
+
+The same software requirements for the paper analysis apply to custom data perturbation experiments (conda, mamba, snakemake). Please see the first part of **Reproducing the paper analysis** for details on how to install these requirements.
 
 The following steps are necessary to use a custom dataset:
 
