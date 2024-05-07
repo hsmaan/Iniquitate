@@ -1,6 +1,6 @@
 # Iniquitate Pipeline <!-- omit in toc -->
 
-This repository corresponds to the analysis and pipeline outlined in [Characterizing the impacts of dataset imbalance on single-cell data integration](https://www.nature.com/articles/s41587-023-02097-9). If you use the integration guidelines or any aspect of this pipeline, please [cite out work](#citation-information).
+This repository corresponds to the analysis and pipeline outlined in [Characterizing the impacts of dataset imbalance on single-cell data integration](https://www.nature.com/articles/s41587-023-02097-9). If you use the integration guidelines or any aspect of this pipeline, please [cite our work](#citation-information).
 
 ### Downsampling-based perturbation experiments for single-cell RNA sequencing integration <!-- omit in toc -->
 
