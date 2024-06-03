@@ -1,6 +1,6 @@
 # Iniquitate Pipeline <!-- omit in toc -->
 
-This repository corresponds to the analysis and pipeline outlined in [Characterizing the impacts of dataset imbalance on single-cell data integration](https://www.nature.com/articles/s41587-023-02097-9). If you use the integration guidelines or any aspect of this pipeline, please [cite our work](#citation-information).
+This repository corresponds to the analysis and pipeline outlined in [Characterizing the impacts of dataset imbalance on single-cell data integration](https://www.nature.com/articles/s41587-023-02097-9). If you use the integration guidelines or any aspect of this pipeline, please consider [citing our work](#citation-information).
 
 ### Downsampling-based perturbation experiments for single-cell RNA sequencing integration <!-- omit in toc -->
 
@@ -162,7 +162,5 @@ The following steps are necessary to use a custom dataset:
 5) Analyze the result files using the R scripts - all of the R scripts in the `workflow/analysis/R` folder can be used to analyze the results of the perturbation experiments. **Currently, an exhaustive list of custom analysis scripts is not available, but the existing scripts can be modified to suit the needs of the user**. We provide one custom script for analysis of KNN classification accuracy in the `workflow/analysis/R/knn_example.R` file. Please note that this file still needs to be modified in the appropriate input locations, which are indicated in the comments of the file.
 
 ### Citation information
-
-If you use the Iniquitate pipeline, integration guidelines, and/or associated results in your research, please reference the following publication:
 
 Maan, H. et al. (2024) ‘Characterizing the impacts of dataset imbalance on single-cell data integration’, Nature biotechnology. Available at: https://doi.org/10.1038/s41587-023-02097-9.
