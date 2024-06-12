@@ -129,7 +129,7 @@ ggplot(
 ggsave(
   paste0(
     "outs/control_ti_only/figures/",
-    "19_chondrocyte_ti_pearson_corr_ds_celltype_method.pdf"
+    "11_chondrocyte_ti_pearson_corr_ds_celltype_method.pdf"
   ),
   width = 14,
   height = 8,
@@ -184,7 +184,7 @@ ggplot(
 ggsave(
   paste0(
     "outs/control_ti_only/figures/",
-    "19_chondrocyte_ti_spearman_corr_ds_celltype_method.pdf"
+    "11_chondrocyte_ti_spearman_corr_ds_celltype_method.pdf"
   ),
   width = 14,
   height = 8,
@@ -239,7 +239,7 @@ ggplot(
 ggsave(
   paste0(
     "outs/control_ti_only/figures/",
-    "19_chondrocyte_ti_kendall_corr_ds_celltype_method.pdf"
+    "11_chondrocyte_ti_kendall_corr_ds_celltype_method.pdf"
   ),
   width = 14,
   height = 8,
@@ -379,7 +379,7 @@ ggplot(
 ggsave(
   paste0(
     "outs/control_ti_only/figures/",
-    "19_chondrocyte_ti_pearson_corr_ds_celltype_method_no_liger.pdf"
+    "11_chondrocyte_ti_pearson_corr_ds_celltype_method_no_liger.pdf"
   ),
   width = 14,
   height = 8,
@@ -443,7 +443,7 @@ ggplot(
 ggsave(
   paste0(
     "outs/control_ti_only/figures/",
-    "19_chondrocyte_ti_spearman_corr_ds_celltype_method_no_liger.pdf"
+    "11_chondrocyte_ti_spearman_corr_ds_celltype_method_no_liger.pdf"
   ),
   width = 28,
   height = 8,
@@ -507,7 +507,7 @@ ggplot(
 ggsave(
   paste0(
     "outs/control_ti_only/figures/",
-    "19_chondrocyte_ti_kendall_corr_ds_celltype_method_no_liger.pdf"
+    "11_chondrocyte_ti_kendall_corr_ds_celltype_method_no_liger.pdf"
   ),
   width = 14,
   height = 8,
@@ -597,7 +597,7 @@ DimPlot(dev_combined, reduction = "umap", group.by = "celltype") +
   scale_color_brewer(palette = "Dark2") +
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control_ti_only/figures/19_dev_balanced_combined_celltypes.pdf",
+  "outs/control_ti_only/figures/11_dev_balanced_combined_celltypes.pdf",
   width = 6, 
   height = 6
 )
@@ -610,7 +610,7 @@ DimPlot(dev_combined, reduction = "umap", group.by = "batch") +
   scale_color_brewer(palette = "Set1") +
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control_ti_only/figures/19_dev_balanced_combined_batch.pdf",
+  "outs/control_ti_only/figures/11_dev_balanced_combined_batch.pdf",
   width = 6,
   height = 6
 )
@@ -681,7 +681,7 @@ fwrite(
   ti_anova_result_dt,
   paste0(
     "outs/control_ti_only/results/",
-    "19_cao_et_al_ti_leiden_spearman_corr_aov_results_ctrl_method_celltype_ds_no_liger.tsv"
+    "11_cao_et_al_ti_leiden_spearman_corr_aov_results_ctrl_method_celltype_ds_no_liger.tsv"
   ),
   sep = "\t",
   quote = FALSE,

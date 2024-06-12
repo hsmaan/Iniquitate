@@ -256,7 +256,7 @@ global_metric_results_indi_pooled <- rbind(
 )
 fwrite(
   global_metric_results_indi_pooled,
-  "outs/control/results/06_pbmc_base_global_metric_wilcoxon_tests.tsv",
+  "outs/control/results/02_pbmc_base_global_metric_wilcoxon_tests.tsv",
   sep = "\t",
   quote = FALSE,
   row.names = FALSE,
@@ -349,7 +349,7 @@ metric_aov_results_concat$`FDR_q` <- p.adjust(
 )
 fwrite(
   metric_aov_results_concat,
-  "outs/control/results/06_pbmc_base_metric_aov_results_types_ct_method_ctrl.tsv",
+  "outs/control/results/02_pbmc_base_metric_aov_results_types_ct_method_ctrl.tsv",
   sep = "\t",
   quote = FALSE,
   row.names = FALSE,
@@ -481,7 +481,7 @@ global_celltype_knn_results_type_and_pooled <- rbind(
 )
 fwrite(
   global_celltype_knn_results_type_and_pooled,
-  "outs/control/results/06_pbmc_base_knn_cell_ds_cell_test_wilcoxon_tests.tsv",
+  "outs/control/results/02_pbmc_base_knn_cell_ds_cell_test_wilcoxon_tests.tsv",
   sep = "\t",
   quote = FALSE,
   row.names = FALSE,
@@ -545,7 +545,7 @@ fwrite(
   knn_aov_results,
   paste0(
     "outs/control/results/",
-    "06_pbmc_base_knn_cell_ds_cell_aov_results_ctrl_method_celltype.tsv"
+    "02_pbmc_base_knn_cell_ds_cell_aov_results_ctrl_method_celltype.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -743,7 +743,7 @@ fwrite(
   global_celltype_knn_results_type_and_pooled,
   paste0(
     "outs/control/results/",
-    "06_pbmc_hierarchical_knn_cell_ds_cell_test_wilcoxon_tests.tsv"
+    "02_pbmc_hierarchical_knn_cell_ds_cell_test_wilcoxon_tests.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -778,7 +778,7 @@ fwrite(
   knn_aov_results,
   paste0(
     "outs/control/results/",
-    "06_pbmc_hierarchical_knn_cell_ds_cell_aov_results_ctrl_method_ds_celltype.tsv"
+    "02_pbmc_hierarchical_knn_cell_ds_cell_aov_results_ctrl_method_ds_celltype.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -1055,7 +1055,7 @@ global_metric_results_indi_pooled <- rbind(
 )
 fwrite(
   global_metric_results_indi_pooled,
-  "outs/control/results/06_pbmc_base_global_metric_wilcoxon_tests_no_liger.tsv",
+  "outs/control/results/02_pbmc_base_global_metric_wilcoxon_tests_no_liger.tsv",
   sep = "\t",
   quote = FALSE,
   row.names = FALSE,
@@ -1148,7 +1148,7 @@ metric_aov_results_concat$`FDR_q` <- p.adjust(
 )
 fwrite(
   metric_aov_results_concat,
-  "outs/control/results/06_pbmc_base_metric_aov_results_types_ct_method_ctrl_no_liger.tsv",
+  "outs/control/results/02_pbmc_base_metric_aov_results_types_ct_method_ctrl_no_liger.tsv",
   sep = "\t",
   quote = FALSE,
   row.names = FALSE,
@@ -1280,7 +1280,7 @@ global_celltype_knn_results_type_and_pooled <- rbind(
 )
 fwrite(
   global_celltype_knn_results_type_and_pooled,
-  "outs/control/results/06_pbmc_base_knn_cell_ds_cell_test_wilcoxon_tests_no_liger.tsv",
+  "outs/control/results/02_pbmc_base_knn_cell_ds_cell_test_wilcoxon_tests_no_liger.tsv",
   sep = "\t",
   quote = FALSE,
   row.names = FALSE,
@@ -1344,7 +1344,7 @@ fwrite(
   knn_aov_results,
   paste0(
     "outs/control/results/",
-    "06_pbmc_base_knn_cell_ds_cell_aov_results_ctrl_method_celltype_no_liger.tsv"
+    "02_pbmc_base_knn_cell_ds_cell_aov_results_ctrl_method_celltype_no_liger.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -1543,7 +1543,7 @@ fwrite(
   global_celltype_knn_results_type_and_pooled,
   paste0(
     "outs/control/results/",
-    "06_pbmc_hierarchical_knn_cell_ds_cell_test_wilcoxon_tests_no_liger.tsv"
+    "02_pbmc_hierarchical_knn_cell_ds_cell_test_wilcoxon_tests_no_liger.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -1578,7 +1578,7 @@ fwrite(
   knn_aov_results,
   paste0(
     "outs/control/results/",
-    "06_pbmc_hierarchical_knn_cell_ds_cell_aov_results_ctrl_method_ds_celltype_no_liger.tsv"
+    "02_pbmc_hierarchical_knn_cell_ds_cell_aov_results_ctrl_method_ds_celltype_no_liger.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -1594,7 +1594,7 @@ knn_aov_results_hierarchical <- knn_aov_results
 knn_aov_results_baseline <- fread(
   paste0(
     "outs/control/results/",
-    "06_pbmc_base_knn_cell_ds_cell_aov_results_ctrl_method_celltype_no_liger.tsv"
+    "02_pbmc_base_knn_cell_ds_cell_aov_results_ctrl_method_celltype_no_liger.tsv"
   )
 )
 
@@ -1670,7 +1670,7 @@ ggplot(data = knn_aov_comp_df_melted, aes(Covariates, value)) +
 ggsave(
   paste0(
     "outs/control/figures/",
-    "06_pbmc_base_vs_hierarchical_knn_aov_results_comp_no_liger.pdf"
+    "02_pbmc_base_vs_hierarchical_knn_aov_results_comp_no_liger.pdf"
   ),
   width = 12,
   height = 8,
