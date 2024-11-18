@@ -50,7 +50,8 @@ git clone https://github.com/hsmaan/Iniquitate.git
 
     After downloading:
     ```
-    tar -xzvf resources.tar.gz 
+    tar -xzvf resources.tar.gz
+    # If the folder name is not named `resources`, change the name via mv [file_folder] resources
     mv resources Iniquitate
     ```
 
