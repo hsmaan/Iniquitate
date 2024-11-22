@@ -23,7 +23,7 @@ Please note that `mamba` and `snakemake` are required to run the pipeline throug
 
 ```
 conda install -n base -c conda-forge mamba
-mamba create -c conda-forge -c bioconda -n snakemake snakemake
+mamba create -c conda-forge -c bioconda "snakemake<7.19.1" -n snakemake
 mamba activate snakemake
 ```
 
