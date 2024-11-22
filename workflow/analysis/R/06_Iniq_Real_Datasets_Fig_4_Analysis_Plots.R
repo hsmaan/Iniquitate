@@ -279,7 +279,7 @@ ggplot(
 ggsave(
   paste0(
     "outs/lowcap_modified/figures/",
-    "10_pbmc_full_dataset_vs_control_dataset_celltype_ari_no_ds.pdf"
+    "06_pbmc_full_dataset_vs_control_dataset_celltype_ari_no_ds.pdf"
   ),
   width = 9,
   height = 6,
@@ -319,7 +319,7 @@ ggplot(
 ggsave(
   paste0(
     "outs/lowcap_modified/figures/",
-    "10_pbmc_full_dataset_vs_control_dataset_batch_ari_no_ds.pdf"
+    "06_pbmc_full_dataset_vs_control_dataset_batch_ari_no_ds.pdf"
   ),
   width = 9,
   height = 6,
@@ -369,7 +369,7 @@ ggplot(
     y = "Celltype 2"
   )
 ggsave(
-  "outs/lowcap_modified/figures/10_pbmc_2_batch_bal_celltype_relatedness.pdf",
+  "outs/lowcap_modified/figures/06_pbmc_2_batch_bal_celltype_relatedness.pdf",
   width = 7,
   height = 7,
   device = cairo_pdf
@@ -416,7 +416,7 @@ ggplot(
     y = "Celltype 2"
   )
 ggsave(
-  "outs/lowcap_modified/figures/10_pbmc_2_batch_imba_celltype_relatedness.pdf",
+  "outs/lowcap_modified/figures/06_pbmc_2_batch_imba_celltype_relatedness.pdf",
   width = 7,
   height = 7,
   device = cairo_pdf
@@ -552,7 +552,7 @@ knn_relatedness_plot <- function(
     theme(legend.text = element_text(size = 14))
   ggsave(
     paste0(
-      "outs/lowcap_modified/figures/10_",
+      "outs/lowcap_modified/figures/06_",
       dataset,
       "_knn_results_celltype_relatedness_comp.pdf"
     ),
@@ -633,7 +633,7 @@ knn_support_plot <- function(dataset, knn_class_df, plot_height, plot_width) {
     theme(legend.text = element_text(size = 14))
   ggsave(
     paste0(
-      "outs/lowcap_modified/figures/10_",
+      "outs/lowcap_modified/figures/06_",
       dataset,
       "_knn_results_celltype_num_comp.pdf"
     ),
@@ -694,7 +694,7 @@ ggplot(
   geom_point(aes(color = `F1-score`))
 ggsave(
   paste0(
-    "outs/lowcap_modified/figures/10_",
+    "outs/lowcap_modified/figures/06_",
     "min_pca_dist_support_plotting_test.pdf"
   ),
   width = 12,
@@ -710,7 +710,7 @@ ggplot(
   geom_point(aes(color = `Min PCA cosine dist`))
 ggsave(
   paste0(
-    "outs/lowcap_modified/figures/10_",
+    "outs/lowcap_modified/figures/06_",
     "min_pca_dist_support_plotting_test_2.pdf"
   ),
   width = 12,
@@ -766,7 +766,7 @@ ggplot(
     y = "Celltype 2"
   )
 ggsave(
-  "outs/lowcap_modified/figures/10_pbmc_4_batch_bal_celltype_relatedness.pdf",
+  "outs/lowcap_modified/figures/06_pbmc_4_batch_bal_celltype_relatedness.pdf",
   width = 7,
   height = 7,
   device = cairo_pdf
@@ -1063,7 +1063,7 @@ ggplot(
 ggsave(
   paste0(
     "outs/lowcap_modified/figures/",
-    "10_pbmc_full_dataset_vs_control_dataset_celltype_ari_no_ds_no_liger.pdf"
+    "06_pbmc_full_dataset_vs_control_dataset_celltype_ari_no_ds_no_liger.pdf"
   ),
   width = 9,
   height = 6,
@@ -1103,7 +1103,7 @@ ggplot(
 ggsave(
   paste0(
     "outs/lowcap_modified/figures/",
-    "10_pbmc_full_dataset_vs_control_dataset_batch_ari_no_ds_no_liger.pdf"
+    "06_pbmc_full_dataset_vs_control_dataset_batch_ari_no_ds_no_liger.pdf"
   ),
   width = 9,
   height = 6,
@@ -1187,7 +1187,7 @@ ggplot(
     y = "Cell-type 2"
   )
 ggsave(
-  "outs/lowcap_modified/figures/10_pbmc_2_batch_bal_celltype_relatedness_no_liger.pdf",
+  "outs/lowcap_modified/figures/06_pbmc_2_batch_bal_celltype_relatedness_no_liger.pdf",
   width = 7,
   height = 7,
   device = cairo_pdf
@@ -1234,7 +1234,7 @@ ggplot(
     y = "Cell-type 2"
   )
 ggsave(
-  "outs/lowcap_modified/figures/10_pbmc_2_batch_imba_celltype_relatedness_no_liger.pdf",
+  "outs/lowcap_modified/figures/06_pbmc_2_batch_imba_celltype_relatedness_no_liger.pdf",
   width = 7,
   height = 7,
   device = cairo_pdf
@@ -1418,7 +1418,7 @@ knn_relatedness_plot <- function(
     theme(legend.text = element_text(size = 14))
   ggsave(
     paste0(
-      "outs/lowcap_modified/figures/10_",
+      "outs/lowcap_modified/figures/06_",
       dataset,
       "_knn_results_celltype_relatedness_comp_no_liger.pdf"
     ),
@@ -1499,7 +1499,7 @@ knn_support_plot <- function(dataset, knn_class_df, plot_height, plot_width) {
     theme(legend.text = element_text(size = 14))
   ggsave(
     paste0(
-      "outs/lowcap_modified/figures/10_",
+      "outs/lowcap_modified/figures/06_",
       dataset,
       "_knn_results_celltype_num_comp_no_liger.pdf"
     ),
@@ -1560,7 +1560,7 @@ ggplot(
   geom_point(aes(color = `F1-score`))
 ggsave(
   paste0(
-    "outs/lowcap_modified/figures/10_",
+    "outs/lowcap_modified/figures/06_",
     "min_pca_dist_support_plotting_test_no_liger.pdf"
   ),
   width = 12,
@@ -1576,7 +1576,7 @@ ggplot(
   geom_point(aes(color = `Min PCA cosine dist`))
 ggsave(
   paste0(
-    "outs/lowcap_modified/figures/10_",
+    "outs/lowcap_modified/figures/06_",
     "min_pca_dist_support_plotting_test_2_no_liger.pdf"
   ),
   width = 12,
@@ -1633,7 +1633,7 @@ ggplot(
     y = "Cell-type 2"
   )
 ggsave(
-  "outs/lowcap_modified/figures/10_pbmc_4_batch_bal_celltype_relatedness_no_liger.pdf",
+  "outs/lowcap_modified/figures/06_pbmc_4_batch_bal_celltype_relatedness_no_liger.pdf",
   width = 7,
   height = 7,
   device = cairo_pdf
@@ -1685,7 +1685,7 @@ ggplot(
     y = "Cell-type 2"
   )
 ggsave(
-  "outs/lowcap_modified/figures/10_mouse_hindbrain_6_batch_celltype_relatedness_no_liger.pdf",
+  "outs/lowcap_modified/figures/06_mouse_hindbrain_6_batch_celltype_relatedness_no_liger.pdf",
   width = 14,
   height = 14,
   device = cairo_pdf
@@ -1737,7 +1737,7 @@ ggplot(
     y = "Cell-type 2"
   )
 ggsave(
-  "outs/lowcap_modified/figures/10_pdac_8_batch_celltype_relatedness_no_liger.pdf",
+  "outs/lowcap_modified/figures/06_pdac_8_batch_celltype_relatedness_no_liger.pdf",
   width = 8,
   height = 8,
   device = cairo_pdf

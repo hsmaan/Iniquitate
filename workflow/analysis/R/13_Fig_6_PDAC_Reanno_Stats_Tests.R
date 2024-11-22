@@ -33,7 +33,7 @@ kev_palette <- c(
 )
 
 # Load in and concatenate imbalance summary files 
-setwd("../../../results/pdac_comp/imbalance_summaries/")
+setwd("../../../results/pdac_comp_reanno/imbalance_summaries/")
 imba_files <- list.files()
 imba_loaded <- lapply(imba_files, fread)
 imba_concat <- Reduce(rbind, imba_loaded)
@@ -67,29 +67,6 @@ clus_concord_concat <- clus_concord_concat[
 ]
 gc()
 
-# Load in and concatenate dge concordance summaries
-setwd("../dge_concord_stats/")
-dge_files <- list.files()
-dge_loaded <- lapply(dge_files, fread)
-dge_concat <- Reduce(rbind, dge_loaded)
-dge_concat <- dge_concat[dge_concat$`Method 1` != "liger"]
-dge_concat <- dge_concat[dge_concat$`Method 2` != "liger"]
-gc()
-
-# Load in and concatenate dge ranking summaries, subset by marker genes
-setwd("../dge_ranking_stats_marker_sub")
-dge_rank_files <- list.files()
-dge_rank_loaded <- lapply(dge_rank_files, fread)
-dge_rank_concat <- Reduce(rbind, dge_rank_loaded)
-dge_rank_concat <- dge_rank_concat[dge_rank_concat$Method != "liger"]
-gc()
-
-# Load in markers and corresponding celltypes 
-setwd("../marker_results/")
-base_marker_genes <- fread(
-  "peng_pdac_tumor_annot_8_batch_preintegration_marker_selection.tsv"
-) 
-
 # Load in and concatenate knn classification summaries
 setwd("../knn_classification_reports/")
 knn_files <- list.files()
@@ -102,11 +79,11 @@ gc()
 setwd("../../..")
 
 # Make pdac comp output dir if it doesn't exist
-if (!dir.exists("outs/pdac_comp/figures")) {
-  dir.create("outs/pdac_comp/figures", recursive = TRUE)
+if (!dir.exists("outs/pdac_comp_reanno/figures")) {
+  dir.create("outs/pdac_comp_reanno/figures", recursive = TRUE)
 }
-if (!dir.exists("outs/pdac_comp/results")) {
-  dir.create("outs/pdac_comp/results", recursive = TRUE)
+if (!dir.exists("outs/pdac_comp_reanno/results")) {
+  dir.create("outs/pdac_comp_reanno/results", recursive = TRUE)
 }
 
 ### Statistical test -  downsampling results on KNN classification scores
@@ -207,7 +184,7 @@ knn_anova_comp_results
 knn_anova_comp_results_concat <- Reduce(rbind, knn_anova_comp_results)
 fwrite(
   knn_anova_comp_results_concat,
-  "outs/pdac_comp/results/12B_comp_specific_ds_knn_f1_score_anovas.tsv",
+  "outs/pdac_comp_reanno/results/13_comp_specific_ds_knn_f1_score_anovas.tsv",
   sep = "\t",
   quote = FALSE,
   row.names = FALSE,
@@ -269,8 +246,8 @@ ggplot(data = knn_aov_comp_df_melted, aes(Covariates, value)) +
   theme(aspect.ratio = 1)
 ggsave(
   paste0(
-    "outs/pdac_comp/figures/",
-    "12B_pdac_knn_aov_comp_ds_f_statistic.pdf"
+    "outs/pdac_comp_reanno/figures/",
+    "13_pdac_knn_aov_comp_ds_f_statistic.pdf"
   ),
   width = 12,
   height = 12,

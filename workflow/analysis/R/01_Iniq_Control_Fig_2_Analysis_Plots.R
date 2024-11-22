@@ -16,6 +16,14 @@ library(Cairo)
 # Helper functions
 `%ni%` <- Negate(`%in%`)
 
+# Create output directories if not made already
+if (!dir.exists("outs/control/figures/")) {
+  dir.create("outs/control/figures/", recursive = TRUE)
+}
+if (!dir.exists("outs/control/results/")) {
+  dir.create("outs/control/results/", recursive = TRUE)
+}
+
 # Change to results dir for control data 
 setwd("../../../results/control/")
 
@@ -182,7 +190,7 @@ DimPlot(pbmc_combined, reduction = "umap", group.by = "celltype") +
   scale_color_brewer(palette = "Dark2") +  
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_combined_celltypes.pdf",
+  "outs/control/figures/01_pbmc_balanced_combined_celltypes.pdf",
   width = 6, 
   height = 6
 )
@@ -195,7 +203,7 @@ DimPlot(pbmc_combined, reduction = "umap", group.by = "batch") +
   scale_color_brewer(palette = "Set1") + 
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_combined_batch.pdf",
+  "outs/control/figures/01_pbmc_balanced_combined_batch.pdf",
   width = 6,
   height = 6
 )
@@ -214,7 +222,7 @@ DimPlot(pbmc_combined_cd14_ablate, reduction = "umap", group.by = "celltype") +
   scale_color_brewer(palette = "Dark2") +  
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_combined_celltypes_cd14_ablate.pdf",
+  "outs/control/figures/01_pbmc_balanced_combined_celltypes_cd14_ablate.pdf",
   width = 6, 
   height = 6
 )
@@ -227,7 +235,7 @@ DimPlot(pbmc_combined_cd14_ablate, reduction = "umap", group.by = "batch") +
   scale_color_brewer(palette = "Set1") + 
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_combined_batch_cd14_ablate.pdf",
+  "outs/control/figures/01_pbmc_balanced_combined_batch_cd14_ablate.pdf",
   width = 6,
   height = 6
 )
@@ -252,7 +260,7 @@ DimPlot(pbmc_combined_cd14_ds, reduction = "umap", group.by = "celltype") +
   scale_color_brewer(palette = "Dark2") +  
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_combined_celltypes_cd14_10_pct_ds.pdf",
+  "outs/control/figures/01_pbmc_balanced_combined_celltypes_cd14_10_pct_ds.pdf",
   width = 6, 
   height = 6
 )
@@ -265,7 +273,7 @@ DimPlot(pbmc_combined_cd14_ds, reduction = "umap", group.by = "batch") +
   scale_color_brewer(palette = "Set1") + 
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_combined_batch_cd14_10_pct_ds.pdf",
+  "outs/control/figures/01_pbmc_balanced_combined_batch_cd14_10_pct_ds.pdf",
   width = 6,
   height = 6
 )
@@ -407,7 +415,7 @@ ht3 = Heatmap(
 )
 celltype_ari_hm <- ht1 + ht2 + ht3
 CairoPDF(
-  "outs/control/figures/05_celltype_ari_ds_effects_heatmap.pdf",
+  "outs/control/figures/01_celltype_ari_ds_effects_heatmap.pdf",
   width = 8, 
   height = 6
 )
@@ -515,7 +523,7 @@ ht3 = Heatmap(
 )
 batch_ari_hm <- ht1 + ht2 + ht3
 CairoPDF(
-  "outs/control/figures/05_batch_ari_ds_effects_heatmap.pdf", 
+  "outs/control/figures/01_batch_ari_ds_effects_heatmap.pdf", 
   width = 8, 
   height = 6
 )
@@ -617,7 +625,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/control/figures/05_pbmc_ds_ablate_allmethod_knn_f1_score.pdf",
+  "outs/control/figures/01_pbmc_ds_ablate_allmethod_knn_f1_score.pdf",
   width = 12,
   height = 14,
   device = cairo_pdf
@@ -710,7 +718,7 @@ ggscatter(median_imba_knn_cluster_results_cari,
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14))
 ggsave(
-  "outs/control/figures/05_pbmc_ds_ablate_f1_score_celltype_ari_corr.pdf",
+  "outs/control/figures/01_pbmc_ds_ablate_f1_score_celltype_ari_corr.pdf",
   width = 14,
   height = 8,
   device = cairo_pdf
@@ -758,7 +766,7 @@ ggscatter(median_imba_knn_cluster_results_bari,
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) 
 ggsave(
-  "outs/control/figures/05_pbmc_ds_ablate_f1_score_batch_ari_corr.pdf",
+  "outs/control/figures/01_pbmc_ds_ablate_f1_score_batch_ari_corr.pdf",
   width = 14,
   height = 8,
   device = cairo_pdf
@@ -921,7 +929,7 @@ DimPlot(pbmc_combined, reduction = "umap", group.by = "celltype") +
   scale_color_brewer(palette = "Dark2") +  
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_hierarchical_combined_celltypes.pdf",
+  "outs/control/figures/01_pbmc_balanced_hierarchical_combined_celltypes.pdf",
   width = 6, 
   height = 6
 )
@@ -934,7 +942,7 @@ DimPlot(pbmc_combined, reduction = "umap", group.by = "batch") +
   scale_color_brewer(palette = "Set1") + 
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_hierarchical_combined_batch.pdf",
+  "outs/control/figures/01_pbmc_balanced_hierarchical_combined_batch.pdf",
   width = 6,
   height = 6
 )
@@ -955,7 +963,7 @@ DimPlot(pbmc_combined_nkt_ablate, reduction = "umap", group.by = "celltype") +
 ggsave(
   paste0(
     "outs/control/figures/",
-    "05_pbmc_balanced_hierarchical_combined_celltypes_nkt_ablate.pdf"
+    "01_pbmc_balanced_hierarchical_combined_celltypes_nkt_ablate.pdf"
   ),
   width = 6, 
   height = 6
@@ -971,7 +979,7 @@ DimPlot(pbmc_combined_nkt_ablate, reduction = "umap", group.by = "batch") +
 ggsave(
   paste0(
     "outs/control/figures/",
-    "05_pbmc_balanced_hierarchical_combined_batch_nkt_ablate.pdf"
+    "01_pbmc_balanced_hierarchical_combined_batch_nkt_ablate.pdf"
   ),
   width = 6,
   height = 6
@@ -999,7 +1007,7 @@ DimPlot(pbmc_combined_nkt_ds, reduction = "umap", group.by = "celltype") +
 ggsave(
   paste0(
     "outs/control/figures/",
-    "05_pbmc_balanced_hierarchical_combined_celltypes_nkt_10_pct_ds.pdf"
+    "01_pbmc_balanced_hierarchical_combined_celltypes_nkt_10_pct_ds.pdf"
   ),
   width = 6, 
   height = 6
@@ -1015,7 +1023,7 @@ DimPlot(pbmc_combined_nkt_ds, reduction = "umap", group.by = "batch") +
 ggsave(
   paste0(
     "outs/control/figures/",
-    "05_pbmc_balanced_combined_batch_nkt_10_pct_ds.pdf"
+    "01_pbmc_balanced_combined_batch_nkt_10_pct_ds.pdf"
   ),
   width = 6,
   height = 6
@@ -1094,7 +1102,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/control/figures/05_pbmc_hierarchical_ds_ablate_allmethod_knn_f1_score.pdf",
+  "outs/control/figures/01_pbmc_hierarchical_ds_ablate_allmethod_knn_f1_score.pdf",
   width = 8,
   height = 14,
   device = cairo_pdf
@@ -1286,7 +1294,7 @@ DimPlot(pbmc_combined, reduction = "umap", group.by = "celltype") +
   scale_color_brewer(palette = "Dark2") +  
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_combined_celltypes.pdf",
+  "outs/control/figures/01_pbmc_balanced_combined_celltypes.pdf",
   width = 6, 
   height = 6
 )
@@ -1299,7 +1307,7 @@ DimPlot(pbmc_combined, reduction = "umap", group.by = "batch") +
   scale_color_brewer(palette = "Set1") + 
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_combined_batch.pdf",
+  "outs/control/figures/01_pbmc_balanced_combined_batch.pdf",
   width = 6,
   height = 6
 )
@@ -1318,7 +1326,7 @@ DimPlot(pbmc_combined_cd14_ablate, reduction = "umap", group.by = "celltype") +
   scale_color_brewer(palette = "Dark2") +  
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_combined_celltypes_cd14_ablate.pdf",
+  "outs/control/figures/01_pbmc_balanced_combined_celltypes_cd14_ablate.pdf",
   width = 6, 
   height = 6
 )
@@ -1331,7 +1339,7 @@ DimPlot(pbmc_combined_cd14_ablate, reduction = "umap", group.by = "batch") +
   scale_color_brewer(palette = "Set1") + 
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_combined_batch_cd14_ablate.pdf",
+  "outs/control/figures/01_pbmc_balanced_combined_batch_cd14_ablate.pdf",
   width = 6,
   height = 6
 )
@@ -1356,7 +1364,7 @@ DimPlot(pbmc_combined_cd14_ds, reduction = "umap", group.by = "celltype") +
   scale_color_brewer(palette = "Dark2") +  
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_combined_celltypes_cd14_10_pct_ds.pdf",
+  "outs/control/figures/01_pbmc_balanced_combined_celltypes_cd14_10_pct_ds.pdf",
   width = 6, 
   height = 6
 )
@@ -1369,7 +1377,7 @@ DimPlot(pbmc_combined_cd14_ds, reduction = "umap", group.by = "batch") +
   scale_color_brewer(palette = "Set1") + 
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_combined_batch_cd14_10_pct_ds.pdf",
+  "outs/control/figures/01_pbmc_balanced_combined_batch_cd14_10_pct_ds.pdf",
   width = 6,
   height = 6
 )
@@ -1511,7 +1519,7 @@ ht3 = Heatmap(
 )
 celltype_ari_hm <- ht1 + ht2 + ht3
 CairoPDF(
-  "outs/control/figures/05_celltype_ari_ds_effects_heatmap_no_liger.pdf",
+  "outs/control/figures/01_celltype_ari_ds_effects_heatmap_no_liger.pdf",
   width = 8, 
   height = 6
 )
@@ -1622,7 +1630,7 @@ ht3 = Heatmap(
 )
 celltype_ari_hm <- ht1 + ht2 + ht3
 CairoPDF(
-  "outs/control/figures/05_celltype_balanced_ari_ds_effects_heatmap_no_liger.pdf",
+  "outs/control/figures/01_celltype_balanced_ari_ds_effects_heatmap_no_liger.pdf",
   width = 8, 
   height = 6
 )
@@ -1730,7 +1738,7 @@ ht3 = Heatmap(
 )
 batch_ari_hm <- ht1 + ht2 + ht3
 CairoPDF(
-  "outs/control/figures/05_batch_ari_ds_effects_heatmap_no_liger.pdf", 
+  "outs/control/figures/01_batch_ari_ds_effects_heatmap_no_liger.pdf", 
   width = 8, 
   height = 6
 )
@@ -1867,7 +1875,7 @@ ht3 = Heatmap(
 )
 celltype_ari_hm <- ht1 + ht2 + ht3
 CairoPDF(
-  "outs/control/figures/05_celltype_ari_unscaled_ds_effects_heatmap_no_liger.pdf",
+  "outs/control/figures/01_celltype_ari_unscaled_ds_effects_heatmap_no_liger.pdf",
   width = 8, 
   height = 6
 )
@@ -1965,7 +1973,7 @@ ht3 = Heatmap(
 )
 batch_ari_hm <- ht1 + ht2 + ht3
 CairoPDF(
-  "outs/control/figures/05_batch_ari_unscaled_ds_effects_heatmap_no_liger.pdf", 
+  "outs/control/figures/01_batch_ari_unscaled_ds_effects_heatmap_no_liger.pdf", 
   width = 8, 
   height = 6
 )
@@ -2066,7 +2074,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/control/figures/05_pbmc_ds_ablate_allmethod_knn_f1_score_no_liger.pdf",
+  "outs/control/figures/01_pbmc_ds_ablate_allmethod_knn_f1_score_no_liger.pdf",
   width = 12,
   height = 14,
   device = cairo_pdf
@@ -2106,7 +2114,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/control/figures/05_pbmc_ds_ablate_allmethod_knn_f1_score_no_liger_0_1_y.pdf",
+  "outs/control/figures/01_pbmc_ds_ablate_allmethod_knn_f1_score_no_liger_0_1_y.pdf",
   width = 12,
   height = 14,
   device = cairo_pdf
@@ -2139,7 +2147,7 @@ colnames(imba_knn_merged_celltype_medians_stdev) <- c(
 )
 fwrite(
   imba_knn_merged_celltype_medians_stdev,
-  "outs/control/results/05_baseline_pbmc_f1_score_stdevs_per_celltype.tsv",
+  "outs/control/results/01_baseline_pbmc_f1_score_stdevs_per_celltype.tsv",
   sep = "\t", 
   row.names = FALSE,
   col.names = TRUE
@@ -2250,7 +2258,7 @@ ggscatter(median_imba_knn_cluster_results_cari,
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14))
 ggsave(
-  "outs/control/figures/05_pbmc_ds_ablate_f1_score_celltype_ari_corr_no_liger.pdf",
+  "outs/control/figures/01_pbmc_ds_ablate_f1_score_celltype_ari_corr_no_liger.pdf",
   width = 14,
   height = 8,
   device = cairo_pdf
@@ -2317,7 +2325,7 @@ ggscatter(median_imba_knn_cluster_results_bari,
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 14)) 
 ggsave(
-  "outs/control/figures/05_pbmc_ds_ablate_f1_score_batch_ari_corr_no_liger.pdf",
+  "outs/control/figures/01_pbmc_ds_ablate_f1_score_batch_ari_corr_no_liger.pdf",
   width = 14,
   height = 8,
   device = cairo_pdf
@@ -2490,7 +2498,7 @@ DimPlot(pbmc_combined, reduction = "umap", group.by = "celltype") +
   scale_color_brewer(palette = "Dark2") +  
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_hierarchical_combined_celltypes.pdf",
+  "outs/control/figures/01_pbmc_balanced_hierarchical_combined_celltypes.pdf",
   width = 6, 
   height = 6
 )
@@ -2503,7 +2511,7 @@ DimPlot(pbmc_combined, reduction = "umap", group.by = "batch") +
   scale_color_brewer(palette = "Set1") + 
   theme(aspect.ratio = 1)
 ggsave(
-  "outs/control/figures/05_pbmc_balanced_hierarchical_combined_batch.pdf",
+  "outs/control/figures/01_pbmc_balanced_hierarchical_combined_batch.pdf",
   width = 6,
   height = 6
 )
@@ -2524,7 +2532,7 @@ DimPlot(pbmc_combined_nkt_ablate, reduction = "umap", group.by = "celltype") +
 ggsave(
   paste0(
     "outs/control/figures/",
-    "05_pbmc_balanced_hierarchical_combined_celltypes_nkt_ablate.pdf"
+    "01_pbmc_balanced_hierarchical_combined_celltypes_nkt_ablate.pdf"
   ),
   width = 6, 
   height = 6
@@ -2540,7 +2548,7 @@ DimPlot(pbmc_combined_nkt_ablate, reduction = "umap", group.by = "batch") +
 ggsave(
   paste0(
     "outs/control/figures/",
-    "05_pbmc_balanced_hierarchical_combined_batch_nkt_ablate.pdf"
+    "01_pbmc_balanced_hierarchical_combined_batch_nkt_ablate.pdf"
   ),
   width = 6,
   height = 6
@@ -2568,7 +2576,7 @@ DimPlot(pbmc_combined_nkt_ds, reduction = "umap", group.by = "celltype") +
 ggsave(
   paste0(
     "outs/control/figures/",
-    "05_pbmc_balanced_hierarchical_combined_celltypes_nkt_10_pct_ds.pdf"
+    "01_pbmc_balanced_hierarchical_combined_celltypes_nkt_10_pct_ds.pdf"
   ),
   width = 6, 
   height = 6
@@ -2584,7 +2592,7 @@ DimPlot(pbmc_combined_nkt_ds, reduction = "umap", group.by = "batch") +
 ggsave(
   paste0(
     "outs/control/figures/",
-    "05_pbmc_balanced_combined_batch_nkt_10_pct_ds.pdf"
+    "01_pbmc_balanced_combined_batch_nkt_10_pct_ds.pdf"
   ),
   width = 6,
   height = 6
@@ -2663,7 +2671,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/control/figures/05_pbmc_hierarchical_ds_ablate_allmethod_knn_f1_score_no_liger_ylim_0.5_1.pdf",
+  "outs/control/figures/01_pbmc_hierarchical_ds_ablate_allmethod_knn_f1_score_no_liger_ylim_0.5_1.pdf",
   width = 8,
   height = 14,
   device = cairo_pdf
@@ -2703,7 +2711,7 @@ ggplot(data = imba_knn_merged_celltype, aes(x = `Method`, y = `F1-score`)) +
   theme(legend.title = element_text(size = 16)) +
   theme(legend.text = element_text(size = 16))
 ggsave(
-  "outs/control/figures/05_pbmc_hierarchical_ds_ablate_allmethod_knn_f1_score_no_liger_y_0_1.pdf",
+  "outs/control/figures/01_pbmc_hierarchical_ds_ablate_allmethod_knn_f1_score_no_liger_y_0_1.pdf",
   width = 8,
   height = 14,
   device = cairo_pdf

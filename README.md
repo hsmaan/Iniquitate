@@ -103,8 +103,8 @@ git clone https://github.com/hsmaan/Iniquitate.git
     - Run the Rscripts based on their order, through RStudio or the commandline 
     ```
     conda activate iniq_analysis
-    Rscript 05_Iniq_Control_Fig_2_Analysis_Plots.R
-    Rscript 06_Iniq_Control_Fig_2_Analysis_Stat_Tests.R
+    Rscript 01_Iniq_Control_Fig_2_Analysis_Plots.R
+    Rscript 02_Iniq_Control_Fig_2_Analysis_Stat_Tests.R
     ...
     ```
 
