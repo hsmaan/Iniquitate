@@ -35,6 +35,7 @@ dependencies:
   - natsort>=7.0.0
   - colorcet>=3.0.0
   - seaborn>=0.11.0
+  - mkl==2024.0 # Pinning due to https://github.com/pytorch/pytorch/issues/123097
 variables:
   TMPDIR: "/tmp" 
   

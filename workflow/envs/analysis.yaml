@@ -52,3 +52,4 @@ dependencies:
   - r-networkd3>=0.4
   - r-emt>=1.2
   - cython>=0.29.25
+  - mkl==2024.0 # Pinning due to https://github.com/pytorch/pytorch/issues/123097
