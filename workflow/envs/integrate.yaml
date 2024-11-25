@@ -21,7 +21,7 @@ dependencies:
   - torchmetrics<=0.6.0 # Issue with torch loading
   - cudatoolkit=10.2
   - scvi-tools=0.14.4
-  - bbknn=1.5.1
+  - bbknn=1.6.0
   - harmonypy=0.0.5
   - scanorama=1.7.1
   - r-base>=4.0.0
