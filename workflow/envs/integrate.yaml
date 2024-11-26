@@ -13,7 +13,7 @@ dependencies:
   - leidenalg>=0.8.0
   - umap-learn>=0.5.0,<=0.5.3
   - mnnpy>=0.1.9.0,<=0.1.9.5
-  - scikit-learn>=1.0.1
+  - scikit-learn=1.0.1
   - scanpy=1.8.2
   - anndata=0.8.0
   - faiss-cpu>=1.7.0,<=1.7.3
@@ -21,7 +21,7 @@ dependencies:
   - torchmetrics<=0.6.0 # Issue with torch loading
   - cudatoolkit=10.2
   - scvi-tools=0.14.4
-  - bbknn=1.6.0
+  - bbknn=1.5.1
   - harmonypy=0.0.5
   - scanorama=1.7.1
   - r-base>=4.0.0
