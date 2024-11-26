@@ -19,7 +19,7 @@ A separate README for the imbalanced integration guidelines, with full environme
 
 ### Reproducing the paper analysis 
 
-Please note that `mamba` and `snakemake` are required to run the pipeline through `conda`. After installing `conda` (https://conda.io/projects/conda/en/latest/user-guide/install/index.html), please add `mamba` (https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) to the base environment, as well as `snakemake` (https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) in base or a new environment:
+Please note that `mamba` and `snakemake` are required to run the pipeline through `conda`. After installing `conda` (https://conda.io/projects/conda/en/latest/user-guide/install/index.html), please add `mamba` (https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html) to the base environment, as well as `snakemake` (https://snakemake.readthedocs.io/en/stable/getting_started/installation.html) in base or a new environment. Please note that the snakemake version has to be restricted due to recent changes breaking the current setup (see code below):
 
 ```
 conda install -n base -c conda-forge mamba

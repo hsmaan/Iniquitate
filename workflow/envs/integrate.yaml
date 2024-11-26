@@ -13,7 +13,7 @@ dependencies:
   - leidenalg>=0.8.0
   - umap-learn>=0.5.0,<=0.5.3
   - mnnpy>=0.1.9.0,<=0.1.9.5
-  - scikit-learn>=1.0.1
+  - scikit-learn=1.0.1
   - scanpy=1.8.2
   - anndata=0.8.0
   - faiss-cpu>=1.7.0,<=1.7.3
@@ -35,6 +35,7 @@ dependencies:
   - natsort>=7.0.0
   - colorcet>=3.0.0
   - seaborn>=0.11.0
+  - mkl==2024.0 # Pinning due to https://github.com/pytorch/pytorch/issues/123097
 variables:
   TMPDIR: "/tmp" 
   
