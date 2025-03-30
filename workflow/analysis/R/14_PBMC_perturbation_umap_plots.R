@@ -72,7 +72,7 @@ if (!dir.exists("outs/umap/results")) {
   dir.create("outs/umap/results", recursive = TRUE)
 }
 if (!dir.exists("outs/umap/figures")) {
-  dir.create("outs/umap/figures")
+  dir.create("outs/umap/figures", recursive = TRUE)
 }
 
 # Create function to loop over the umap files and return the results 

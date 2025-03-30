@@ -195,7 +195,7 @@ fwrite(
   clus_anova_result_dt,
   paste0(
     "outs/control/results/",
-    "08_pbmc_base_clus_num_leiden_aov_results_ctrl_method_celltype_ds.tsv"
+    "04_pbmc_base_clus_num_leiden_aov_results_ctrl_method_celltype_ds.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -296,7 +296,7 @@ fwrite(
   dge_anova_result_dt,
   paste0(
     "outs/control/results/",
-    "08_pbmc_base_dge_rank_aov_results_ctrl_gene_method_celltype_ds.tsv"
+    "04_pbmc_base_dge_rank_aov_results_ctrl_gene_method_celltype_ds.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -363,7 +363,7 @@ fwrite(
   marker_aov_results_concat,
   paste0(
     "outs/control/results/",
-    "08_pbmc_base_dge_specific_rank_aov_results_ctrl_method_celltype_ds.tsv"
+    "04_pbmc_base_dge_specific_rank_aov_results_ctrl_method_celltype_ds.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -476,7 +476,7 @@ fwrite(
   marker_lm_summaries_concat,
   paste0(
     "outs/control/results/",
-    "08_pbmc_base_dge_rank_coeffs_celltype_ds_method_importance_ranks.tsv"
+    "04_pbmc_base_dge_rank_coeffs_celltype_ds_method_importance_ranks.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -556,7 +556,7 @@ fwrite(
   multinomial_results_concat,
   paste0(
     "outs/control/results/",
-    "08_pbmc_base_ds_dge_marker_celltypes_top_ds_celltype_",
+    "04_pbmc_base_ds_dge_marker_celltypes_top_ds_celltype_",
     "coeff_multinom_tests.tsv"
   ),
   sep = "\t",
@@ -777,7 +777,7 @@ fwrite(
   clus_anova_result_dt,
   paste0(
     "outs/control/results/",
-    "08_pbmc_base_clus_num_leiden_aov_results_ctrl_method_celltype_ds_no_liger.tsv"
+    "04_pbmc_base_clus_num_leiden_aov_results_ctrl_method_celltype_ds_no_liger.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -878,7 +878,7 @@ fwrite(
   dge_anova_result_dt,
   paste0(
     "outs/control/results/",
-    "08_pbmc_base_dge_rank_aov_results_ctrl_gene_method_celltype_ds_no_liger.tsv"
+    "04_pbmc_base_dge_rank_aov_results_ctrl_gene_method_celltype_ds_no_liger.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -945,7 +945,7 @@ fwrite(
   marker_aov_results_concat,
   paste0(
     "outs/control/results/",
-    "08_pbmc_base_dge_specific_rank_aov_results_ctrl_method_celltype_ds_no_liger.tsv"
+    "04_pbmc_base_dge_specific_rank_aov_results_ctrl_method_celltype_ds_no_liger.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -1058,7 +1058,7 @@ fwrite(
   marker_lm_summaries_concat,
   paste0(
     "outs/control/results/",
-    "08_pbmc_base_dge_rank_coeffs_celltype_ds_method_importance_ranks_no_liger.tsv"
+    "04_pbmc_base_dge_rank_coeffs_celltype_ds_method_importance_ranks_no_liger.tsv"
   ),
   sep = "\t",
   quote = FALSE,
@@ -1138,7 +1138,7 @@ fwrite(
   multinomial_results_concat,
   paste0(
     "outs/control/results/",
-    "08_pbmc_base_ds_dge_marker_celltypes_top_ds_celltype_",
+    "04_pbmc_base_ds_dge_marker_celltypes_top_ds_celltype_",
     "coeff_multinom_tests_no_liger.tsv"
   ),
   sep = "\t",

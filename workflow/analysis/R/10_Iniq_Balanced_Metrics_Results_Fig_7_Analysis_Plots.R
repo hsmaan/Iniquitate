@@ -118,7 +118,7 @@ p_7a_1 <- ggplot(data = bal_7A_cluster_df, aes(x = x, y = y)) +
   guides(colour = guide_legend(override.aes = list(size=3)))
 p_7a_1
 ggsave(
-  "outs/balanced_metrics/figures/13_7A_trial_class_coordinates.pdf",
+  "outs/balanced_metrics/figures/10_7A_trial_class_coordinates.pdf",
   width = 6,
   height = 6
 )
@@ -146,7 +146,7 @@ p_7a_2 <- ggplot(data = bal_7A_cluster_df, aes(x = x, y = y)) +
   guides(colour = guide_legend(override.aes = list(size=3)))
 p_7a_2
 ggsave(
-  "outs/balanced_metrics/figures/13_7A_trial_cluster_coordinates.pdf",
+  "outs/balanced_metrics/figures/10_7A_trial_cluster_coordinates.pdf",
   width = 6,
   height = 6
 )
@@ -199,7 +199,7 @@ p_7a_3 <- ggplot(
   coord_flip() 
 p_7a_3
 ggsave(
-  "outs/balanced_metrics/figures/13_7A_metrics_barplot.pdf",
+  "outs/balanced_metrics/figures/10_7A_metrics_barplot.pdf",
   width = 8,
   height = 8,
   device = cairo_pdf
@@ -216,7 +216,7 @@ all_7a_plots <- plot_grid(
   ncol = 1
 )
 save_plot(
-  "outs/balanced_metrics/figures/13_7A_all_plots.pdf",
+  "outs/balanced_metrics/figures/10_7A_all_plots.pdf",
   all_7a_plots,
   base_asp = 1,
   base_height = 8,
@@ -248,7 +248,7 @@ p_7b_1 <- ggplot(data = bal_7B_cluster_df, aes(x = x, y = y)) +
   guides(colour = guide_legend(override.aes = list(size=3)))
 p_7b_1
 ggsave(
-  "outs/balanced_metrics/figures/13_7B_trial_class_coordinates.pdf",
+  "outs/balanced_metrics/figures/10_7B_trial_class_coordinates.pdf",
   width = 6,
   height = 6
 )
@@ -276,7 +276,7 @@ p_7b_2 <- ggplot(data = bal_7B_cluster_df, aes(x = x, y = y)) +
   guides(colour = guide_legend(override.aes = list(size=3)))
 p_7b_2
 ggsave(
-  "outs/balanced_metrics/figures/13_7B_trial_cluster_coordinates.pdf",
+  "outs/balanced_metrics/figures/10_7B_trial_cluster_coordinates.pdf",
   width = 6,
   height = 6
 )
@@ -329,7 +329,7 @@ p_7b_3 <- ggplot(
   scale_y_continuous(breaks = scales::pretty_breaks(n = 3), limits = c(0, 1)) 
 p_7b_3
 ggsave(
-  "outs/balanced_metrics/figures/13_7B_metrics_barplot.pdf",
+  "outs/balanced_metrics/figures/10_7B_metrics_barplot.pdf",
   width = 8,
   height = 8,
   device = cairo_pdf
@@ -346,7 +346,7 @@ all_7b_plots <- plot_grid(
   ncol = 1
 )
 save_plot(
-  "outs/balanced_metrics/figures/13_7B_all_plots.pdf",
+  "outs/balanced_metrics/figures/10_7B_all_plots.pdf",
   all_7b_plots,
   base_asp = 1,
   base_height = 8,
@@ -379,7 +379,7 @@ ggplot(data = bal_7C_cluster_df, aes(x = x, y = y)) +
   theme(aspect.ratio = 1) + 
   guides(colour = guide_legend(override.aes = list(size=3)))
 ggsave(
-  "outs/balanced_metrics/figures/13_7C_trial_celltype_coordinates.pdf",
+  "outs/balanced_metrics/figures/10_7C_trial_celltype_coordinates.pdf",
   width = 7,
   height = 7
 )
@@ -406,7 +406,7 @@ ggplot(data = bal_7C_cluster_df, aes(x = x, y = y)) +
   theme(aspect.ratio = 1) + 
   guides(colour = guide_legend(override.aes = list(size=3)))
  ggsave(
-  "outs/balanced_metrics/figures/13_7C_trial_cluster_coordinates.pdf",
+  "outs/balanced_metrics/figures/10_7C_trial_cluster_coordinates.pdf",
   width = 7,
   height = 7
 )
@@ -460,7 +460,7 @@ ggplot(
   theme(legend.text = element_text(size = 16)) +
   theme(aspect.ratio = 1) 
 ggsave(
-  "outs/balanced_metrics/figures/13_7C_metrics_barplot.pdf",
+  "outs/balanced_metrics/figures/10_7C_metrics_barplot.pdf",
   width = 6,
   height = 6,
   device = cairo_pdf
@@ -490,7 +490,7 @@ p_7d_1 <- ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
   guides(colour = guide_legend(override.aes = list(size=3)))
 p_7d_1
 ggsave(
-  "outs/balanced_metrics/figures/13_7D_trial_celltype_coordinates.pdf",
+  "outs/balanced_metrics/figures/10_7D_trial_celltype_coordinates.pdf",
   width = 7,
   height = 7
 )
@@ -517,7 +517,7 @@ p_7d_2 <- ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
   guides(colour = guide_legend(override.aes = list(size=3)))
 p_7d_2
 ggsave(
-  "outs/balanced_metrics/figures/13_7D_trial_batch_coordinates.pdf",
+  "outs/balanced_metrics/figures/10_7D_trial_batch_coordinates.pdf",
   width = 7,
   height = 7
 )
@@ -545,7 +545,7 @@ p_7d_3 <- ggplot(data = bal_7D_cluster_df, aes(x = x, y = y)) +
   guides(colour = guide_legend(override.aes = list(size=3)))
 p_7d_3
 ggsave(
-  "outs/balanced_metrics/figures/13_7D_trial_cluster_coordinates.pdf",
+  "outs/balanced_metrics/figures/10_7D_trial_cluster_coordinates.pdf",
   width = 7,
   height = 7
 )
@@ -603,7 +603,7 @@ p_7d_4 <- ggplot(
 
 p_7d_4
 ggsave(
-  "outs/balanced_metrics/figures/13_7D_metrics_barplot.pdf",
+  "outs/balanced_metrics/figures/10_7D_metrics_barplot.pdf",
   width = 6,
   height = 6,
   device = cairo_pdf
@@ -621,7 +621,7 @@ all_7d_plots <- plot_grid(
   ncol = 4
 )
 save_plot(
-  "outs/balanced_metrics/figures/13_7D_all_plots.pdf",
+  "outs/balanced_metrics/figures/10_7D_all_plots.pdf",
   all_7d_plots,
   base_asp = 1,
   base_height = 4,
@@ -653,7 +653,7 @@ p_7e_1 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
   guides(colour = guide_legend(override.aes = list(size=3))) 
 p_7e_1
 ggsave(
-  "outs/balanced_metrics/figures/13_7E_trial_celltype_coordinates_facet.pdf",
+  "outs/balanced_metrics/figures/10_7E_trial_celltype_coordinates_facet.pdf",
   width = 10,
   height = 8
 )
@@ -681,7 +681,7 @@ p_7e_2 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
   guides(colour = guide_legend(override.aes = list(size=3)))
 p_7e_2
 ggsave(
-  "outs/balanced_metrics/figures/13_7e_trial_batch_coordinates_facet.pdf",
+  "outs/balanced_metrics/figures/10_7e_trial_batch_coordinates_facet.pdf",
   width = 10,
   height = 8
 )
@@ -745,7 +745,7 @@ p_7e_3 <- ggplot(data = bal_7E_cluster_df, aes(x = x, y = y)) +
   guides(colour = guide_legend(override.aes = list(size=3))) 
 p_7e_3
 ggsave(
-  "outs/balanced_metrics/figures/13_7E_trial_cluster_coordinates.pdf",
+  "outs/balanced_metrics/figures/10_7E_trial_cluster_coordinates.pdf",
   width = 10,
   height = 8
 )
@@ -820,7 +820,7 @@ p_7e_4 <- ggplot(
   coord_flip() 
 p_7e_4
 ggsave(
-  "outs/balanced_metrics/figures/13_7E_trial_avg_metric_score_imbal.pdf",
+  "outs/balanced_metrics/figures/10_7E_trial_avg_metric_score_imbal.pdf",
   width = 7,
   height = 7
 )
@@ -863,7 +863,7 @@ p_7e_5 <- ggplot(
   coord_flip() 
 p_7e_5
 ggsave(
-  "outs/balanced_metrics/figures/13_7E_trial_avg_metric_score_bal.pdf",
+  "outs/balanced_metrics/figures/10_7E_trial_avg_metric_score_bal.pdf",
   width = 7,
   height = 7
 )
@@ -883,7 +883,7 @@ p_7e_all <- plot_grid(
 )
 p_7e_all
 save_plot(
-  "outs/balanced_metrics/figures/13_7E_all_plots.pdf",
+  "outs/balanced_metrics/figures/10_7E_all_plots.pdf",
   p_7e_all,
   base_asp = 1,
   base_height = 18,
@@ -923,7 +923,7 @@ ggplot(data = bal_7E_metrics_df_sub, aes(x = Metric, y = Value)) +
   theme(axis.text.y = element_text(size = 16)) +
   coord_flip()
 ggsave(
-  "outs/balanced_metrics/figures/13_7E_trial_bal_imbal_ari_ami_scores.pdf",
+  "outs/balanced_metrics/figures/10_7E_trial_bal_imbal_ari_ami_scores.pdf",
   width = 16,
   height = 7
 )

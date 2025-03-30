@@ -291,7 +291,7 @@ anova_result_dt_batch_celltype_ari_pbmc_2$q_val <- p.adjust(
 # Save the results
 fwrite(
   anova_result_dt_batch_celltype_ari_pbmc_2,
-  "outs/lowcap_modified/results/10B_pbmc_2_bal_imbal_c_b_ari_anova_tests.tsv",
+  "outs/lowcap_modified/results/07_pbmc_2_bal_imbal_c_b_ari_anova_tests.tsv",
   sep = "\t",
   quote = FALSE,
   row.names = FALSE,
@@ -418,7 +418,7 @@ relatedness_anova_results <- mapply(
 relatedness_anova_results_concat <- Reduce(rbind, relatedness_anova_results)
 fwrite(
   relatedness_anova_results_concat,
-  "outs/lowcap_modified/results/10B_all_ds_anova_relatedness_results.tsv",
+  "outs/lowcap_modified/results/07_all_ds_anova_relatedness_results.tsv",
   sep = "\t",
   quote = FALSE,
   row.names = FALSE,
@@ -479,7 +479,7 @@ support_anova_results <- mapply(
 support_anova_results_concat <- Reduce(rbind, support_anova_results)
 fwrite(
   support_anova_results_concat,
-  "outs/lowcap_modified/results/10B_all_ds_anova_support_results.tsv",
+  "outs/lowcap_modified/results/07_all_ds_anova_support_results.tsv",
   sep = "\t",
   quote = FALSE,
   row.names = FALSE,
